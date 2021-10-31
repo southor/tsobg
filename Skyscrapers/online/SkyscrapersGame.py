@@ -12,12 +12,11 @@ import game
 
 class SkyscrapersGame(BaseGame):
 
-	gameStateVars = ["players", "currentPlayer", "deck"]
+	gameStateVars = ["players", "currentPlayer"] # TODO: add "deck"
 
 	def __init__(self):
 		gameRootPath = pathHere.parent
 		super().__init__("Skyscrapers", gameRootPath)
-		deck
 		
 	# --------------- Helper methods ---------------
 		
@@ -62,6 +61,6 @@ class SkyscrapersGame(BaseGame):
 		
 		# test add image
 		#print(self.getURLFor("architect01.png"))
-		uic = ["set_div", {"id":"test_card", "parent":"center", "pos":[100, 35], "img":"game_file/cards/architect01.png"}]
+		uic = ["set_div", {"id":"test_card", "parent":"center", "pos":[100, 35], "img":"game_file/generated_cards/architect01.png"}]
 		self.addUIChange(uic)
 		
