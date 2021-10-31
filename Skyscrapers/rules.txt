@@ -1,0 +1,59 @@
+BOARD:
+Playing board consists of a grid of lots.
+At start of the game lots can be:
+	park, water, parking, building, abandoned
+Lots can be for sale (randomized throughout game).
+Some lots are never for sale (indicated).
+Lots adjecent to each other are considered neighbors (will be max 4 neighbors).
+
+BUILDING:
+Each building resides on a lot.
+Each floor has a type: shop, office, apartment, hotel
+Maybe you can also place "neutral"
+
+ARCHITECT:
+Have the ability for one or more floor types.
+Have a max floor height ability.
+Architect can be used to construct new floors on top of existing building or new from scratch with the "hire architect construct" action.
+You can only select one building for this action.
+Can also be used to renovate floors into a different kind, with "hire architect renovate" action.
+You can only select one building for this action.
+If after your changes there is not enough floors for all tenants you have to expell some until there is.
+
+TENANTS:
+When a tenant moves in it is always in the lowest continuous free floor section where that tenant fits. Tenants never move out.
+To determine which floors are free: look at the building card/board and check number of tenants of a certain type.
+Arrange the tenants into the lowest floors as possible.
+Some tenants has "free renovate" and can convert the wrong type (also neutral) into their type just before moving in. This is optional to perform.
+
+TENANT CRITERIAS:
+Free view / Peek view:
+Each floor can have either free view or obstructed view in all of the 4 different directions.
+Each free view increases the "free view" score by 1 point.
+For a tenant that covers multiple floors (it is always adjecent) all floors must have free view to
+count as free view for each direction. However, if the top floor but not the bottom floor of the tenant section has free view,
+then it's called "peek view". A peek equals to 1/2 "free view" points. The final score is rounded down.
+Beauty:
+A building itself has a beauty score dependent on the "beauty" skill of the architecture that started the building.
+Add to this the number of surroudning parks and water tiles for the total beauty score.
+
+LOTS:
+At start of the game lot cards are drawn randomly.
+Price tags are drawn randomly and placed on the lots. The random prices range from 6 to 10.
+Every round the lots that were not purchased gets discounted to a lower price (for example from 10 to 8). Every round it drops in price.
+At the end of round new lot tiles are placed to reach a certain amount for sale, however this time its not randomized they are all
+given the highest price 10. Notice that park tiles can also be for sale. Building there lowers the beauty points for the neihbors.
+A player can place a bidding token and money on a lot card while doing a normal action.
+
+
+
+
+
+ALTERNATIVE RULES:
+When building floors always build with the neutral floor type.
+Only when a tenant moves in you switch the floor to the appropriate color.
+You don't force a tenant to move into the lowest section possible, instead you can choose
+the floors and indicate it by replacing floors in the building.
+If a tenant moves into the higher floors and creates a gap with uninhabited floors that has one down side:
+now you want to find a tenant or combination of tenants that fits exactly into that gap.
+

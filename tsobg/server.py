@@ -1,0 +1,173 @@
+import secrets
+import flask
+from flask import Flask, render_template, jsonify, send_file
+app = Flask(__name__)
+
+from pathlib import PurePath
+
+app.config['SECRET_KEY'] = '121504121e437d2905d3fe067bfa8e29'
+
+admin_key = '905d3fe067bf'
+# http://127.0.0.1:5000/get_state/905d3fe067bf
+# http://127.0.0.1:5000/modify_turn/905d3fe067bf/1/0
+
+#state_test = [1, 2, 0]
+
+#user_states = {}
+
+game = None
+players = {} # playerName to playerids dict
+nPlayers = 0
+
+def _getPlayerNames():
+	return list(globals()['players'].keys())
+
+def _createPlayer(playerName):
+	global players
+	global game
+	if enoughPlayers():
+		print("Player count already filled up!")
+		return None
+	elif playerName in players:
+		print("player already exists:", playerName)
+		return None
+	else:
+		playerId = secrets.token_hex(4)
+		players[playerName] = playerId
+		print("created player:", playerId, playerName)
+		if enoughPlayers():
+			game.startGame(list(players.values()))
+		return playerId
+
+def enoughPlayers():
+	global players
+	global nPlayers
+	return len(players) >= nPlayers
+
+
+@app.route("/", methods=['GET'])
+def startPage():
+	if enoughPlayers():
+		return renderError("Player count already filled up!")
+	else:
+		return render_template('start.html', gameName=game.name, nPlayers=nPlayers, done=False)
+
+@app.route("/new_player/<playerName>", methods=['GET', 'POST'])
+def createPlayer(playerName):
+	res = _createPlayer(playerName)
+	if res:
+		return jsonify(res)
+	else:
+		flask.abort(404)
+
+'''
+@app.route("/get_turn_info")
+def getTurnInfo():
+	return jsonify({'turnN':turnN, 'stepN':stepN})
+'''
+
+def checkPlayer(playerId, playerName):
+	global players
+	#if (playerId not in playerNames) or (playerName != playerNames[playerId]):
+	if (playerName not in players):
+		return "player does not exist: " + playerName
+	if (playerId != players[playerName]):
+		return "playerName - playerId mismatch: " + playerName + " " + playerId
+	else:
+		return None
+		
+def renderError(msg):
+	print("Error:", msg)
+	return render_template('error.html', gameName=game.name, msg=msg)
+
+@app.route("/game/<playerId>/<playerName>/view", methods=['GET'])
+def gamePage(playerId, playerName):
+	global game
+	global players
+	global nPlayers
+	msg = checkPlayer(playerId, playerName)
+	if msg:
+		return renderError(msg)
+	else:
+		if not enoughPlayers():
+			info = game.name + f": waiting for other players..."
+		else:
+			info = ""
+		return render_template('game.html', gameName=game.name, playerId=playerId, playerName=playerName, info=info)
+
+@app.route("/game/<playerId>/<playerName>/update_client_state/<currentStateN>", methods=['GET'])
+def updateClientState(playerId, playerName, currentStateN):
+	global game
+	return updateClientStateTo(playerId, playerName, int(currentStateN), game.currentStateN)
+
+@app.route("/game/<playerId>/<playerName>/update_client_state/<currentStateN>/<newStateN>", methods=['GET'])
+def updateClientStateTo(playerId, playerName, currentStateN, newStateN):
+	global game
+	currentStateN = int(currentStateN)
+	newStateN = int(newStateN)
+	print("updateClientStateTo: ", playerId, playerName, currentStateN, newStateN)
+	uiChanges = game.getUIChanges(currentStateN, newStateN)
+	return jsonify(uiChanges)
+
+@app.route("/game/<playerId>/<playerName>/client_action/<currentStateN>", methods=['POST'])
+def clientAction(playerId, playerName, currentStateN):
+	global game
+	# TODO: read json data and convert to python data
+	actionObj = flask.request
+	print("client action:", actionObj)
+	allowed = game.clientAction(int(currentStateN), actionObj)
+	return jsonify(allowed)
+
+@app.route("/game/<playerId>/<playerName>/game_file/<path:gameFilePath>", methods=['GET'])
+def gameFile(playerId, playerName, gameFilePath):
+	global game
+	gameFilePath = PurePath(gameFilePath)
+	print("wants to get file:", gameFilePath)
+	if "." in str(gameFilePath.parent):
+		flask.abort(403)
+	filePath = game.getFullPath(gameFilePath)
+	if filePath:
+		if filePath.is_file():
+			print("sending file: ", filePath)
+			return send_file(str(filePath))
+		else:
+			flask.abort(404)
+	else:
+		flask.abort(403)
+
+timeout_script = '''
+	<script type = "text/JavaScript">
+		function AutoRefresh( t ) {
+		   setTimeout("location.reload(true);", t);
+		}
+	</script>
+'''
+body_script = '''
+	<body onload = "JavaScript:AutoRefresh(5000);">
+	  {}
+      <p>This page will refresh every 5 seconds.</p>
+   </body>
+'''
+
+def newGame(game, nPlayers, **kwargs):
+	assert(not game.hasStarted())
+	if 'players' in kwargs:
+		players = kwargs['players']
+		globals()['players'] = players
+	else:
+		players = globals()['players']
+	globals()['nPlayers'] = nPlayers
+	globals()['game'] = game
+	if enoughPlayers():
+		game.startGame(list(players.values()))
+
+def runServer(debug):
+	global players
+	if len(players) > 0:
+		firstPlayer = _getPlayerNames()[0]
+		print("url for first player: http://127.0.0.1:5000/" + "game/" + players[firstPlayer] + "/" + firstPlayer + "/view")
+	app.run(debug=debug, threaded=False, processes=1)
+
+if __name__ == '__main__':
+	#app.run(debug=True)
+	runServer()

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>{{gameName}}</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<!--
+<script type="text/javascript" src="game.js"></script>
+-->
+<script type="text/javascript" src="{{ url_for("static", filename="game_environment.js") }}"></script>
+<script type = "text/JavaScript">
+	
+	var playerId = "{{playerId}}";
+	var playerName = "{{playerName}}";
+	var currentStateN = 0;
+	
+	/*
+	function makeURL(params) {
+		var url = ["game", playerId, playerName].concat(params)
+		// TODO: Add query number at the end to avoid cashing?
+		console.log(url)
+		return url.join('/')
+	}
+	*/
+	
+	// ------------------ request/send functions ------------------
+	
+	function ajaxGet(urlParams, successFunc, errorFunc) {
+		$.ajax({
+			url: urlParams.join('/'),
+			cache: false,
+			type: "GET",
+			dataType: "json", // return data type
+			success: successFunc,
+			error: errorFunc
+		});
+	}
+	
+	function ajaxPost(urlParams, data, successFunc, errorFunc) {
+		$.ajax({
+			url: urlParams.join('/'),
+			cache: false,
+			type: "POST",
+			contentType: "json", // send data type
+			dataType: "json", // return data type
+			data: JSON.stringify(data),
+			success: successFunc,
+			error: errorFunc
+		});
+	}
+	
+	function requestState(newStateN) {
+		var urlParams = ["update_client_state", currentStateN];
+		if (newStateN !== undefined) {
+			urlParams.push(newStateN);
+		}
+		ajaxGet(urlParams, updateState, failedState);
+	}
+	
+	function sendAction(stateN, actionObj) {
+		ajaxPost(["client_action", stateN], actionObj, updateState, failedAction);
+	}
+	
+	// ------------------ callback functions ------------------
+	
+	function unknownDataError(data, context) {
+		console.log("Error! Received unknown data in " + context + ": ", data);
+		alert("Error! Received unknown data in " + context + ", see log.");
+	}
+	
+	function updateState(data) {
+		/*
+		var infoDiv = document.getElementById("info");
+		if (data.info) {
+			infoDiv.innerHTML = data.info;
+		}
+		*/
+		// TODO read and apply new state or incremental updates, whatever is in the data
+	
+		if (data instanceof Array) {
+			data.forEach(function (uData, idx) {
+			    if (uData instanceof Array && uData.length >= 1) {
+					if (uData[0] === "set_div") {
+						setDiv(uData[1].id, uData[1]);
+					} else {
+						unknownDataError(uData, "updateState 3");
+					}
+				} else {
+					unknownDataError(uData, "updateState 2");
+				}
+			});
+		} else {
+			unknownDataError(data, "updateState 1");
+		}
+	}
+	
+	function failedState(err, msg) {
+		console.log(msg);
+	}
+	
+	function failedAction(err, msg) {
+		console.log(msg);
+		alert(msg);
+	}
+	
+</script>
+<body onload="requestState()">
+<div id="info">
+{{info}}
+</div>
+<div id="center">
+</div>
+</body>
+</html>
