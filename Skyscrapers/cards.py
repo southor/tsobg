@@ -37,61 +37,40 @@ def addCardDatas(category, header, rows):
 
 addCardDatas("material",
 	("nCardCopies", "buyPrice", "gain"), [
-		[1, 3, {"steel": 3, "concrete": 3}],
-		[1, 3, {"steel": 8}],
-		[1, 4, {"concrete": 10}],
-		[1, 0, {"steel": 2}],
-		[1, 0, {"concrete": 2}]
+		(1, 3, {"steel": 3, "concrete": 3}),
+		(1, 3, {"steel": 8}),
+		(1, 4, {"concrete": 10}),
+		(1, 0, {"steel": 2}),
+		(1, 0, {"concrete": 2})
 	])
 
 addCardDatas("architect",	
 	("hirePrice", "beauty", "types", "maxHeightSteel", "maxHeightConcrete"), [
-		[2, 0, ["shop","service"], 10, 4],
-		[2, 0, ["office","apartment"], 10, 5],
-		[2, 1, ["apartment","service"], 12, 4],
-		[2, 1, ["office"], 10, 5],
-		[2, 1, ["shop"], 8, 5]
-		])	
+		(2, 0, ["shop","service"], 10, 4),
+		(2, 0, ["office","apartment"], 10, 5),
+		(2, 1, ["apartment","service"], 12, 4),
+		(2, 1, ["office"], 10, 5),
+		(2, 1, ["shop"], 8, 5)
+		])
 		
 addCardDatas("construction",
 	("nCardCopies", "hirePrice", "nFloors"), [
-		[1, 4, 6],
-		[1, 3, 4],
-		[1, 2, 2]
+		(1, 4, 6),
+		(1, 3, 4),
+		(1, 2, 2)
 		])
 
 def tenantCardDatas():
-	'''
-	def sumCriteria(termEntities, value):
-		return iconList(termEntities, " + ") + " >= " + str(value)
-	def buildingsCriteria(n, types, location):
-		return str(n) + " " + floorTypeText(types, "/") + " buildings " + "@icon:" + location + ";"
-	def tenantsCriteria(n, type):
-		return str(n) + " " + colorTextByType(type, type) + " tenants " + "@icon:location_same_building;"
-	def nextToCriteria(n, tileType, location):
-		return str(n) + " " + iconList([tileType, location], " ")
 	return ("tenant", ("name", "nFloors", "type", "rent", "criterias"), [
-				["Catz Mobile Games", 4, "office", 8, [sumCriteria(["beauty","free_view"], 4), buildingsCriteria(3, "office", "location_nearby")]],
-				["No Fluke Insurances ", 2, "office", 4, [buildingsCriteria(3, "office", "location_nearby")]],
-				["\"Grounded\" Music Studio ", 1, "office", 2, []],
-				["Dedication Apartment Gym ", 1, "service", 3, [tenantsCriteria(3, "apartment")]],
-				["Doctors Office ", 1, "service", 4, ["below floor 5", buildingsCriteria(5, ["office", "apartment"], "location_nearby")]],
-				["Bernie Burgers ", 1, "service", 3, ["below floor 3", buildingsCriteria(3, ["office", "apartment"], "location_nearby")]],
-				["Corner Groceries ", 1, "shop", 2, ["bottom floor", buildingsCriteria(3, "apartment", "location_next_to_including")]],
-				["Olsen Department Store ", 2, "shop", 3, ["below floor 4", nextToCriteria(1, "parking", "location_next_to")]],
-				["Great View Hotel ", 2, "service", 5, ["above floor 7", sumCriteria("free_view", 4)]]
-			])
-	'''
-	return ("tenant", ("name", "nFloors", "type", "rent", "criterias"), [
-				["Catz Mobile Games", 4, "office", 8, [["entitySum>=", ["beauty","free_view"], 4], ["proximityBuildings", 3, "office", "location_nearby"]]],
-				["No Fluke Insurances ", 2, "office", 4, [["proximityBuildings", 3, "office", "location_nearby"]]],
-				["\"Grounded\" Music Studio ", 1, "office", 2, [["groundFloor"]]],
-				["Dedication Apartment Gym ", 1, "service", 3, [["nTenants", 3, "apartment"]]],
-				["Doctors Office ", 1, "service", 4, [["belowFloor", 5], ["proximityBuildings", 5, ["office", "apartment"], "location_nearby"]]],
-				["Bernie Burgers ", 1, "service", 3, [["belowFloor", 3], ["proximityBuildings", 3, ["office", "apartment"], "location_nearby"]]],
-				["Corner Groceries ", 1, "shop", 2, [["groundFloor"], ["proximityBuildings", 3, "apartment", "location_next_to_including"]]],
-				["Olsen Department Store ", 2, "shop", 3, [["belowFloor", 4], ["proximityLots", 1, "parking", "location_next_to"]]],
-				["Great View Hotel ", 2, "service", 5, [["aboveFloor", 7], ["entitySum>=", "free_view", 4]]]
+				("Catz Mobile Games", 4, "office", 8, [("entitySum>=", ["beauty","free_view"], 4), ("proximityBuildings", 3, "office", "location_nearby")]),
+				("No Fluke Insurances ", 2, "office", 4, [("proximityBuildings", 3, "office", "location_nearby")]),
+				("\"Grounded\" Music Studio ", 1, "office", 2, [("groundFloor",)]),
+				("Dedication Apartment Gym ", 1, "service", 3, [("nTenants", 3, "apartment")]),
+				("Doctors Office ", 1, "service", 4, [("belowFloor", 5), ("proximityBuildings", 5, ["office", "apartment"], "location_nearby")]),
+				("Bernie Burgers ", 1, "service", 3, [("belowFloor", 3), ("proximityBuildings", 3, ["office", "apartment"], "location_nearby")]),
+				("Corner Groceries ", 1, "shop", 2, [("groundFloor",), ("proximityBuildings", 3, "apartment", "location_next_to_including")]),
+				("Olsen Department Store ", 2, "shop", 3, [("belowFloor", 4), ("proximityLots", 1, "parking", "location_next_to")]),
+				("Great View Hotel ", 2, "service", 5, [("aboveFloor", 7), ("entitySum>=", "free_view", 4)])
 			])
 
 addCardDatas(*tenantCardDatas())
@@ -99,35 +78,35 @@ addCardDatas(*tenantCardDatas())
 
 addCardDatas("loan",
 	("nCardCopies", "amount", "interests"), [
-		[1, 10, [0, 1, 1, 2, 3, 5, 7]],
-		[1, 10, [0, 0, 1, 2, 2, 4, 6]],
-		[1, 8,  [0, 1, 1, 2, 3, 4, 7]],
-		[1, 8,  [0, 0, 1, 2, 2, 4, 7]]
+		(1, 10, [0, 1, 1, 2, 3, 5, 7]),
+		(1, 10, [0, 0, 1, 2, 2, 4, 6]),
+		(1, 8,  [0, 1, 1, 2, 3, 4, 7]),
+		(1, 8,  [0, 0, 1, 2, 2, 4, 7])
 		])
 
 addCardDatas("lot",
 	("district", "lotNum"), [
-		["A", 1],
-		["B", 3]
+		("A", 1),
+		("B", 3)
 		])
 
 addCardDatas("production",
 	("title", "buyPrice", "gain", "production"), [
-		["steel mill", 9, {"steel": 2}, {"steel": 2}],
-		["concrete factory", 8, {}, {"concrete": 4}]
+		("steel mill", 9, {"steel": 2}, {"steel": 2}),
+		("concrete factory", 8, {}, {"concrete": 4})
 		])
 
 addCardDatas("upgrade",	
 	("title", "buyPrice", "effects"), [
-		["Material Engineer", 3, [ 
+		("Material Engineer", 3, [ 
 			"-1 @icon:steel; when building >= 3 floors",
-			"-2 @icon:steel; when building >= 5 floors"]],
-		["Material Engineer", 3, [
+			"-2 @icon:steel; when building >= 5 floors"]),
+		("Material Engineer", 3, [
 				"-1 @icon:steel; when building >= 4 floors",
-				"-2 @icon:steel; when building >= 6 floors"]],
-		["Strength Engineer", 4, ["+2 max building height"]],
-		["Strength Engineer", 6, ["+4 max building height"]],
-		["Talented Broker", 6, ["Ignore one criteria when taking a tenant"]]
+				"-2 @icon:steel; when building >= 6 floors"]),
+		("Strength Engineer", 4, ["+2 max building height"]),
+		("Strength Engineer", 6, ["+4 max building height"]),
+		("Talented Broker", 6, ["Ignore one criteria when taking a tenant"])
 		])
 	
 		
