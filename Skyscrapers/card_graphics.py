@@ -1,6 +1,7 @@
 from PIL import Image, ImageFont, ImageDraw
-
 import os
+
+import cards
 
 
 fonts = {
@@ -250,19 +251,19 @@ def resourcesText(rDict):
 		resourceStr = str(rDict[entity]) + " @icon:" + entity + ";"
 		resourceList.append(resourceStr)
 	return "  ".join(resourceList)
-
-def iconList(entities, delimiter):
-	if isinstance(entities, str):
-		entities = [entities]
-	icons = ["@icon:" + e + ";" for e in entities]
-	return delimiter.join(icons)
 	
 def colorTextByType(text, type):
 	return "@color:" + colorToHexStr(typeColors[type]) + ";" + text + "@color:previous;"
 	
 def colorTextByCredibility(text, credibility):
 	return "@color:" + colorToHexStr(credibilityColors[credibility]) + ";" + text + "@color:previous;"
-	
+
+def iconList(entities, delimiter):
+	if isinstance(entities, str):
+		entities = [entities]
+	icons = ["@icon:" + e + ";" for e in entities]
+	return delimiter.join(icons)
+
 def floorTypeText(floorTypes, delimiter):
 	if isinstance(floorTypes, str):
 		floorTypes = [floorTypes]
@@ -270,6 +271,19 @@ def floorTypeText(floorTypes, delimiter):
 	typesWithColors = [colorTextByType(type, type)
 							for type in floorTypes]
 	return delimiter.join(typesWithColors)
+	
+def tenantCriteriaText(tenantCriteria):
+	textLambdas = {
+		"aboveFloor" : lambda floorN: "above floor " + str(floorN),
+		"belowFloor" : lambda floorN: "below floor " + str(floorN),
+		"groundFloor" : lambda : "ground floor",
+		"proximityBuildings" : lambda n,types,location: str(n) + " " + floorTypeText(types, "/") + " buildings " + "@icon:" + location + ";",
+		"proximityLots" : lambda n,lotType,location: str(n) + " " + iconList([lotType, location], " "),
+		"nTenants" : lambda n,type: str(n) + " " + colorTextByType(type, type) + " tenants " + "@icon:location_same_building;",
+		"entitySum>=" : lambda termEntities,value: iconList(termEntities, " + ") + " >= " + str(value)
+	}
+	criteriaType,criteriaArgs = cards.unpackTenantCriteria(tenantCriteria)
+	return textLambdas[criteriaType](*criteriaArgs)
 
 def drawCardBorder(draw, color, w, h, border):
     d = border/2 # draw in center of border
@@ -348,10 +362,8 @@ def makeCardBack(imgPath):
 
 # buyPrice: the cost in money
 # gain: instant gain as dict with type and amount
-def makeMaterialCard(buyPrice, gain, **kwargs):
-	gainText = resourcesText(gain)
-	if buyPrice > 0:
-		kwargs["buyPrice"] = buyPrice
+def makeMaterialCard(**kwargs):
+	gainText = resourcesText(kwargs.pop("gain"))
 	return makeCardFront("Materials", gainText, (), "textFontL", **kwargs)
 	
 # hirePrice: the hire cost in money
@@ -359,9 +371,11 @@ def makeMaterialCard(buyPrice, gain, **kwargs):
 # types: list of floor type that the architect can create
 # maxHeightSteel: max building height the architect can reach for a steel building
 # maxHeightConcrete: max building height the architect can reach for a concrete building
-def makeArchitectCard(hirePrice, beauty, types, maxHeightSteel, maxHeightConcrete, **kwargs):
-	if hirePrice > 0:
-		kwargs["hirePrice"] = hirePrice
+def makeArchitectCard(**kwargs):
+	beauty = kwargs.pop("beauty", 0)
+	types = kwargs.pop("types")
+	maxHeightSteel = kwargs.pop("maxHeightSteel", 0)
+	maxHeightConcrete = kwargs.pop("maxHeightConcrete", 0)
 	text = floorTypeText(types, " / ") + "@newline:1.5;"
 	#text = "@color:4444FF;" + ", ".join(types) + "@color:000000;\n"
 	text += ("max building height:\n" +
@@ -373,28 +387,32 @@ def makeArchitectCard(hirePrice, beauty, types, maxHeightSteel, maxHeightConcret
 
 # cost: the hire cost in money
 # nFloors: max number of floors it can add to a building
-def makeConstructionCard(hirePrice, nFloors, **kwargs):
+def makeConstructionCard(**kwargs):
+	nFloors = kwargs.pop("nFloors")
 	nFloorsText = "+ " + resourcesText({"floor":nFloors})
-	if hirePrice > 0:
-		kwargs["hirePrice"] = hirePrice
 	return makeCardFront("Construction Firm", nFloorsText, (), "textFontL", **kwargs)
 
 # tenant ready to move in
-def makeTenantCard(name, nFloors, type, rent, criterias = [], **kwargs):
+def makeTenantCard(**kwargs):
+	name = kwargs.pop("name")
+	nFloors = kwargs.pop("nFloors")
+	type = kwargs.pop("type")
+	criterias = kwargs.pop("criterias", [])
 	text = "@newline:0.2;"
 	text += colorTextByType(name, type) + "@newline:1.5;"
 	text += resourcesText({"floor":nFloors}) + "@newline:1.2;"
 	if criterias:
 		text += "Criterias:\n"
 	for criteria in criterias:
-		text += " " + criteria + "\n"
-	if rent:
-		kwargs["rent"] = rent
+		#text += " " + criteria + "\n"
+		text += " " + tenantCriteriaText(criteria) + "\n"
 	return makeCardFront("Tenant", text, ("top","left"), "textFontS", **kwargs)
 
 # amount: amount of money
 # interests: list of interests where each index corresponds to a credibility score
-def makeLoanCard(amount, interests, **kwargs):
+def makeLoanCard(**kwargs):
+	amount = kwargs.pop("amount")
+	interests = kwargs.pop("interests")
 	text = resourcesText({"money": amount}) + "\n"
 	if interests:
 		text += "Interest:\n"
@@ -405,16 +423,19 @@ def makeLoanCard(amount, interests, **kwargs):
 	return makeCardFront("Loan", text, ("top", "left",), "textFontS", **kwargs)
 	
 # card for a lot (place on board for sale)
-def makeLotCard(district, lotNum, **kwargs):
+def makeLotCard(**kwargs):
+	district = kwargs.pop("district")
+	lotNum = kwargs.pop("lotNum")
 	text = district + " " + str(lotNum)
 	return makeCardFront("Lot for sale", text, ("top",), "textFontL", **kwargs)
 	
 # buyPrice: the purchase cost in money
 # gain: instant gain as dict with type and amount
 # production: produces at income phase as dict with type and amount
-def makeProductionCard(title, buyPrice, gain, production, **kwargs):
-	if buyPrice > 0:
-		kwargs["buyPrice"] = buyPrice
+def makeProductionCard(**kwargs):
+	title = kwargs.pop("title")
+	gain = kwargs.pop("gain", {})
+	production = kwargs.pop("production", {})
 	text = ""
 	if gain:
 		text += resourcesText(gain) + "@newline:1.5;"
@@ -424,9 +445,9 @@ def makeProductionCard(title, buyPrice, gain, production, **kwargs):
 	
 # buyPrice: the purchase cost in money
 # effects: each effect as a string
-def makeUpgradeCard(title, buyPrice, *effects, **kwargs):
-	if buyPrice > 0:
-		kwargs["buyPrice"] = buyPrice
+def makeUpgradeCard(**kwargs):
+	title = kwargs.pop("title")
+	effects = kwargs.pop("effects", [])
 	text = ""
 	if effects:
 		text += "Effects:\n"
@@ -447,117 +468,28 @@ cardMakeFunctions = {
 	"production": makeProductionCard,
 	"upgrade": makeUpgradeCard
 	}
-
-def makeManyCards(category, cardDatas):
-	makeCard = cardMakeFunctions[category]
-	for i,data in enumerate(cardDatas):
-		if isinstance(data, tuple):
-			if len(data) == 2:
-				nCardCopies = data[0] # for now ignore (needs to be used later to arrange for printing)
-				cardArgs = data[1]
-			else:
-				raise ValueError("Expecting tuple to be of length 2, instead it's " + len(data))
-		elif isinstance(data, list):
-			nCardCopies = 1
-			cardArgs = data
+	
+def makeManyCards(cardDatas):
+	categoryCounters = {}
+	def getPostfixNum(category):
+		if category in categoryCounters:
+			categoryCounters[category] += 1
 		else:
-			raise ValueError("Expecting card data to be either tuple or list, but it's " + type(data))
-		filename = cardOutputFolder + "/" + category + "{:02d}.png".format(i+1)
-		debugFilename = cardDebugOutputFolder + "/" + category + "{:02d}.png".format(i+1)
-		makeCard(*cardArgs).save(filename)
-		makeCard(*cardArgs, debugSections=True).save(debugFilename)
-
-def makeMaterialCards():
-	makeManyCards("material", [
-		(1, [3, {"steel": 3, "concrete": 3}]),
-		(1, [3, {"steel": 8}]),
-		(1, [4, {"concrete": 10}]),
-		(1, [0, {"steel": 2}]),
-		(1, [0, {"concrete": 2}]),
-		])
-
-def makeArchitectCards():
-	# card args: cost, beauty, types, maxHeightSteel, maxHeightConcrete
-	makeManyCards("architect", [
-		[2, 0, ["shop","service"], 10, 4],
-		[2, 0, ["office","apartment"], 10, 5],
-		[2, 1, ["apartment","service"], 12, 4],
-		[2, 1, ["office"], 10, 5],
-		[2, 1, ["shop"], 8, 5]
-		])
+			categoryCounters[category] = 1
+		return categoryCounters[category]
+	for cardData in cardDatas:
+		# unpack data
+		category,nCardCopies,kwargs = cardData
+		# make card
+		makeCard = cardMakeFunctions[category]
+		n = getPostfixNum(category)
+		filename = cardOutputFolder + "/" + category + "{:02d}.png".format(n)
+		debugFilename = cardDebugOutputFolder + "/" + category + "{:02d}.png".format(n)
+		makeCard(**kwargs).save(filename)
+		makeCard(**kwargs, debugSections=True).save(debugFilename)
 	
-def makeConstructionCards():
-	makeManyCards("construction", [
-		(1, [4, 6]),
-		(1, [3, 4]),
-		(1, [2, 2])
-		])
-		
-def makeTenantCards():
-	def sumCriteria(termEntities, value):
-		return iconList(termEntities, " + ") + " >= " + str(value)
-	def buildingsCriteria(n, types, location):
-		return str(n) + " " + floorTypeText(types, "/") + " buildings " + "@icon:" + location + ";"
-	def tenantsCriteria(n, type):
-		return str(n) + " " + colorTextByType(type, type) + " tenants " + "@icon:location_same_building;"
-	def nextToCriteria(n, tileType, location):
-		return str(n) + " " + iconList([tileType, location], " ")
-	tenants = [
-		["Catz Mobile Games", 4, "office", 8, [sumCriteria(["beauty","free_view"], 4), buildingsCriteria(3, "office", "location_nearby")]],
-		["No Fluke Insurances ", 2, "office", 4, [buildingsCriteria(3, "office", "location_nearby")]],
-		["\"Grounded\" Music Studio ", 1, "office", 2, []],
-		["Dedication Apartment Gym ", 1, "service", 3, [tenantsCriteria(3, "apartment")]],
-		["Doctors Office ", 1, "service", 4, ["below floor 5", buildingsCriteria(5, ["office", "apartment"], "location_nearby")]],
-		["Bernie Burgers ", 1, "service", 3, ["below floor 3", buildingsCriteria(3, ["office", "apartment"], "location_nearby")]],
-		["Corner Groceries ", 1, "shop", 2, ["bottom floor", buildingsCriteria(3, "apartment", "location_next_to_including")]],
-		["Olsen Department Store ", 2, "shop", 3, ["below floor 4", nextToCriteria(1, "parking", "location_next_to")]],
-		["Great View Hotel ", 2, "service", 5, ["above floor 7", sumCriteria("free_view", 4)]]
-	]
-	makeManyCards("tenant", tenants)
-	
-def makeLoanCards():
-	makeManyCards("loan", [
-		(1, [10, [0, 1, 1, 2, 3, 5, 7]]),
-		(1, [10, [0, 0, 1, 2, 2, 4, 6]]),
-		(1, [8, [0, 1, 1, 2, 3, 4, 7]]),
-		(1, [8, [0, 0, 1, 2, 2, 4, 7]])
-		])
-
-def makeLotCards():
-	# 6 districts? A-F
-	# 9 tiles per district?
-	makeManyCards("lot", [
-		["A", 1],
-		["B", 3]
-		])
-	
-def makeProductionCards():
-	makeManyCards("production", [
-		["steel mill", 9, {"steel": 2}, {"steel": 2}],
-		["concrete factory", 8, {}, {"concrete": 4}]
-		])
-	
-def makeUpgradeCards():
-	makeManyCards("upgrade", [
-		["Material Engineer", 3,
-			"-1 @icon:steel; when building >= 3 floors",
-			"-2 @icon:steel; when building >= 3 floors"],
-		["Material Engineer", 3,
-				"-1 @icon:steel; when building >= 4 floors",
-				"-2 @icon:steel; when building >= 6 floors"],
-		["Strength Engineer", 4, "+2 max building height"],
-		["Strength Engineer", 6, "+4 max building height"],
-		["Talented Broker", 6, "Ignore one criteria when taking a tenant"]
-			])
 	
 if __name__ == "__main__":
-	makeMaterialCards()
-	makeArchitectCards()
-	makeConstructionCards()
-	makeTenantCards()
-	makeLoanCards()
-	makeLotCards()
-	makeProductionCards()
-	makeUpgradeCards()
+	makeManyCards(cards.cardDatas)
 	
 	
