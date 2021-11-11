@@ -10,9 +10,11 @@ cardDatas = []
 
 # TODO: tenantCriteria should be a class?
 
-def unpackTenantCriteria(tenantCriteria: list):
-	return (tenantCriteria[0], tenantCriteria[1:])
+def unpackCriteria(criteria: tuple):
+	return (criteria[0], criteria[1:])
 	
+def unpackEffect(effect: tuple):
+	return (effect[0], effect[1:])
 
 	
 	
@@ -98,15 +100,11 @@ addCardDatas("production",
 
 addCardDatas("upgrade",	
 	("title", "buyPrice", "effects"), [
-		("Material Engineer", 3, [ 
-			"-1 @icon:steel; when building >= 3 floors",
-			"-2 @icon:steel; when building >= 5 floors"]),
-		("Material Engineer", 3, [
-				"-1 @icon:steel; when building >= 4 floors",
-				"-2 @icon:steel; when building >= 6 floors"]),
-		("Strength Engineer", 4, ["+2 max building height"]),
-		("Strength Engineer", 6, ["+4 max building height"]),
-		("Talented Broker", 6, ["Ignore one criteria when taking a tenant"])
+		("Material Engineer", 3, [("materialDiscount", "steel", [(3, -1), (5, -2)])]), 
+		("Material Engineer", 3, [("materialDiscount", "steel", [(4, -1), (6, -2)])]),
+		("Strength Engineer", 4, [("increaseMaxHeight", 2)]),
+		("Strength Engineer", 6, [("increaseMaxHeight", 4)]),
+		("Talented Broker", 6, [("ignoreTenantCriteria", 1)])
 		])
 	
 		

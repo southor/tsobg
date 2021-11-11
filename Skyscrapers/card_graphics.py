@@ -83,6 +83,21 @@ def parseHexColor(hexColor):
 
 def colorToHexStr(color):
 	return "".join(["{:02x}".format(val) for val in color])
+	
+# can only deal with positive numbers
+def writtenNumber(n: int):
+	if n < 0:
+		raise ValueError("Number < 0: " + str(n))
+	if n == 0:
+		return "zero"
+	elif n == 1:
+		return "one"
+	elif n == 2:
+		return "two"
+	elif n == 3:
+		return "three"
+	else:
+		return str(n)
 
 def parseText(text):
 	def parseNewlineText(text):
@@ -282,8 +297,22 @@ def tenantCriteriaText(tenantCriteria):
 		"nTenants" : lambda n,type: str(n) + " " + colorTextByType(type, type) + " tenants " + "@icon:location_same_building;",
 		"entitySum>=" : lambda termEntities,value: iconList(termEntities, " + ") + " >= " + str(value)
 	}
-	criteriaType,criteriaArgs = cards.unpackTenantCriteria(tenantCriteria)
+	criteriaType,criteriaArgs = cards.unpackCriteria(tenantCriteria)
 	return textLambdas[criteriaType](*criteriaArgs)
+	
+def upgradeEffectText(effect):
+	def discountText(material, nFloorsCondition, discountAmount):
+		return str(discountAmount) + " @icon:" + material + "; when building >= " + str(nFloorsCondition) + " floors"
+	def discountTextMulti(material, floorsDiscounts):
+		discountTextLines = ["  " + discountText(material, nFloorsCondition, discountAmount) for nFloorsCondition,discountAmount in floorsDiscounts]
+		return "material discount:\n" + "\n".join(discountTextLines)
+	textLambdas = {
+		"materialDiscount" : discountTextMulti,
+		"increaseMaxHeight" : lambda nFloors: "+" + str(nFloors) + " max building height",
+		"ignoreTenantCriteria" : lambda n: "Ignore " + writtenNumber(n) + " criteria when\npicking a tenant"
+	}
+	effectType,effectArgs = cards.unpackEffect(effect)
+	return textLambdas[effectType](*effectArgs)
 
 def drawCardBorder(draw, color, w, h, border):
     d = border/2 # draw in center of border
@@ -449,10 +478,9 @@ def makeUpgradeCard(**kwargs):
 	title = kwargs.pop("title")
 	effects = kwargs.pop("effects", [])
 	text = ""
-	if effects:
-		text += "Effects:\n"
 	for effect in effects:
-		text += "    " + effect + "\n"
+		# TODO, italic style?
+		text += upgradeEffectText(effect) + "\n"
 	return makeCardFront(title, text, ("top",), "textFontS", **kwargs)
 
 	
