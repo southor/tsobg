@@ -21,8 +21,11 @@ function setDiv(id, opts) {
 		div = document.createElement("div");
 		div.setAttribute('id', id);
 		div.style.position = "absolute";
-		div.style.border = "solid #FF0000";
-		div.style.borderWidth = "thin";
+		div.style.backgroundColor = "transparent";
+		//div.style.border = "solid #707070";
+		//div.style.padding = "0px";
+		//div.style.margin = "0px";
+		//console.log("padding: ", div.style.padding);
 	}
 	if (opts.parent) {
 		if (div.parentNode) {
@@ -55,6 +58,13 @@ function setDiv(id, opts) {
 		}
 		console.log("set div img src ", opts.img);
 		img.setAttribute('src', opts.img);
+	}
+	if (opts.border) {
+		div.style.border = opts.border;
+		div.style.borderWidth = "thin";
+	}
+	if (opts.color) {
+		div.style.backgroundColor = opts.color;
 	}
 }
 

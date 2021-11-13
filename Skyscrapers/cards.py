@@ -1,18 +1,25 @@
-
+import random
 
 # TODO: rename to card_datas.py and create also card_logics.py ?
 
 # TODO: For the "upgrade" cards maybe we should add a dedicated data structure for effects. Effects can take arguments.
 #       For example +2 max building height (The number is an argument)
 
-# Each cardData is [category: string, nCardCopies: num, kwargs: dict]
+# Each cardData is [category: string, nCardCopies: int, kwargs: dict]
+# card id is equal to the index in this list
 cardDatas = []
 
 # TODO: tenantCriteria should be a class?
 
+# returns category,nCardCopies,kwargs
+def unpackCardData(cardData: tuple):
+	return cardData
+
+# returns criteriaType,criteriaArgs
 def unpackCriteria(criteria: tuple):
 	return (criteria[0], criteria[1:])
 	
+# returns effectType,effectArgs
 def unpackEffect(effect: tuple):
 	return (effect[0], effect[1:])
 
@@ -72,7 +79,7 @@ def tenantCardDatas():
 				("Bernie Burgers ", 1, "service", 3, [("belowFloor", 3), ("proximityBuildings", 3, ["office", "apartment"], "location_nearby")]),
 				("Corner Groceries ", 1, "shop", 2, [("groundFloor",), ("proximityBuildings", 3, "apartment", "location_next_to_including")]),
 				("Olsen Department Store ", 2, "shop", 3, [("belowFloor", 4), ("proximityLots", 1, "parking", "location_next_to")]),
-				("Great View Hotel ", 2, "service", 5, [("aboveFloor", 7), ("entitySum>=", "free_view", 4)])
+				("Great View Hotel ", 2, "service", 5, [("aboveFloor", 7), ("entitySum>=", ["free_view"], 4)])
 			])
 
 addCardDatas(*tenantCardDatas())
@@ -105,6 +112,13 @@ addCardDatas("upgrade",
 		("Strength Engineer", 4, [("increaseMaxHeight", 2)]),
 		("Strength Engineer", 6, [("increaseMaxHeight", 4)]),
 		("Talented Broker", 6, [("ignoreTenantCriteria", 1)])
-		])
+		])	
 	
+def makeDeck():
+	deck = []
+	for i,cardData in enumerate(cardDatas):
+		category,nCardCopies,kwargs = unpackCardData(cardData)
+		deck += [i] * nCardCopies
+	random.shuffle(deck)
+	return deck
 		

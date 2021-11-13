@@ -187,3 +187,7 @@ class BaseGame:
 		self.uiRegression[currentStateN + 1].insert(0, uiChangeReverse(self.currentUIState, uiChange)) # record the reverse uiChange
 		applyUIChange(self.currentUIState, uiChange) # apply uiChange
 		
+	def addUIChanges(self, uiChanges: list):
+		for uic in uiChanges:
+			self.addUIChange(uic)
+		

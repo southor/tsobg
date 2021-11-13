@@ -1,5 +1,8 @@
 from PIL import Image, ImageFont, ImageDraw
 import os
+from pathlib import Path
+
+pathHere = Path(__file__).absolute().parent
 
 import cards
 
@@ -22,11 +25,17 @@ cardDebugOutputFolder = "generated_cards_debug"
 
 
 icons = {}
-iconsFolder = "icons"
-iconFiles = [f for f in os.listdir(iconsFolder) if os.path.isfile(os.path.join(iconsFolder, f))]
-for filename in iconFiles:
-	iconName = os.path.splitext(filename)[0]
-	icons[iconName] = Image.open(os.path.join(iconsFolder, filename), 'r')
+iconsFolder = pathHere / "icons"
+#iconFiles = [f for f in os.listdir(iconsFolder) if os.path.isfile(os.path.join(iconsFolder, f))]
+iconFiles = [f for f in iconsFolder.iterdir() if (iconsFolder / f).is_file()]
+for filePath in iconFiles:
+	#print(filename)
+	#filename = str(filename)
+	#iconName = os.path.splitext(filename)[0]
+	iconName = filePath.stem
+	#print(iconName)
+	#icons[iconName] = Image.open(os.path.join(iconsFolder, filename), 'r')
+	icons[iconName] = Image.open(filePath, 'r')
 
 typeColors = {
 	"shop" : (200, 0, 0),
@@ -43,6 +52,8 @@ credibilityColors = [(56, 94, 15), (110, 139, 61), (150, 185, 72), (255, 193, 37
 cardWidth = 180
 cardHeight = 180
 cardBorder = 6
+
+cardSize = [cardWidth, cardHeight]
 
 titleSection = (15, 10, 165, 35)
 textSection = (15, 40, 165, 145)
@@ -316,7 +327,7 @@ def upgradeEffectText(effect):
 
 def drawCardBorder(draw, color, w, h, border):
     d = border/2 # draw in center of border
-    shape = [(d, d), (w-d, d), (w-d, h-d), (d, h-d), (d, d)]
+    shape = [(d, d), (w-d-1, d), (w-d-1, h-d-1), (d, h-d-1), (d, d)]
     draw.line(shape, fill=color, width=0)
 	
 def drawRect(draw, color, rect):
@@ -507,7 +518,7 @@ def makeManyCards(cardDatas):
 		return categoryCounters[category]
 	for cardData in cardDatas:
 		# unpack data
-		category,nCardCopies,kwargs = cardData
+		category,nCardCopies,kwargs = cards.unpackCardData(cardData)
 		# make card
 		makeCard = cardMakeFunctions[category]
 		n = getPostfixNum(category)

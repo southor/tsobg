@@ -3,20 +3,29 @@ from pathlib import Path
 import random
 
 pathHere = Path(__file__).absolute().parent
+
+# import tsobg BaseGame
 sys.path.append(str(pathHere.parent.parent))
 from tsobg import BaseGame
 
-import game
+# import SkyScrapers cards
+sys.path.append(str(pathHere.parent))
+import cards
+import card_graphics
+
+#import game
 
 
 
 class SkyscrapersGame(BaseGame):
 
-	gameStateVars = ["players", "currentPlayer"] # TODO: add "deck"
+	gameStateVars = ["players", "currentPlayer", "deck"]
 
 	def __init__(self):
 		gameRootPath = pathHere.parent
 		super().__init__("Skyscrapers", gameRootPath)
+		self.deck = cards.makeDeck()
+		#print(self.deck)
 		
 	# --------------- Helper methods ---------------
 		
@@ -59,8 +68,37 @@ class SkyscrapersGame(BaseGame):
 		
 		# TODO initiate all UI stuff here by calling BaseClass's self.addUIChange(uiChange)
 		
+		uic = ["set_div", {"id":"deck_outline1",
+							"parent":"center",
+							"pos":[70, 65],
+							"size": card_graphics.cardSize,
+							"color": "white",
+							"border": "solid #A0A0A0"}]
+		self.addUIChange(uic)
+		
+		uic = ["set_div", {"id":"deck_outline2",
+							"parent":"deck_outline1",
+							"pos":[10, -10],
+							"size": card_graphics.cardSize,
+							"color": "white",
+							"border": "solid #A0A0A0"}]
+		self.addUIChange(uic)
+		
+		uic = ["set_div", {"id":"deck_outline3",
+							"parent":"deck_outline2",
+							"pos":[10, -10],
+							"size": card_graphics.cardSize,
+							"color": "white",
+							"border": "solid #A0A0A0"}]
+		self.addUIChange(uic)
+		
 		# test add image
 		#print(self.getURLFor("architect01.png"))
-		uic = ["set_div", {"id":"test_card", "parent":"center", "pos":[100, 35], "img":"game_file/generated_cards/architect01.png"}]
+		uic = ["set_div", {"id":"test_card",
+							"parent":"deck_outline3",
+							"pos":[10, -10],
+							"size": card_graphics.cardSize,
+							"img":"game_file/generated_cards/architect01.png",
+							"border": "solid #A0A0A0"}]
 		self.addUIChange(uic)
 		
