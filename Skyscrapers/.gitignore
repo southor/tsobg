@@ -1,5 +1,6 @@
-generated_cards/
-generated_cards_debug/
+generated_cards/*.png
+generated_cards_debug/*.png
+generated_cards_online/*.png
 online/__pycache__/
 online/web_test/
 *.pyc

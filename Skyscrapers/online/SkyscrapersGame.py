@@ -68,6 +68,7 @@ class SkyscrapersGame(BaseGame):
 		
 		# TODO initiate all UI stuff here by calling BaseClass's self.addUIChange(uiChange)
 		
+		"""
 		uic = ["set_div", {"id":"deck_outline1",
 							"parent":"center",
 							"pos":[70, 65],
@@ -91,14 +92,17 @@ class SkyscrapersGame(BaseGame):
 							"color": "white",
 							"border": "solid #A0A0A0"}]
 		self.addUIChange(uic)
+		"""
 		
 		# test add image
 		#print(self.getURLFor("architect01.png"))
 		uic = ["set_div", {"id":"test_card",
-							"parent":"deck_outline3",
-							"pos":[10, -10],
-							"size": card_graphics.cardSize,
-							"img":"game_file/generated_cards/architect01.png",
-							"border": "solid #A0A0A0"}]
+							"parent":"center",
+							"pos":[70, 65],
+							#"size": card_graphics.cardSize,
+							#"img":"game_file/generated_cards/architect01.png",
+							"img":"game_file/generated_cards_online/deck03.png",
+							#"border": "solid #A0A0A0"
+							}]
 		self.addUIChange(uic)
 		

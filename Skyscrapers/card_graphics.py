@@ -19,10 +19,19 @@ fontHeights = {
 	"textFontS" : 11 + 3
 }
 
-
 cardOutputFolder = "generated_cards"
 cardDebugOutputFolder = "generated_cards_debug"
+cardOnlineOutputFolder = "generated_cards_online"
 
+cardWidth = 180
+cardHeight = 180
+cardBorder = 6
+
+titleSection = (15, 10, 165, 35)
+textSection = (15, 40, 165, 145)
+costSection = (15, 150, 165, 175)
+
+cardSize = [cardWidth, cardHeight]
 
 icons = {}
 iconsFolder = pathHere / "icons"
@@ -47,17 +56,6 @@ typeColors = {
 
 credibilityNames = ["AAA", "AA", "A", "BBB", "BB", "B", "CCC"]
 credibilityColors = [(56, 94, 15), (110, 139, 61), (150, 185, 72), (255, 193, 37), (255, 134, 0), (224, 64, 6), (128, 42, 42)]
-
-
-cardWidth = 180
-cardHeight = 180
-cardBorder = 6
-
-cardSize = [cardWidth, cardHeight]
-
-titleSection = (15, 10, 165, 35)
-textSection = (15, 40, 165, 145)
-costSection = (15, 150, 165, 175)
 
 
 '''
@@ -391,12 +389,33 @@ def makeCardFront(title, text, textAlign, fontName, **kwargs):
 def makeCardBack(imgPath):
 	card = Image.new('RGBA', (cardWidth, cardHeight), (255, 255, 255, 255))
 	img = Image.open(imgPath, 'r')
-	offset = ((cardWidth - img.size[0]) / 2, (cardHeight - img.size[1]) / 2)
+	offsetX = (cardWidth - img.size[0]) / 2
+	offsetY = (cardHeight - img.size[1]) / 2
+	offset = (int(offsetX), int(offsetY))
 	card.paste(img, offset)
 	draw = ImageDraw.Draw(card)
 	drawCardBorder(draw, "grey", cardWidth, cardHeight, cardBorder)
 	return card
-		
+	
+def makeDeckImage(topCardImg, nOutlines):
+	spacing = 2
+	outlineColor = (160, 160, 160, 255)
+	expand = (nOutlines + 1) * spacing # init enough space in the image
+	def drawOutline(draw, offset):
+		#shape = [(offset, offset), (w+offset, offset), (w+offset, h+offset), (offset, h+offset), (offset, offset)]
+		draw.rectangle([offset, (cardWidth + offset[0] + 1, cardHeight + offset[1] + 1)],
+						fill=(255, 255, 255, 255), outline=outlineColor, width=1)
+		#draw.line(shape, fill=color, width=0)
+	img = Image.new('RGBA', (cardWidth + expand, cardHeight + expand), (255, 255, 255, 0))
+	draw = ImageDraw.Draw(img)
+	offset = (0, expand - spacing)
+	for i in range(0, nOutlines):
+		drawOutline(draw, offset)
+		offset = (offset[0] + spacing,
+					offset[1] - spacing)
+	#cardBack = makeCardBack(imgPath)
+	img.paste(topCardImg, offset)
+	return img
 	
 # ----------------------------------------
 
@@ -494,6 +513,13 @@ def makeUpgradeCard(**kwargs):
 		text += upgradeEffectText(effect) + "\n"
 	return makeCardFront(title, text, ("top",), "textFontS", **kwargs)
 
+def makeDeckImages(n):
+	backIllustrationPath = "graphics/cardBackIllustration.png"
+	cardBackImg = makeCardBack(backIllustrationPath)
+	cardBackImg.save(cardOnlineOutputFolder + "/cardBack.png")
+	for nOutlines in range(0, n+1):
+		img = makeDeckImage(cardBackImg, nOutlines)
+		img.save(cardOnlineOutputFolder + "/deck" + "{:02d}.png".format(nOutlines))
 	
 # ----------------------------------------
 
@@ -522,13 +548,17 @@ def makeManyCards(cardDatas):
 		# make card
 		makeCard = cardMakeFunctions[category]
 		n = getPostfixNum(category)
-		filename = cardOutputFolder + "/" + category + "{:02d}.png".format(n)
-		debugFilename = cardDebugOutputFolder + "/" + category + "{:02d}.png".format(n)
-		makeCard(**kwargs).save(filename)
-		makeCard(**kwargs, debugSections=True).save(debugFilename)
+		filename = category + "{:02d}.png".format(n)
+		filePath = cardOutputFolder + "/" + filename
+		debugFilePath = cardDebugOutputFolder + "/" + filename
+		onlineFilePath = cardOnlineOutputFolder + "/" + filename
+		makeCard(**kwargs).save(filePath)
+		makeCard(**kwargs, debugSections=True).save(debugFilePath)
+		makeCard(**kwargs, cardOutline=True).save(onlineFilePath)
 	
 	
 if __name__ == "__main__":
 	makeManyCards(cards.cardDatas)
+	makeDeckImages(3)
 	
 	
