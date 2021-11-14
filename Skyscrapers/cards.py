@@ -2,14 +2,11 @@ import random
 
 # TODO: rename to card_datas.py and create also card_logics.py ?
 
-# TODO: For the "upgrade" cards maybe we should add a dedicated data structure for effects. Effects can take arguments.
-#       For example +2 max building height (The number is an argument)
+# TODO: tenantCriteria should be a class?
 
 # Each cardData is [category: string, nCardCopies: int, kwargs: dict]
 # card id is equal to the index in this list
 cardDatas = []
-
-# TODO: tenantCriteria should be a class?
 
 # returns category,nCardCopies,kwargs
 def unpackCardData(cardData: tuple):

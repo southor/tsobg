@@ -33,17 +33,14 @@ costSection = (15, 150, 165, 175)
 
 cardSize = [cardWidth, cardHeight]
 
+cardColor = (255, 255, 255, 255)
+raiseColor = (200, 200, 200, 255)
+
 icons = {}
 iconsFolder = pathHere / "icons"
-#iconFiles = [f for f in os.listdir(iconsFolder) if os.path.isfile(os.path.join(iconsFolder, f))]
 iconFiles = [f for f in iconsFolder.iterdir() if (iconsFolder / f).is_file()]
 for filePath in iconFiles:
-	#print(filename)
-	#filename = str(filename)
-	#iconName = os.path.splitext(filename)[0]
 	iconName = filePath.stem
-	#print(iconName)
-	#icons[iconName] = Image.open(os.path.join(iconsFolder, filename), 'r')
 	icons[iconName] = Image.open(filePath, 'r')
 
 typeColors = {
@@ -75,13 +72,6 @@ def rectBottomLeft(rect):
 	
 def rectBottomRight(rect):
 	return (rect[2], rect[3])
-
-def rectToShape(rect):
-	return [(rect[0], rect[1]),
-			(rect[2], rect[1]),
-			(rect[2], rect[3]),
-			(rect[0], rect[3]),
-			(rect[0], rect[1])]
 	
 def parseHexColor(hexColor):
 	if len(hexColor) == 0:
@@ -323,17 +313,23 @@ def upgradeEffectText(effect):
 	effectType,effectArgs = cards.unpackEffect(effect)
 	return textLambdas[effectType](*effectArgs)
 
-def drawCardBorder(draw, color, w, h, border):
-    d = border/2 # draw in center of border
-    shape = [(d, d), (w-d-1, d), (w-d-1, h-d-1), (d, h-d-1), (d, d)]
-    draw.line(shape, fill=color, width=0)
+def drawBorder(draw, color, w, h, border):
+	d = border/2 # draw in center of border
+	shape = [(d, d), (w-d-1, d), (w-d-1, h-d-1), (d, h-d-1), (d, d)]
+	draw.line(shape, fill=color, width=0)
 	
-def drawRect(draw, color, rect):
-	draw.line(rectToShape(rect), fill=color, width=0)
+def drawRaise(draw, x, y, w, h, **kwargs):
+	color = kwargs.get("color", raiseColor)
+	if "fill" in kwargs:
+		fillColor = kwargs["fill"]
+		draw.rectangle([x, y, x+w, y+h], fill=fillColor)
+	shape = [(x, y), (x, y+h-1), (x+w-1, y+h-1)]
+	draw.line(shape, fill=color, width=1)
 
 def drawSectionBarrier(draw, color, section, sides="all"):
 	if sides == "all":
-		drawRect(draw, color, section)
+		#drawRect(draw, color, section)
+		draw.rectangle(section, outline=color, width=1)
 	else:
 		# define the 4 possible barriers as shapes
 		borderShapes = {
@@ -349,7 +345,8 @@ def drawSectionBarrier(draw, color, section, sides="all"):
 		for side in sides:
 			draw.line(borderShapes[side], fill=color, width=0)
 	
-def makeCardFront(title, text, textAlign, fontName, **kwargs):
+def makeTextCard(title, text, textAlign, fontName, **kwargs):
+	doDrawRaise = kwargs.get("drawRaise", False)
 	picture = kwargs.get("picture", None)
 	buyPrice = kwargs.get("buyPrice", None)
 	moneyPerTurn = None
@@ -368,8 +365,11 @@ def makeCardFront(title, text, textAlign, fontName, **kwargs):
 	draw = ImageDraw.Draw(card)
 	if debugSections:
 		for section in [titleSection, textSection, costSection]:
-			draw.line(rectToShape(section), fill=(200, 200, 200, 255), width=0)
-	drawCardBorder(draw, "grey", cardWidth, cardHeight, cardBorder)
+			#draw.line(rectToShape(section), fill=(200, 200, 200, 255), width=0)
+			draw.rectangle(section, outline=(200, 200, 200, 255), width=1)
+	drawBorder(draw, "grey", cardWidth, cardHeight, cardBorder)
+	if doDrawRaise:
+		drawRaise(draw, 0, 0, cardWidth, cardHeight)
 	if picture:
 		# TODO: replace by using textSection
 		card.paste(picture, (90 - picture.size[0]/2, 90 - picture.size[1]/2))
@@ -386,7 +386,8 @@ def makeCardFront(title, text, textAlign, fontName, **kwargs):
 		drawText(card, ("right",) + costSection, "Buy: " + resourcesText({"money":buyPrice}), "textFontS")
 	return card
 
-def makeCardBack(imgPath):
+def makeImageCard(imgPath, **kwargs):
+	doDrawRaise = kwargs.get("drawRaise", False)
 	card = Image.new('RGBA', (cardWidth, cardHeight), (255, 255, 255, 255))
 	img = Image.open(imgPath, 'r')
 	offsetX = (cardWidth - img.size[0]) / 2
@@ -394,27 +395,24 @@ def makeCardBack(imgPath):
 	offset = (int(offsetX), int(offsetY))
 	card.paste(img, offset)
 	draw = ImageDraw.Draw(card)
-	drawCardBorder(draw, "grey", cardWidth, cardHeight, cardBorder)
+	drawBorder(draw, "grey", cardWidth, cardHeight, cardBorder)
+	if doDrawRaise:
+		drawRaise(draw, 0, 0, cardWidth, cardHeight)
 	return card
 	
 def makeDeckImage(topCardImg, nOutlines):
 	spacing = 2
 	outlineColor = (160, 160, 160, 255)
-	expand = (nOutlines + 1) * spacing # init enough space in the image
-	def drawOutline(draw, offset):
-		#shape = [(offset, offset), (w+offset, offset), (w+offset, h+offset), (offset, h+offset), (offset, offset)]
-		draw.rectangle([offset, (cardWidth + offset[0] + 1, cardHeight + offset[1] + 1)],
-						fill=(255, 255, 255, 255), outline=outlineColor, width=1)
-		#draw.line(shape, fill=color, width=0)
+	expand = nOutlines * spacing # init enough space in the image
 	img = Image.new('RGBA', (cardWidth + expand, cardHeight + expand), (255, 255, 255, 0))
 	draw = ImageDraw.Draw(img)
-	offset = (0, expand - spacing)
+	offsetX = 0
+	offsetY = expand
 	for i in range(0, nOutlines):
-		drawOutline(draw, offset)
-		offset = (offset[0] + spacing,
-					offset[1] - spacing)
-	#cardBack = makeCardBack(imgPath)
-	img.paste(topCardImg, offset)
+		drawRaise(draw, offsetX, offsetY, cardWidth, cardHeight, fill=cardColor)
+		offsetX += spacing
+		offsetY -= spacing
+	img.paste(topCardImg, (offsetX, offsetY))
 	return img
 	
 # ----------------------------------------
@@ -423,7 +421,7 @@ def makeDeckImage(topCardImg, nOutlines):
 # gain: instant gain as dict with type and amount
 def makeMaterialCard(**kwargs):
 	gainText = resourcesText(kwargs.pop("gain"))
-	return makeCardFront("Materials", gainText, (), "textFontL", **kwargs)
+	return makeTextCard("Materials", gainText, (), "textFontL", **kwargs)
 	
 # hirePrice: the hire cost in money
 # beauty: a number representing extra building attraction
@@ -442,14 +440,14 @@ def makeArchitectCard(**kwargs):
 		"    @icon:concrete;: " + str(maxHeightConcrete) + "@newline:1.5;")
 	if beauty > 0:
 		text += "+ " + resourcesText({"beauty": beauty}) + "\n"
-	return makeCardFront("Architect", text, ("top","left"), "textFontS", **kwargs)
+	return makeTextCard("Architect", text, ("top","left"), "textFontS", **kwargs)
 
 # cost: the hire cost in money
 # nFloors: max number of floors it can add to a building
 def makeConstructionCard(**kwargs):
 	nFloors = kwargs.pop("nFloors")
 	nFloorsText = "+ " + resourcesText({"floor":nFloors})
-	return makeCardFront("Construction Firm", nFloorsText, (), "textFontL", **kwargs)
+	return makeTextCard("Construction Firm", nFloorsText, (), "textFontL", **kwargs)
 
 # tenant ready to move in
 def makeTenantCard(**kwargs):
@@ -465,7 +463,7 @@ def makeTenantCard(**kwargs):
 	for criteria in criterias:
 		#text += " " + criteria + "\n"
 		text += " " + tenantCriteriaText(criteria) + "\n"
-	return makeCardFront("Tenant", text, ("top","left"), "textFontS", **kwargs)
+	return makeTextCard("Tenant", text, ("top","left"), "textFontS", **kwargs)
 
 # amount: amount of money
 # interests: list of interests where each index corresponds to a credibility score
@@ -479,14 +477,14 @@ def makeLoanCard(**kwargs):
 		for i,interest in enumerate(interests):
 			credibilityName = colorTextByCredibility(credibilityNames[i], i)
 			text += "    " + credibilityName + "@xref:65;" + str(interest) + "\n"
-	return makeCardFront("Loan", text, ("top", "left",), "textFontS", **kwargs)
+	return makeTextCard("Loan", text, ("top", "left",), "textFontS", **kwargs)
 	
 # card for a lot (place on board for sale)
 def makeLotCard(**kwargs):
 	district = kwargs.pop("district")
 	lotNum = kwargs.pop("lotNum")
 	text = district + " " + str(lotNum)
-	return makeCardFront("Lot for sale", text, ("top",), "textFontL", **kwargs)
+	return makeTextCard("Lot for sale", text, ("top",), "textFontL", **kwargs)
 	
 # buyPrice: the purchase cost in money
 # gain: instant gain as dict with type and amount
@@ -500,7 +498,7 @@ def makeProductionCard(**kwargs):
 		text += resourcesText(gain) + "@newline:1.5;"
 	if production:
 		text += "Production: " + resourcesText(production)
-	return makeCardFront(title, text, ("top",), "textFontL", **kwargs)
+	return makeTextCard(title, text, ("top",), "textFontL", **kwargs)
 	
 # buyPrice: the purchase cost in money
 # effects: each effect as a string
@@ -511,15 +509,10 @@ def makeUpgradeCard(**kwargs):
 	for effect in effects:
 		# TODO, italic style?
 		text += upgradeEffectText(effect) + "\n"
-	return makeCardFront(title, text, ("top",), "textFontS", **kwargs)
+	return makeTextCard(title, text, ("top",), "textFontS", **kwargs)
 
-def makeDeckImages(n):
-	backIllustrationPath = "graphics/cardBackIllustration.png"
-	cardBackImg = makeCardBack(backIllustrationPath)
-	cardBackImg.save(cardOnlineOutputFolder + "/cardBack.png")
-	for nOutlines in range(0, n+1):
-		img = makeDeckImage(cardBackImg, nOutlines)
-		img.save(cardOnlineOutputFolder + "/deck" + "{:02d}.png".format(nOutlines))
+def makeCardBack(**kwargs):
+	return makeImageCard("graphics/cardBackIllustration.png", **kwargs)
 	
 # ----------------------------------------
 
@@ -534,7 +527,26 @@ cardMakeFunctions = {
 	"upgrade": makeUpgradeCard
 	}
 	
-def makeManyCards(cardDatas):
+def makeAndSaveDeck(name, topCard, nDeckImages):
+	for nOutlines in range(1, nDeckImages+1):
+		deck = makeDeckImage(topCard, nOutlines)
+		#print(name, nOutlines)
+		deck.save(cardOnlineOutputFolder + "/" + name + "_deck" + "{:02d}.png".format(nOutlines))	
+	
+def makeAndSaveCard(makeCardFunc, name, cardKWArgs = {}, **kwargs):
+	nDeckImages = kwargs.get("nDeckImages", 0)
+	filename = name + ".png"
+	filePath = cardOutputFolder + "/" + filename
+	debugFilePath = cardDebugOutputFolder + "/" + filename
+	onlineFilePath = cardOnlineOutputFolder + "/" + filename
+	makeCardFunc(**cardKWArgs).save(filePath)
+	makeCardFunc(**cardKWArgs, debugSections=True).save(debugFilePath)
+	cardOnline = makeCardFunc(**cardKWArgs, drawRaise=True)
+	cardOnline.save(onlineFilePath)
+	if nDeckImages > 0:
+		makeAndSaveDeck(name, cardOnline, nDeckImages)
+	
+def makeAndSaveCards(cardDatas):
 	categoryCounters = {}
 	def getPostfixNum(category):
 		if category in categoryCounters:
@@ -544,21 +556,18 @@ def makeManyCards(cardDatas):
 		return categoryCounters[category]
 	for cardData in cardDatas:
 		# unpack data
-		category,nCardCopies,kwargs = cards.unpackCardData(cardData)
+		category,nCardCopies,cardKWArgs = cards.unpackCardData(cardData)
 		# make card
-		makeCard = cardMakeFunctions[category]
+		makeCardFunc = cardMakeFunctions[category]
 		n = getPostfixNum(category)
-		filename = category + "{:02d}.png".format(n)
-		filePath = cardOutputFolder + "/" + filename
-		debugFilePath = cardDebugOutputFolder + "/" + filename
-		onlineFilePath = cardOnlineOutputFolder + "/" + filename
-		makeCard(**kwargs).save(filePath)
-		makeCard(**kwargs, debugSections=True).save(debugFilePath)
-		makeCard(**kwargs, cardOutline=True).save(onlineFilePath)
-	
-	
+		name = category + "{:02d}".format(n)
+		makeAndSaveCard(makeCardFunc, name, cardKWArgs)
+
+def makeAllCardImages():
+	makeAndSaveCards(cards.cardDatas) # card fronts
+	makeAndSaveCard(makeCardBack, "cardBack", nDeckImages=6) # card back (with deck images)
+
 if __name__ == "__main__":
-	makeManyCards(cards.cardDatas)
-	makeDeckImages(3)
+	makeAllCardImages()
 	
 	
