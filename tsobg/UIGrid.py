@@ -3,27 +3,63 @@ class UIGrid():
 	
 	def __initCells(self):
 		self.rows = []
+		self.itemIndex = {}
+		self.nItems = 0 # nItems placed in the grid
 		for i in range(0, self.nRows):
 			row = [None]*self.nColumns
 			self.rows.append(row)
+			
+	# returns ui position (pixelX, pixelY)
+	def __getCellUIPos(self, rowN, colN):
+		x = self.uiOffsetPos[0] + colN * self.uiCellSize[0]
+		y = self.uiOffsetPos[1] + rowN * self.uiCellSize[1]
+		return x,y
+	
+	# returns grid position (rowN, colN)
+	def __findItem(self, item):
+		for rowN,row in enumerate(self.rows):
+			for colN,cell in enumerate(row):
+				if cell == item:
+					return rowN,colN
+		return None
 	
 	def __init__(self,
-					nColumns: int,
 					nRows: int,
-					cellSize: tuple,
+					nColumns: int,
+					uiCellSize: tuple,
 					**kwargs):
 		self.nColumns = nColumns
 		self.nRows = nRows
-		self.cellSize = cellSize
-		self.nItems = 0 # nItems placed in the grid
+		self.uiCellSize = uiCellSize
+		self.uiOffsetPos = kwargs.get("uiOffsetPos", (0, 0))
 		self.__initCells()
-		if kwargs.get("generateUIChanges", False):
-			self.uiChanges = []
-		else:
-			self.uiChanges = None
 		
 	def getNItems(self):
 		return self.nItems
+	
+	# puts the item in the first free cell
+	# returns ui position of cell that was taken
+	def addItem(self, item):
+		for rowN,row in enumerate(self.rows):
+			for colN,cell in enumerate(row):
+				if cell == None:
+					row[colN] = item
+					self.nItems += 1
+					return self.__getCellUIPos(rowN, colN)
+		return None
+	
+	def removeItem(self, item):
+		gridPos = __findItem(item)
+		if gridPos:
+			rowN,colN = gridPos
+			self.rows[rowN][colN] = None
+			self.nItems -= 1
+			return True
+		else:
+			return False
+		
+		
+	"""
 		
 	# add the items into the first free cells we find
 	# returns the items that were not added (due to lack of free cells)
@@ -76,3 +112,5 @@ class UIGrid():
 			return res
 		else:
 			return []
+			
+	"""

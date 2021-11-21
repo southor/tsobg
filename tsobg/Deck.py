@@ -4,7 +4,7 @@ import random
 class Deck():
 	
 	def __init__(self, cards, shuffle = True):
-		self.cards = list(cards)
+		self.cards = cards
 		self.discardedCards = []
 		if shuffle:
 			self.shuffle()
@@ -31,7 +31,7 @@ class Deck():
 			drawnCards += reversed(self.cards)
 			self.cards = []
 			nDraws -= len(self.cards)
-			self.shuffle(self, True)
+			self.shuffle(True)
 		if nDraws > len(self.cards):
 			# draw only the rest of the deck
 			nDraws = len(self.cards)
