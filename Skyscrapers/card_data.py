@@ -1,14 +1,8 @@
 
 # TODO: tenantCriteria should be a class?
 
-# Maps from cardName to cardData. Each cardData is a dict with category, nCopies, cardKWArgs
-cardDatas = {}
-
-"""
-# returns category,nCardCopies,kwargs
-def unpackCardData(cardData: tuple):
-	return cardData
-"""
+# Each cardData is a dict with category, nDuplicates, cardKWArgs
+cardDatas = []
 
 # returns criteriaType,criteriaArgs
 def unpackCriteria(criteria: tuple):
@@ -17,23 +11,6 @@ def unpackCriteria(criteria: tuple):
 # returns effectType,effectArgs
 def unpackEffect(effect: tuple):
 	return (effect[0], effect[1:])
-	
-# returns cardName,copyN
-def unpackCardId(cardId: str):
-	cardName = cardId[:-3]
-	copyN = int(card[-1])
-	return cardName,copyN
-
-	
-
-	
-# yields all card ids, one for each copy
-# cardId is cardname with copy number suffix
-def getAllCardIds():
-	for name,cardData in cardDatas.items():
-		for i in range(0, cardData["nCopies"]):
-			yield name + "_c" + str(i)
-
 
 __categoryCounters = {} # contains cumber of each category
 	
@@ -47,28 +24,28 @@ def __generateCardName(category):
 	n = getPostfixNum(category)
 	return "card_" + category + "{:02d}".format(n)
 
-# convert from (category, header, rows) to (category, nCardCopies, kwargs)
+# convert from (category, header, rows) to (category, nDuplicates, kwargs)
 # where header strigns are used as key when filling kwargs
 def __addCardDatas(category, header, rows):
 	try:
-		nCopiesIdx = header.index("nCardCopies")
+		nDuplicatesIdx = header.index("nDuplicates")
 	except ValueError:
-		nCopiesIdx = None
+		nDuplicatesIdx = None
 	for row in rows:
 		name = __generateCardName(category)
-		nCopies = 1
+		nDuplicates = 1
 		kwargs = {}
 		for i,x in enumerate(row):
-			if i == nCopiesIdx:
-				nCopies = x
+			if i == nDuplicatesIdx:
+				nDuplicates = x
 			else:
 				key = header[i]
 				kwargs[key] = x
-		cardData = {"category":category, "name":name, "nCopies":nCopies, "cardKWArgs":kwargs}
-		cardDatas[name] = cardData
+		cardData = {"category":category, "name":name, "nDuplicates":nDuplicates, "cardKWArgs":kwargs}
+		cardDatas.append(cardData)
 
 __addCardDatas("material",
-	("nCardCopies", "buyPrice", "gain"), [
+	("nDuplicates", "buyPrice", "gain"), [
 		(1, 3, {"steel": 3, "concrete": 3}),
 		(1, 3, {"steel": 8}),
 		(1, 4, {"concrete": 10}),
@@ -86,7 +63,7 @@ __addCardDatas("architect",
 		])
 		
 __addCardDatas("construction",
-	("nCardCopies", "hirePrice", "nFloors"), [
+	("nDuplicates", "hirePrice", "nFloors"), [
 		(1, 4, 6),
 		(1, 3, 4),
 		(1, 2, 2)
@@ -109,7 +86,7 @@ __addCardDatas(*__tenantCardDatas())
 
 
 __addCardDatas("loan",
-	("nCardCopies", "amount", "interests"), [
+	("nDuplicates", "amount", "interests"), [
 		(1, 10, [0, 1, 1, 2, 3, 5, 7]),
 		(1, 10, [0, 0, 1, 2, 2, 4, 6]),
 		(1, 8,  [0, 1, 1, 2, 3, 4, 7]),

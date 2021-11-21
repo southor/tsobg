@@ -31,7 +31,7 @@ titleSection = (15, 10, 165, 35)
 textSection = (15, 40, 165, 145)
 costSection = (15, 150, 165, 175)
 
-cardSize = [cardWidth, cardHeight]
+cardSize = (cardWidth, cardHeight)
 
 cardColor = (255, 255, 255, 255)
 raiseColor = (180, 180, 180, 255)
@@ -552,7 +552,7 @@ def makeAndSaveCards(cardDatas):
 		makeAndSaveCard(cardMakeFunctions[category], cardData["name"], cardData["cardKWArgs"])
 
 def makeAllCardImages():
-	cardDatas = card_data.cardDatas.values()
+	cardDatas = card_data.cardDatas
 	makeAndSaveCards(cardDatas) # card fronts
 	makeAndSaveCard(makeCardBack, "cardBack", nDeckImages=6) # card back (with deck images)
 
