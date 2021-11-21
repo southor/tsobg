@@ -1,8 +1,8 @@
 
 # TODO: tenantCriteria should be a class?
 
-# Each cardData is a dict with category, nCopies, cardKWArgs
-__cardDatas = []
+# Maps from cardName to cardData. Each cardData is a dict with category, nCopies, cardKWArgs
+cardDatas = {}
 
 """
 # returns category,nCardCopies,kwargs
@@ -17,25 +17,35 @@ def unpackCriteria(criteria: tuple):
 # returns effectType,effectArgs
 def unpackEffect(effect: tuple):
 	return (effect[0], effect[1:])
+	
+# returns cardName,copyN
+def unpackCardId(cardId: str):
+	cardName = cardId[:-3]
+	copyN = int(card[-1])
+	return cardName,copyN
 
-# returns iterator of cards: {name, category, nCopies, cardKWArgs}
-def getAllCards():
-	categoryCounters = {}
+	
+
+	
+# yields all card ids, one for each copy
+# cardId is cardname with copy number suffix
+def getAllCardIds():
+	for name,cardData in cardDatas.items():
+		for i in range(0, cardData["nCopies"]):
+			yield name + "_c" + str(i)
+
+
+__categoryCounters = {} # contains cumber of each category
+	
+def __generateCardName(category):
 	def getPostfixNum(category):
-		if category in categoryCounters:
-			categoryCounters[category] += 1
+		if category in __categoryCounters:
+			__categoryCounters[category] += 1
 		else:
-			categoryCounters[category] = 1
-		return categoryCounters[category]
-	for cardData in __cardDatas:
-		category = cardData["category"]
-		n = getPostfixNum(category)
-		name = "card_" + category + "{:02d}".format(n)
-		cardData["name"] = name
-		yield cardData
-	
-	
-	
+			__categoryCounters[category] = 1
+		return __categoryCounters[category]
+	n = getPostfixNum(category)
+	return "card_" + category + "{:02d}".format(n)
 
 # convert from (category, header, rows) to (category, nCardCopies, kwargs)
 # where header strigns are used as key when filling kwargs
@@ -45,7 +55,7 @@ def __addCardDatas(category, header, rows):
 	except ValueError:
 		nCopiesIdx = None
 	for row in rows:
-		#cardData = [category, 1, {}]
+		name = __generateCardName(category)
 		nCopies = 1
 		kwargs = {}
 		for i,x in enumerate(row):
@@ -54,7 +64,8 @@ def __addCardDatas(category, header, rows):
 			else:
 				key = header[i]
 				kwargs[key] = x
-		__cardDatas.append({"category":category, "nCopies":nCopies, "cardKWArgs":kwargs})
+		cardData = {"category":category, "name":name, "nCopies":nCopies, "cardKWArgs":kwargs}
+		cardDatas[name] = cardData
 
 __addCardDatas("material",
 	("nCardCopies", "buyPrice", "gain"), [

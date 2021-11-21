@@ -552,7 +552,8 @@ def makeAndSaveCards(cardDatas):
 		makeAndSaveCard(cardMakeFunctions[category], cardData["name"], cardData["cardKWArgs"])
 
 def makeAllCardImages():
-	makeAndSaveCards(card_data.getAllCards()) # card fronts
+	cardDatas = card_data.cardDatas.values()
+	makeAndSaveCards(cardDatas) # card fronts
 	makeAndSaveCard(makeCardBack, "cardBack", nDeckImages=6) # card back (with deck images)
 
 if __name__ == "__main__":

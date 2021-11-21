@@ -10,8 +10,8 @@ from tsobg import UIChangeInterface
 
 # import SkyScrapers cards
 sys.path.append(str(pathHere.parent))
+import card_data
 from card_graphics import cardSize
-from card_data import getAllCards
 
 
 class CardMarket():
@@ -20,7 +20,7 @@ class CardMarket():
 	cellPadding = 10
 	
 	def __init__(self, uiChangeInterface: UIChangeInterface):
-		self.deck = Deck(getAllCards())
+		self.deck = Deck(card_data.getAllCardIds())
 		cellSize = (cardSize[0] + CardMarket.cellPadding,
 					cardSize[1] + CardMarket.cellPadding)
 		self.grid = UIGrid(2, 4, cellSize, generateUIChanges = True)
