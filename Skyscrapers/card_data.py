@@ -30,7 +30,7 @@ def getAllCards():
 	for cardData in __cardDatas:
 		category = cardData["category"]
 		n = getPostfixNum(category)
-		name = category + "{:02d}".format(n)
+		name = "card_" + category + "{:02d}".format(n)
 		cardData["name"] = name
 		yield cardData
 	

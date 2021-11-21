@@ -72,7 +72,7 @@ class SkyscrapersGame(BaseGame):
 							"pos":[70, 65],
 							#"size": card_graphics.cardSize,
 							#"img":"game_file/generated_cards/architect01.png",
-							"img":"game_file/generated_cards_online/architect01.png",
+							"img":"game_file/generated_cards_online/card_architect03.png",
 							#"border": "solid #A0A0A0"
 							}]
 		self.addUIChange(uic)
