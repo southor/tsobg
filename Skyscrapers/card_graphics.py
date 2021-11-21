@@ -4,7 +4,7 @@ from pathlib import Path
 
 pathHere = Path(__file__).absolute().parent
 
-import cards
+import card_data
 
 
 fonts = {
@@ -34,7 +34,7 @@ costSection = (15, 150, 165, 175)
 cardSize = [cardWidth, cardHeight]
 
 cardColor = (255, 255, 255, 255)
-raiseColor = (200, 200, 200, 255)
+raiseColor = (180, 180, 180, 255)
 
 icons = {}
 iconsFolder = pathHere / "icons"
@@ -296,7 +296,7 @@ def tenantCriteriaText(tenantCriteria):
 		"nTenants" : lambda n,type: str(n) + " " + colorTextByType(type, type) + " tenants " + "@icon:location_same_building;",
 		"entitySum>=" : lambda termEntities,value: iconList(termEntities, " + ") + " >= " + str(value)
 	}
-	criteriaType,criteriaArgs = cards.unpackCriteria(tenantCriteria)
+	criteriaType,criteriaArgs = card_data.unpackCriteria(tenantCriteria)
 	return textLambdas[criteriaType](*criteriaArgs)
 	
 def upgradeEffectText(effect):
@@ -310,7 +310,7 @@ def upgradeEffectText(effect):
 		"increaseMaxHeight" : lambda nFloors: "+" + str(nFloors) + " max building height",
 		"ignoreTenantCriteria" : lambda n: "Ignore " + writtenNumber(n) + " criteria when\npicking a tenant"
 	}
-	effectType,effectArgs = cards.unpackEffect(effect)
+	effectType,effectArgs = card_data.unpackEffect(effect)
 	return textLambdas[effectType](*effectArgs)
 
 def drawBorder(draw, color, w, h, border):
@@ -361,7 +361,7 @@ def makeTextCard(title, text, textAlign, fontName, **kwargs):
 		moneyPerTurn = kwargs["interest"]
 		moneyPerTurnTitle = "Interest: "
 	debugSections = kwargs.get("debugSections", False)
-	card = Image.new('RGBA', (cardWidth, cardHeight), (255, 255, 255, 255))
+	card = Image.new('RGBA', (cardWidth, cardHeight), cardColor)
 	draw = ImageDraw.Draw(card)
 	if debugSections:
 		for section in [titleSection, textSection, costSection]:
@@ -547,24 +547,12 @@ def makeAndSaveCard(makeCardFunc, name, cardKWArgs = {}, **kwargs):
 		makeAndSaveDeck(name, cardOnline, nDeckImages)
 	
 def makeAndSaveCards(cardDatas):
-	categoryCounters = {}
-	def getPostfixNum(category):
-		if category in categoryCounters:
-			categoryCounters[category] += 1
-		else:
-			categoryCounters[category] = 1
-		return categoryCounters[category]
 	for cardData in cardDatas:
-		# unpack data
-		category,nCardCopies,cardKWArgs = cards.unpackCardData(cardData)
-		# make card
-		makeCardFunc = cardMakeFunctions[category]
-		n = getPostfixNum(category)
-		name = category + "{:02d}".format(n)
-		makeAndSaveCard(makeCardFunc, name, cardKWArgs)
+		category = cardData["category"]
+		makeAndSaveCard(cardMakeFunctions[category], cardData["name"], cardData["cardKWArgs"])
 
 def makeAllCardImages():
-	makeAndSaveCards(cards.cardDatas) # card fronts
+	makeAndSaveCards(card_data.getAllCards()) # card fronts
 	makeAndSaveCard(makeCardBack, "cardBack", nDeckImages=6) # card back (with deck images)
 
 if __name__ == "__main__":

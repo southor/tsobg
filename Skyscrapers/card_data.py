@@ -1,16 +1,14 @@
-import random
-
-# TODO: rename to card_datas.py and create also card_logics.py ?
 
 # TODO: tenantCriteria should be a class?
 
-# Each cardData is [category: string, nCardCopies: int, kwargs: dict]
-# card id is equal to the index in this list
-cardDatas = []
+# Each cardData is a dict with category, nCopies, cardKWArgs
+__cardDatas = []
 
+"""
 # returns category,nCardCopies,kwargs
 def unpackCardData(cardData: tuple):
 	return cardData
+"""
 
 # returns criteriaType,criteriaArgs
 def unpackCriteria(criteria: tuple):
@@ -20,11 +18,28 @@ def unpackCriteria(criteria: tuple):
 def unpackEffect(effect: tuple):
 	return (effect[0], effect[1:])
 
+# returns iterator of cards: {name, category, nCopies, cardKWArgs}
+def getAllCards():
+	categoryCounters = {}
+	def getPostfixNum(category):
+		if category in categoryCounters:
+			categoryCounters[category] += 1
+		else:
+			categoryCounters[category] = 1
+		return categoryCounters[category]
+	for cardData in __cardDatas:
+		category = cardData["category"]
+		n = getPostfixNum(category)
+		name = category + "{:02d}".format(n)
+		cardData["name"] = name
+		yield cardData
 	
 	
+	
+
 # convert from (category, header, rows) to (category, nCardCopies, kwargs)
 # where header strigns are used as key when filling kwargs
-def addCardDatas(category, header, rows):
+def __addCardDatas(category, header, rows):
 	try:
 		nCopiesIdx = header.index("nCardCopies")
 	except ValueError:
@@ -39,9 +54,9 @@ def addCardDatas(category, header, rows):
 			else:
 				key = header[i]
 				kwargs[key] = x
-		cardDatas.append((category, nCopies, kwargs))
+		__cardDatas.append({"category":category, "nCopies":nCopies, "cardKWArgs":kwargs})
 
-addCardDatas("material",
+__addCardDatas("material",
 	("nCardCopies", "buyPrice", "gain"), [
 		(1, 3, {"steel": 3, "concrete": 3}),
 		(1, 3, {"steel": 8}),
@@ -50,7 +65,7 @@ addCardDatas("material",
 		(1, 0, {"concrete": 2})
 	])
 
-addCardDatas("architect",	
+__addCardDatas("architect",	
 	("hirePrice", "beauty", "types", "maxHeightSteel", "maxHeightConcrete"), [
 		(2, 0, ["shop","service"], 10, 4),
 		(2, 0, ["office","apartment"], 10, 5),
@@ -59,14 +74,14 @@ addCardDatas("architect",
 		(2, 1, ["shop"], 8, 5)
 		])
 		
-addCardDatas("construction",
+__addCardDatas("construction",
 	("nCardCopies", "hirePrice", "nFloors"), [
 		(1, 4, 6),
 		(1, 3, 4),
 		(1, 2, 2)
 		])
 
-def tenantCardDatas():
+def __tenantCardDatas():
 	return ("tenant", ("name", "nFloors", "type", "rent", "criterias"), [
 				("Catz Mobile Games", 4, "office", 8, [("entitySum>=", ["beauty","free_view"], 4), ("proximityBuildings", 3, "office", "location_nearby")]),
 				("No Fluke Insurances ", 2, "office", 4, [("proximityBuildings", 3, "office", "location_nearby")]),
@@ -79,10 +94,10 @@ def tenantCardDatas():
 				("Great View Hotel ", 2, "service", 5, [("aboveFloor", 7), ("entitySum>=", ["free_view"], 4)])
 			])
 
-addCardDatas(*tenantCardDatas())
+__addCardDatas(*__tenantCardDatas())
 
 
-addCardDatas("loan",
+__addCardDatas("loan",
 	("nCardCopies", "amount", "interests"), [
 		(1, 10, [0, 1, 1, 2, 3, 5, 7]),
 		(1, 10, [0, 0, 1, 2, 2, 4, 6]),
@@ -90,32 +105,24 @@ addCardDatas("loan",
 		(1, 8,  [0, 0, 1, 2, 2, 4, 7])
 		])
 
-addCardDatas("lot",
+__addCardDatas("lot",
 	("district", "lotNum"), [
 		("A", 1),
 		("B", 3)
 		])
 
-addCardDatas("production",
+__addCardDatas("production",
 	("title", "buyPrice", "gain", "production"), [
 		("steel mill", 9, {"steel": 2}, {"steel": 2}),
 		("concrete factory", 8, {}, {"concrete": 4})
 		])
 
-addCardDatas("upgrade",	
+__addCardDatas("upgrade",	
 	("title", "buyPrice", "effects"), [
 		("Material Engineer", 3, [("materialDiscount", "steel", [(3, -1), (5, -2)])]), 
 		("Material Engineer", 3, [("materialDiscount", "steel", [(4, -1), (6, -2)])]),
 		("Strength Engineer", 4, [("increaseMaxHeight", 2)]),
 		("Strength Engineer", 6, [("increaseMaxHeight", 4)]),
 		("Talented Broker", 6, [("ignoreTenantCriteria", 1)])
-		])	
-	
-def makeDeck():
-	deck = []
-	for i,cardData in enumerate(cardDatas):
-		category,nCardCopies,kwargs = unpackCardData(cardData)
-		deck += [i] * nCardCopies
-	random.shuffle(deck)
-	return deck
+		])
 		

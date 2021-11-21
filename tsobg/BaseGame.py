@@ -4,6 +4,8 @@ import flask
 from pathlib import Path
 from pathlib import PurePath
 
+from .UIChangeInterface import UIChangeInterface
+
 
 def flatten1(listOfLists):
     return [item for sublist in listOfLists for item in sublist]
@@ -30,7 +32,7 @@ def applyUIChange(currentUIState, uiChange):
 uiStartState = {}
 
 
-class BaseGame:
+class BaseGame(UIChangeInterface):
 
 	# TODO: part of the UI should be individual (secret to others)
 	
@@ -172,7 +174,7 @@ class BaseGame:
 		return self.gameRootPath
 	'''
 	
-	# ----------------- Game Methods -----------------
+	# ----------------- UI Methods -----------------
 	
 	'''
 	# URL for local game path (based on gameRootPath)
