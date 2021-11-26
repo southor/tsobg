@@ -170,4 +170,4 @@ def runServer(debug):
 
 if __name__ == '__main__':
 	#app.run(debug=True)
-	runServer()
+	runServer(True)
