@@ -29,6 +29,7 @@ class SkyscrapersGame(BaseGame):
 		
 	# exports game state as a dictionary
 	def __exportGameState(self):
+		# TODO: implement compression (card/cardId can be just an int)
 		selfVars = vars(self)
 		return {v: selfVars[v] for v in self.gameStateVars}
 		
@@ -36,8 +37,9 @@ class SkyscrapersGame(BaseGame):
 		
 	# TODO: create class for actionObj ?
 	
-	# TODO: If needed BaseGame can later ask SkyscrapersGame to load a "GameState", by passing an old dictionary.
-	#       GameState dictionaries can be stored to disk.
+	def __importGameState(self):
+		# TODO
+		raise RuntimeException("Not implemented")
 	
 	def addTestImage(self):
 		"""

@@ -39,15 +39,6 @@ class BaseGame(UIChangeInterface):
 	def __init__(self, name, gameRootPath: Path):
 		self.name = name
 		
-		'''
-		# One action per state
-		self.actions = []
-		self.gameStates = [{}]
-		self.uiStates = [{}]
-		self.uiChanges = [[]] # How to go to from stateN to stateN+1
-		self.uiChangesReverse = [[],[]] # How to go from stateN to stateN-1
-		'''
-		
 		# One action per state
 		self.actions = []
 		self.gameStateHistory = [{}]
@@ -60,55 +51,7 @@ class BaseGame(UIChangeInterface):
 		self.currentStateN = 0
 		self.currentUIState = uiStartState
 	
-	#def addStateChange(self, stateChange):
-	#	self.stateChanges[currentStateN].append(stateChange)
-		
-	'''
-	def applyUIChanges(state, uiChanges):
-		for uic in uiChanges:
-			# TODO: replace with ui commands
-			command = uic[0]
-			if command == "list-add":
-				varName = uic[1]
-				if varName not in state:
-					state[varName] = []
-				state[varName] += uic[2]
-			if command == "list-remove":
-				varName = uic[1]
-				if varName not in state:
-					state[varName] = []
-				state[varName] += uic[2]
-	'''
-	
-	
-		
-	'''
-	def nextState(self):
-		state = self.state
-		stateChanges = self.stateChanges
-		assert(len(stateChanges) == self.currentStateN + 1)
-		assert(len(stateChangesReverse) == self.currentStateN + 1)
-		# make state changes reverse
-		stateChangesReverse.append([])
-		for sc in reversed(stateChanges[self.currentStateN]):
-			rsc = makeReverse(self.state, sc)
-			stateChangesReverse[currentStateN + 1].append(rsc)
-		# make state changes reverse	
-		self.applyStateChanges(self.state, stateChanges[self.currentStateN])
-		stateChanges.append([])
-		self.currentStateN += 1
-			
-		assert(len(stateChanges) == self.currentStateN + 1)
-		assert(len(stateChangesReverse) == self.currentStateN + 1)
-	'''
-	
 	# ----------------- Server Methods -----------------
-	
-	
-	'''
-	def getCurrentUIState(self):
-		return self.uiStates[self.currentStateN]
-	'''
 		
 	def getUIChanges(self, fromStateN, toStateN):
 		fromStateN = max(fromStateN, 0)
@@ -138,20 +81,6 @@ class BaseGame(UIChangeInterface):
 			
 	def startGame(self, players: list):
 		assert(not self.hasStarted())
-		'''
-		actionObj = ["start_game", players]
-		if self.actionAllowed(actionObj):
-			# initiate first UI state tracking
-			self.uiStates.append(self.uiStateStartup)
-			self.uiChanges.append([])
-			self.uiChangesReverse.append([])
-			# TODO: correct?
-			newState = self.performAction(actionObj)
-			assert(newState)
-			self.gameStates.append(newState)
-		else:
-			print("Error: Not allowed to start game, players:", players)
-		'''
 		actionObj = ["start_game", players]
 		res = self.clientAction(actionObj)
 		if not res:
@@ -169,19 +98,7 @@ class BaseGame(UIChangeInterface):
 		else:
 			return None
 	
-	'''
-	def getGameRootPath(self):
-		return self.gameRootPath
-	'''
-	
 	# ----------------- UI Methods -----------------
-	
-	'''
-	# URL for local game path (based on gameRootPath)
-	def getURLFor(self, relPath):
-		return flask.url_for("static", filename=relPath)
-		#flask.url_for(localPath)
-	'''
 	
 	def addUIChange(self, uiChange):
 		currentStateN = self.currentStateN
