@@ -7,6 +7,7 @@ class Deck_test(unittest.TestCase):
     def testDeck(self):
         cards = ["c1", "c2", "c3", "c4"]
         
+        # test (auto)shuffled deck
         sDeck = Deck(cards) # autoShuffle on
         self.assertEqual(sDeck.nCards(), 4)
         self.assertEqual(len(sDeck.draw(2)), 2)
@@ -20,6 +21,7 @@ class Deck_test(unittest.TestCase):
         self.assertEqual(sDeck.draw(2), []) # we ran out of cards
         self.assertEqual(sDeck.nCards(), 0)
         
+        # test deck wihtout autoShuffle
         oDeck = Deck(cards, False) # autoShuffle off
         self.assertEqual(oDeck.nCards(), 4)
         self.assertEqual(oDeck.draw(2), ["c4", "c3"])

@@ -4,7 +4,7 @@ class UIGrid():
 	def __initCells(self):
 		self.rows = []
 		self.itemIndex = {}
-		self.nItems = 0 # nItems placed in the grid
+		self.nOccupied = 0 # nItems placed in the grid
 		for i in range(0, self.nRows):
 			row = [None]*self.nColumns
 			self.rows.append(row)
@@ -34,8 +34,14 @@ class UIGrid():
 		self.uiOffsetPos = kwargs.get("uiOffsetPos", (0, 0))
 		self.__initCells()
 		
-	def getNItems(self):
-		return self.nItems
+	def getNSpaces(self):
+		return self.nRows * self.nColumns
+
+	def getNOccupied(self):
+		return self.nOccupied
+
+	def getNUnoccupied(self):
+		return self.getNSpaces() - self.nOccupied
 	
 	# puts the item in the first free cell
 	# returns ui position of cell that was taken
@@ -44,16 +50,16 @@ class UIGrid():
 			for colN,cell in enumerate(row):
 				if cell == None:
 					row[colN] = item
-					self.nItems += 1
+					self.nOccupied += 1
 					return self.__getCellUIPos(rowN, colN)
 		return None
 	
 	def removeItem(self, item):
-		gridPos = __findItem(item)
+		gridPos = self.__findItem(item)
 		if gridPos:
 			rowN,colN = gridPos
 			self.rows[rowN][colN] = None
-			self.nItems -= 1
+			self.nOccupied -= 1
 			return True
 		else:
 			return False
