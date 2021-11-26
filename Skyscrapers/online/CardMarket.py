@@ -38,7 +38,7 @@ class CardMarket():
 		self.grid = UIGrid(2, 4, cellSize)
 	
 	def nCards(self):
-		return self.grid.getNItems()
+		return self.grid.getNOccupied()
 	
 	def fillUp(self):
 		nMissingCards = CardMarket.nSpaces - self.nCards()
