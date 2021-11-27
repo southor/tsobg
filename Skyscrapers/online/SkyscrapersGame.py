@@ -110,6 +110,7 @@ class SkyscrapersGame(BaseGame):
 		self.cardMarket.fillUp()
 		# TODO initiate rest of UI stuff here by calling BaseClass's self.addUIChange(uiChange)
 		#self.addTestImage()
+		self.addUIChange(("set_div", "center", {"size": ("auto", 500)}))
 		
 		
 		

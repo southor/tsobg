@@ -38,10 +38,6 @@ function setDiv(id, opts) {
 		div.setAttribute('id', id);
 		div.style.position = "absolute";
 		div.style.backgroundColor = "transparent";
-		//div.style.border = "solid #707070";
-		//div.style.padding = "0px";
-		//div.style.margin = "0px";
-		//console.log("padding: ", div.style.padding);
 	}
 	if (opts.parent) {
 		if (div.parentNode) {

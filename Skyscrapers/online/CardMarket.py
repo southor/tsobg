@@ -35,7 +35,7 @@ class CardMarket():
 		self.deck = Deck(allCards)
 		cellSize = (cardSize[0] + CardMarket.cellPadding,
 					cardSize[1] + CardMarket.cellPadding)
-		self.grid = UIGrid(2, 4, cellSize)
+		self.grid = UIGrid(2, 4, cellSize, uiOffsetPos=(10, 10))
 	
 	def nCards(self):
 		return self.grid.getNOccupied()
