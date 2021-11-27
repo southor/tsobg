@@ -27,18 +27,18 @@ class Card():
 		
 	def __getFilename(self):
 		return "game_file/generated_cards_online/" + self.data["name"] + ".png"
-		
+
 	def __newDivData(self):
 		if self.divCreated:
-			return {"id":self.id}
+			return {}
 		else:
 			self.divCreated = True
-			return {"id":self.id, "img":self.__getFilename()}
-			
+			return {"img":self.__getFilename()}
+		
 	def sameCardAs(self, otherCard):
 		return self.data is otherCard.data
 		
 	def setDiv(self, uiInterface: UIChangeInterface, **kwArgs):
 		divData = self.__newDivData()
 		divData.update(kwArgs)
-		uiInterface.addUIChange(("set_div", divData))
+		uiInterface.addUIChange(("set_div", self.id, divData))

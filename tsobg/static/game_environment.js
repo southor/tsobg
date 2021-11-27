@@ -12,6 +12,22 @@ function createDiv(id, rect, parentId) {
 }
 */
 
+function parseSize(obj) {
+	var x = "auto";
+	var y = "auto";
+	if (obj !== "auto") {
+		x = obj[0];
+		y = obj[1];
+		if (x !== "auto") {
+			x = x + 'px';
+		}
+		if (y !== "auto") {
+			y = y + 'px';
+		}
+	}
+	return [x, y];
+}
+
 // If div does not exists it is created
 function setDiv(id, opts) {
 	console.log("set div called with:", id, opts);
@@ -36,13 +52,15 @@ function setDiv(id, opts) {
 		document.getElementById(opts.parent).appendChild(div);
 	}
 	if (opts.pos) {
-		div.style.left = opts.pos[0] + 'px';
-		div.style.top = opts.pos[1] + 'px';
+		const pos = parseSize(opts.pos);
+		div.style.left = pos[0];
+		div.style.top = pos[1];
 		console.log("setting div pos");
 	}
 	if (opts.size) {
-		div.style.width = opts.size[0] + 'px';
-		div.style.height = opts.size[1] + 'px';
+		const size = parseSize(opts.size);
+		div.style.width = size[0];
+		div.style.height = size[1];
 		console.log("setting div size");
 	}
 	if (opts.img) {
@@ -68,7 +86,9 @@ function setDiv(id, opts) {
 	}
 }
 
+/*
 function removeDiv(id) {
 	var div = document.getElementById("id");
 	div.parentNode.removeChild(div);
 }
+*/

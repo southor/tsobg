@@ -43,40 +43,40 @@ class SkyscrapersGame(BaseGame):
 	
 	def addTestImage(self):
 		"""
-		uic = ["set_div", {"id":"deck_outline1",
+		uic = ("set_div", {"id":"deck_outline1",
 							"parent":"center",
 							"pos":[70, 65],
 							"size": card_graphics.cardSize,
 							"color": "white",
-							"border": "solid #A0A0A0"}]
+							"border": "solid #A0A0A0"})
 		self.addUIChange(uic)
 		
-		uic = ["set_div", {"id":"deck_outline2",
+		uic = ("set_div", {"id":"deck_outline2",
 							"parent":"deck_outline1",
 							"pos":[10, -10],
 							"size": card_graphics.cardSize,
 							"color": "white",
-							"border": "solid #A0A0A0"}]
+							"border": "solid #A0A0A0"})
 		self.addUIChange(uic)
 		
-		uic = ["set_div", {"id":"deck_outline3",
+		uic = ("set_div", {"id":"deck_outline3",
 							"parent":"deck_outline2",
 							"pos":[10, -10],
 							"size": card_graphics.cardSize,
 							"color": "white",
-							"border": "solid #A0A0A0"}]
+							"border": "solid #A0A0A0"})
 		self.addUIChange(uic)
 		"""
 		# test add image
 		#print(self.getURLFor("architect01.png"))
-		uic = ["set_div", {"id":"test_card",
+		uic = ("set_div", "test_card", {
 							"parent":"center",
 							"pos":[70, 65],
 							#"size": card_graphics.cardSize,
 							#"img":"game_file/generated_cards/architect01.png",
 							"img":"game_file/generated_cards_online/card_architect03.png",
 							#"border": "solid #A0A0A0"
-							}]
+							})
 		self.addUIChange(uic)
 	
 	# --------------- "BaseGame" expected methods ---------------

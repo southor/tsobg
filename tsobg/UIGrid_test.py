@@ -1,10 +1,14 @@
 import unittest
 
-from UIGrid import UIGrid
+if __name__ == '__main__':
+    from UIGrid import UIGrid
+else:
+    from .UIGrid import UIGrid
+
 
 class UIGrid_test(unittest.TestCase):
     
-    def testUIGrid(self):
+    def runTest(self):
         cellSize = (10, 10)
         grid = UIGrid(2, 3, cellSize)
         self.assertEqual(grid.getNSpaces(), 6)

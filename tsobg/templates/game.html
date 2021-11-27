@@ -69,19 +69,11 @@
 	}
 	
 	function updateState(data) {
-		/*
-		var infoDiv = document.getElementById("info");
-		if (data.info) {
-			infoDiv.innerHTML = data.info;
-		}
-		*/
-		// TODO read and apply new state or incremental updates, whatever is in the data
-	
 		if (data instanceof Array) {
 			data.forEach(function (uData, idx) {
 			    if (uData instanceof Array && uData.length >= 1) {
 					if (uData[0] === "set_div") {
-						setDiv(uData[1].id, uData[1]);
+						setDiv(uData[1], uData[2]);
 					} else {
 						unknownDataError(uData, "updateState 3");
 					}

@@ -10,26 +10,60 @@ from .UIChangeInterface import UIChangeInterface
 def flatten1(listOfLists):
     return [item for sublist in listOfLists for item in sublist]
 
+divOptsDefaults = {"parent":None, "pos":"auto", "size":"auto", "img":None, "border":None, "color":"transparent"}
+
+# returns pruned uiChange 
+def pruneUIChange(uiState, uiChange):
+	stateDivs = uiState["divs"]
+	command = uiChange[0]
+	if command == "set_div":
+		id = uiChange[1]
+		opts = uiChange[2]
+		divState = stateDivs.get(id, {})
+		prunedOpts = {}
+		for key,value in opts.items():
+			valueState = divState.get(key, divOptsDefaults[key])
+			if value != valueState:
+				prunedOpts[key] = value
+		return ("set_div", id, prunedOpts)
+	else:
+		raise RuntimeException("Unknown command: " + command)
+
+# returns reversed version of uiChange 
 def uiChangeReverse(uiState, uiChange):
-	# TODO: UI Commands
+	stateDivs = uiState["divs"]
 	command = uiChange[0]
-	'''
-	if command == "list-add":
-		return ["list-remove"] + stateChange[1:]
-	if command == "var-set":
-		varName = stateChange[1]
-		if varName in state:
-			return [command, varName, state[varName]]
+	if command == "set_div":
+		id = uiChange[1]
+		opts = uiChange[2]
+		divState = stateDivs.get(id, {})
+		revOpts = {}
+		for key,value in opts.items():
+			if key in divState:
+				revOpts[key] = divState[key]
+			else:
+				revOpts[key] = divOptsDefaults[key]
+		return ("set_div", id, revOpts)
+	else:
+		raise RuntimeException("Unknown command: " + command)
+	
+# modifies uiState with uiChange
+def applyUIChange(uiState, uiChange):
+	stateDivs = uiState["divs"]
+	command = uiChange[0]
+	if command == "set_div":
+		id = uiChange[1]
+		opts = uiChange[2]
+		if id not in stateDivs:
+			stateDivs[id] = opts
 		else:
-			return ["remove", varName]
-	'''
+			stateDivs[id].update(opts)
+	else:
+		raise RuntimeException("Unknown command: " + command)
 	
-def applyUIChange(currentUIState, uiChange):
-	# TODO: UI Commands
-	command = uiChange[0]
-	
-# TODO, add something? center etc..?
-uiStartState = {}
+
+
+uiStartState = { "divs": {} }
 
 
 class BaseGame(UIChangeInterface):
@@ -101,6 +135,7 @@ class BaseGame(UIChangeInterface):
 	# ----------------- UI Methods -----------------
 	
 	def addUIChange(self, uiChange):
+		uiChange = pruneUIChange(self.currentUIState, uiChange)
 		currentStateN = self.currentStateN
 		self.uiProgression[currentStateN].append(uiChange) # record the uiChange
 		self.uiRegression[currentStateN + 1].insert(0, uiChangeReverse(self.currentUIState, uiChange)) # record the reverse uiChange

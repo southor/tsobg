@@ -1,10 +1,13 @@
 import unittest
 
-from Deck import Deck
+if __name__ == '__main__':
+    from Deck import Deck
+else:
+    from .Deck import Deck
 
 class Deck_test(unittest.TestCase):
     
-    def testDeck(self):
+    def runTest(self):
         cards = ["c1", "c2", "c3", "c4"]
         
         # test (auto)shuffled deck
