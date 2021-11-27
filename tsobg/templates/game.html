@@ -51,6 +51,7 @@
 	}
 	
 	function requestState(newStateN) {
+		console.log("requestState: ", newStateN)
 		var urlParams = ["update_client_state", currentStateN];
 		if (newStateN !== undefined) {
 			urlParams.push(newStateN);
@@ -104,8 +105,8 @@
 <body onload="requestState()">
 	<div class="top-bar">
 		<p id="state_n_label">stateN: -</p>
-		<button type="button">reverse</button>
-		<button type="button">forward</button>
+		<button type="button" onclick="requestState(currentStateN-1)">Back</button>
+		<button type="button" onclick="requestState(currentStateN+1)">Forward</button>
 		{{info}}
 	</div>
 	

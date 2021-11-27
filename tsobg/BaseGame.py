@@ -6,65 +6,16 @@ from pathlib import PurePath
 
 from .UIChangeInterface import UIChangeInterface
 
+from . import ui_state
+from .ui_state import pruneUIChange, uiChangeReverse, applyUIChange
+
+
 
 def flatten1(listOfLists):
-    return [item for sublist in listOfLists for item in sublist]
+	return [item for sublist in listOfLists for item in sublist]
 
-divOptsDefaults = {"parent":None, "pos":"auto", "size":"auto", "img":None, "border":None, "color":"transparent"}
-
-# returns pruned uiChange 
-def pruneUIChange(uiState, uiChange):
-	stateDivs = uiState["divs"]
-	command = uiChange[0]
-	if command == "set_div":
-		id = uiChange[1]
-		opts = uiChange[2]
-		divState = stateDivs.get(id, {})
-		prunedOpts = {}
-		for key,value in opts.items():
-			valueState = divState.get(key, divOptsDefaults[key])
-			if value != valueState:
-				prunedOpts[key] = value
-		return ("set_div", id, prunedOpts)
-	else:
-		raise RuntimeException("Unknown command: " + command)
-
-# returns reversed version of uiChange 
-def uiChangeReverse(uiState, uiChange):
-	stateDivs = uiState["divs"]
-	command = uiChange[0]
-	if command == "set_div":
-		id = uiChange[1]
-		opts = uiChange[2]
-		divState = stateDivs.get(id, {})
-		revOpts = {}
-		for key,value in opts.items():
-			if key in divState:
-				revOpts[key] = divState[key]
-			else:
-				revOpts[key] = divOptsDefaults[key]
-		return ("set_div", id, revOpts)
-	else:
-		raise RuntimeException("Unknown command: " + command)
-	
-# modifies uiState with uiChange
-def applyUIChange(uiState, uiChange):
-	stateDivs = uiState["divs"]
-	command = uiChange[0]
-	if command == "set_div":
-		id = uiChange[1]
-		opts = uiChange[2]
-		if id not in stateDivs:
-			stateDivs[id] = opts
-		else:
-			stateDivs[id].update(opts)
-	else:
-		raise RuntimeException("Unknown command: " + command)
-	
-
-
-uiStartState = { "divs": {} }
-
+def clamp(n, smallest, largest):
+	return max(smallest, min(n, largest))
 
 class BaseGame(UIChangeInterface):
 
@@ -76,20 +27,20 @@ class BaseGame(UIChangeInterface):
 		# One action per state
 		self.actions = []
 		self.gameStateHistory = [{}]
-		self.uiStateHistory = [uiStartState]
+		self.uiStateHistory = [ui_state.uiStartState]
 		self.uiProgression = [[]] # How to go to from stateN to stateN+1
 		self.uiRegression = [[],[]] # How to go from stateN to stateN-1
 		
 		self.gameRootPath = gameRootPath
 		
 		self.currentStateN = 0
-		self.currentUIState = uiStartState
+		self.currentUIState = ui_state.uiStartState
 	
 	# ----------------- Server Methods -----------------
 		
 	def getUIChanges(self, fromStateN, toStateN):
-		fromStateN = max(fromStateN, 0)
-		toStateN = min(toStateN, self.currentStateN)
+		fromStateN = clamp(fromStateN, 0, self.currentStateN)
+		toStateN = clamp(toStateN, 0, self.currentStateN)
 		uiChanges = [("state_n", toStateN)]
 		if fromStateN < toStateN:
 			uiChanges += flatten1(self.uiProgression[fromStateN:toStateN])

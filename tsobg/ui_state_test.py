@@ -4,7 +4,7 @@ from .BaseGame import pruneUIChange
 from .BaseGame import uiChangeReverse
 from .BaseGame import applyUIChange
 
-class UIChange_test(unittest.TestCase):
+class UIState_test(unittest.TestCase):
 
 	def createDivs():
 		divs = {}
@@ -28,13 +28,13 @@ class UIChange_test(unittest.TestCase):
 		
 		
 	def testPrune(self):
-		uiState = {"divs": UIChange_test.createDivs()}
+		uiState = {"divs": UIState_test.createDivs()}
 		self.testSetDivPrune(uiState, "restaurant_space",	{"img":"restaurant.png"},	{})
 		self.testSetDivPrune(uiState, "restaurant_space",	{"img":"food.png"},			{"img":"food.png"})
 		self.testSetDivPrune(uiState, "plaza_space",		{"pos":"auto"},				{})
 		
 	def testReverse(self):
-		uiState = {"divs": UIChange_test.createDivs()}
+		uiState = {"divs": UIState_test.createDivs()}
 		self.testSetDivReverse(uiState, "factory_space",	{},										{})
 		self.testSetDivReverse(uiState, "factory_space",	{"parent":"street"},					{"parent":"center"})
 		self.testSetDivReverse(uiState, "restaurant_space",	{"img":"restaurant.png"},				{"img":"restaurant.png"})
