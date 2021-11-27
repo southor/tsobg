@@ -90,12 +90,14 @@ class BaseGame(UIChangeInterface):
 	def getUIChanges(self, fromStateN, toStateN):
 		fromStateN = max(fromStateN, 0)
 		toStateN = min(toStateN, self.currentStateN)
+		uiChanges = [("state_n", toStateN)]
 		if fromStateN < toStateN:
-			return flatten1(self.uiProgression[fromStateN:toStateN])
+			uiChanges += flatten1(self.uiProgression[fromStateN:toStateN])
 		elif fromStateN > toStateN:
-			return flatten1(self.uiRegression[toStateN + 1:fromStateN + 1])
+			uiChanges += flatten1(self.uiRegression[toStateN + 1:fromStateN + 1])
 		else:
-			return []
+			pass
+		return uiChanges
 	
 	def clientAction(self, actionObj):
 		if self.actionAllowed(actionObj):

@@ -135,20 +135,6 @@ def gameFile(playerId, playerName, gameFilePath):
 	else:
 		flask.abort(403)
 
-timeout_script = '''
-	<script type = "text/JavaScript">
-		function AutoRefresh( t ) {
-		   setTimeout("location.reload(true);", t);
-		}
-	</script>
-'''
-body_script = '''
-	<body onload = "JavaScript:AutoRefresh(5000);">
-	  {}
-      <p>This page will refresh every 5 seconds.</p>
-   </body>
-'''
-
 def newGame(game, nPlayers, **kwargs):
 	assert(not game.hasStarted())
 	if 'players' in kwargs:

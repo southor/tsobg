@@ -72,9 +72,12 @@
 	function updateState(data) {
 		if (data instanceof Array) {
 			data.forEach(function (uData, idx) {
-			    if (uData instanceof Array && uData.length >= 1) {
+				if (uData instanceof Array && uData.length >= 1) {
 					if (uData[0] === "set_div") {
 						setDiv(uData[1], uData[2]);
+					} else if (uData[0] === "state_n") {
+						currentStateN = uData[1]
+						document.getElementById("state_n_label").innerHTML = "stateN: " + currentStateN.toString();;
 					} else {
 						unknownDataError(uData, "updateState 3");
 					}
@@ -97,9 +100,10 @@
 	}
 	
 </script>
-<!--<body style="background-color:#D0FFE0" onload="requestState()">-->
+
 <body onload="requestState()">
 	<div class="top-bar">
+		<p id="state_n_label">stateN: -</p>
 		<button type="button">reverse</button>
 		<button type="button">forward</button>
 		{{info}}

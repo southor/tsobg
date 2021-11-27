@@ -1,0 +1,324 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{41925356-2873-4386-a6d2-814be0f266e4}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>Skyscrapers\online\main.py</StartupFile>
+    <SearchPath />
+    <WorkingDirectory>Skyscrapers\online</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <InterpreterId />
+    <IsWindowsApplication>False</IsWindowsApplication>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="Skyscrapers\generated_cards\cardBack.png" />
+    <Content Include="Skyscrapers\generated_cards\card_architect01.png" />
+    <Content Include="Skyscrapers\generated_cards\card_architect02.png" />
+    <Content Include="Skyscrapers\generated_cards\card_architect03.png" />
+    <Content Include="Skyscrapers\generated_cards\card_architect04.png" />
+    <Content Include="Skyscrapers\generated_cards\card_architect05.png" />
+    <Content Include="Skyscrapers\generated_cards\card_construction01.png" />
+    <Content Include="Skyscrapers\generated_cards\card_construction02.png" />
+    <Content Include="Skyscrapers\generated_cards\card_construction03.png" />
+    <Content Include="Skyscrapers\generated_cards\card_loan01.png" />
+    <Content Include="Skyscrapers\generated_cards\card_loan02.png" />
+    <Content Include="Skyscrapers\generated_cards\card_loan03.png" />
+    <Content Include="Skyscrapers\generated_cards\card_loan04.png" />
+    <Content Include="Skyscrapers\generated_cards\card_lot01.png" />
+    <Content Include="Skyscrapers\generated_cards\card_lot02.png" />
+    <Content Include="Skyscrapers\generated_cards\card_material01.png" />
+    <Content Include="Skyscrapers\generated_cards\card_material02.png" />
+    <Content Include="Skyscrapers\generated_cards\card_material03.png" />
+    <Content Include="Skyscrapers\generated_cards\card_material04.png" />
+    <Content Include="Skyscrapers\generated_cards\card_material05.png" />
+    <Content Include="Skyscrapers\generated_cards\card_production01.png" />
+    <Content Include="Skyscrapers\generated_cards\card_production02.png" />
+    <Content Include="Skyscrapers\generated_cards\card_tenant01.png" />
+    <Content Include="Skyscrapers\generated_cards\card_tenant02.png" />
+    <Content Include="Skyscrapers\generated_cards\card_tenant03.png" />
+    <Content Include="Skyscrapers\generated_cards\card_tenant04.png" />
+    <Content Include="Skyscrapers\generated_cards\card_tenant05.png" />
+    <Content Include="Skyscrapers\generated_cards\card_tenant06.png" />
+    <Content Include="Skyscrapers\generated_cards\card_tenant07.png" />
+    <Content Include="Skyscrapers\generated_cards\card_tenant08.png" />
+    <Content Include="Skyscrapers\generated_cards\card_tenant09.png" />
+    <Content Include="Skyscrapers\generated_cards\card_upgrade01.png" />
+    <Content Include="Skyscrapers\generated_cards\card_upgrade02.png" />
+    <Content Include="Skyscrapers\generated_cards\card_upgrade03.png" />
+    <Content Include="Skyscrapers\generated_cards\card_upgrade04.png" />
+    <Content Include="Skyscrapers\generated_cards\card_upgrade05.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\cardBack.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_architect01.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_architect02.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_architect03.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_architect04.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_architect05.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_construction01.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_construction02.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_construction03.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_loan01.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_loan02.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_loan03.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_loan04.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_lot01.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_lot02.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_material01.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_material02.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_material03.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_material04.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_material05.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_production01.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_production02.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_tenant01.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_tenant02.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_tenant03.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_tenant04.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_tenant05.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_tenant06.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_tenant07.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_tenant08.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_tenant09.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_upgrade01.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_upgrade02.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_upgrade03.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_upgrade04.png" />
+    <Content Include="Skyscrapers\generated_cards_debug\card_upgrade05.png" />
+    <Content Include="Skyscrapers\generated_cards_online\cardBack.png" />
+    <Content Include="Skyscrapers\generated_cards_online\cardBack_deck01.png" />
+    <Content Include="Skyscrapers\generated_cards_online\cardBack_deck02.png" />
+    <Content Include="Skyscrapers\generated_cards_online\cardBack_deck03.png" />
+    <Content Include="Skyscrapers\generated_cards_online\cardBack_deck04.png" />
+    <Content Include="Skyscrapers\generated_cards_online\cardBack_deck05.png" />
+    <Content Include="Skyscrapers\generated_cards_online\cardBack_deck06.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_architect01.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_architect02.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_architect03.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_architect04.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_architect05.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_construction01.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_construction02.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_construction03.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_loan01.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_loan02.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_loan03.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_loan04.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_lot01.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_lot02.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_material01.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_material02.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_material03.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_material04.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_material05.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_production01.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_production02.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_tenant01.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_tenant02.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_tenant03.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_tenant04.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_tenant05.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_tenant06.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_tenant07.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_tenant08.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_tenant09.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_upgrade01.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_upgrade02.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_upgrade03.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_upgrade04.png" />
+    <Content Include="Skyscrapers\generated_cards_online\card_upgrade05.png" />
+    <Content Include="Skyscrapers\graphics\cardBackIllustration.png" />
+    <Content Include="Skyscrapers\icons\beauty.png" />
+    <Content Include="Skyscrapers\icons\concrete.png" />
+    <Content Include="Skyscrapers\icons\floor.png" />
+    <Content Include="Skyscrapers\icons\free_view.png" />
+    <Content Include="Skyscrapers\icons\location_nearby.png" />
+    <Content Include="Skyscrapers\icons\location_nearby_including.png" />
+    <Content Include="Skyscrapers\icons\location_next_to.png" />
+    <Content Include="Skyscrapers\icons\location_next_to_including.png" />
+    <Content Include="Skyscrapers\icons\location_same_building.png" />
+    <Content Include="Skyscrapers\icons\money.png" />
+    <Content Include="Skyscrapers\icons\parking.png" />
+    <Content Include="Skyscrapers\icons\steel.png" />
+    <Content Include="Skyscrapers\icons\tenant.png" />
+    <Content Include="Skyscrapers\online\web_test\game.css" />
+    <Content Include="Skyscrapers\online\web_test\game.html" />
+    <Content Include="Skyscrapers\online\web_test\game.js" />
+    <Content Include="Skyscrapers\rules.txt" />
+    <Content Include="Skyscrapers\_backup\generated_cards\architect01.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\architect02.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\architect03.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\architect04.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\architect05.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\cardBack.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\construction01.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\construction02.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\construction03.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\loan01.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\loan02.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\loan03.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\loan04.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\lot01.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\lot02.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\material01.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\material02.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\material03.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\material04.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\material05.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\production01.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\production02.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\tenant01.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\tenant02.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\tenant03.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\tenant04.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\tenant05.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\tenant06.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\tenant07.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\tenant08.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\tenant09.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\upgrade01.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\upgrade02.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\upgrade03.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\upgrade04.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards\upgrade05.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\architect01.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\architect02.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\architect03.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\architect04.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\architect05.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\cardBack.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\construction01.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\construction02.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\construction03.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\loan01.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\loan02.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\loan03.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\loan04.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\lot01.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\lot02.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\material01.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\material02.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\material03.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\material04.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\material05.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\production01.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\production02.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\tenant01.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\tenant02.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\tenant03.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\tenant04.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\tenant05.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\tenant06.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\tenant07.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\tenant08.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\tenant09.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\upgrade01.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\upgrade02.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\upgrade03.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\upgrade04.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_debug\upgrade05.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\architect01.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\architect02.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\architect03.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\architect04.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\architect05.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\cardBack.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\cardBack_deck01.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\cardBack_deck02.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\cardBack_deck03.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\cardBack_deck04.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\cardBack_deck05.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\cardBack_deck06.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\construction01.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\construction02.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\construction03.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\loan01.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\loan02.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\loan03.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\loan04.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\lot01.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\lot02.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\material01.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\material02.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\material03.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\material04.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\material05.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\production01.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\production02.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\tenant01.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\tenant02.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\tenant03.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\tenant04.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\tenant05.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\tenant06.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\tenant07.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\tenant08.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\tenant09.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\upgrade01.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\upgrade02.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\upgrade03.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\upgrade04.png" />
+    <Content Include="Skyscrapers\_backup\generated_cards_online\upgrade05.png" />
+    <Content Include="todo.txt" />
+    <Content Include="tsobg\static\favico.png" />
+    <Content Include="tsobg\static\game_environment.js" />
+    <Content Include="tsobg\static\game.css" />
+    <Content Include="tsobg\templates\error.html" />
+    <Content Include="tsobg\templates\game.html" />
+    <Content Include="tsobg\templates\start.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="tsobg_test.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Skyscrapers\cards_old.py" />
+    <Compile Include="Skyscrapers\card_data.py" />
+    <Compile Include="Skyscrapers\card_graphics.py" />
+    <Compile Include="Skyscrapers\online\Card.py" />
+    <Compile Include="Skyscrapers\online\CardMarket.py" />
+    <Compile Include="Skyscrapers\online\game.py" />
+    <Compile Include="Skyscrapers\online\main.py" />
+    <Compile Include="Skyscrapers\online\SkyscrapersGame.py" />
+    <Compile Include="Skyscrapers\table.py" />
+    <Compile Include="tsobg\BaseGame.py" />
+    <Compile Include="tsobg\Deck.py" />
+    <Compile Include="tsobg\ui_change_test.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="tsobg\UIGrid_test.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="tsobg\server.py" />
+    <Compile Include="tsobg\Deck_test.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="tsobg\UIChangeInterface.py" />
+    <Compile Include="tsobg\UIGrid.py" />
+    <Compile Include="tsobg\__init__.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Skyscrapers" />
+    <Folder Include="Skyscrapers\generated_cards" />
+    <Folder Include="Skyscrapers\generated_cards_debug" />
+    <Folder Include="Skyscrapers\generated_cards_online" />
+    <Folder Include="Skyscrapers\graphics" />
+    <Folder Include="Skyscrapers\icons" />
+    <Folder Include="Skyscrapers\online" />
+    <Folder Include="Skyscrapers\online\web_test" />
+    <Folder Include="Skyscrapers\_backup\" />
+    <Folder Include="Skyscrapers\_backup\generated_cards" />
+    <Folder Include="Skyscrapers\_backup\generated_cards_debug" />
+    <Folder Include="Skyscrapers\_backup\generated_cards_online" />
+    <Folder Include="tsobg" />
+    <Folder Include="tsobg\static" />
+    <Folder Include="tsobg\templates" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+</Project>
