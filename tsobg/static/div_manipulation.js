@@ -1,17 +1,4 @@
 
-/*
-function createDiv(id, rect, parentId) {
-	var div = document.createElement("div");
-	div.setAttribute('id', id);
-	div.style.position = "absolute";
-	document.getElementById(parentId).appendChild(div);
-	div.style.left = rect.x + 'px';
-	div.style.top = rect.y + 'px';
-	div.style.width = rect.w + 'px';
-	div.style.height = rect.h + 'px';
-}
-*/
-
 function parseSize(obj) {
 	var x = "auto";
 	var y = "auto";

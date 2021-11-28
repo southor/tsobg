@@ -267,8 +267,7 @@
     <Content Include="Skyscrapers\_backup\generated_cards_online\upgrade04.png" />
     <Content Include="Skyscrapers\_backup\generated_cards_online\upgrade05.png" />
     <Content Include="todo.txt" />
-    <Content Include="tsobg\static\favico.png" />
-    <Content Include="tsobg\static\game_environment.js" />
+    <Content Include="tsobg\static\div_manipulation.js" />
     <Content Include="tsobg\static\game.css" />
     <Content Include="tsobg\templates\error.html" />
     <Content Include="tsobg\templates\game.html" />
