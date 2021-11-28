@@ -28,6 +28,11 @@ function parseSize(obj) {
 	return [x, y];
 }
 
+function getDivImgElement(div) {
+	const arr = div.getElementsByTagName('img');
+	return (arr.length >= 1) ? arr[0] : null;
+}
+
 // If div does not exists it is created
 function setDiv(id, opts) {
 	console.log("set div called with:", id, opts);
@@ -39,44 +44,56 @@ function setDiv(id, opts) {
 		div.style.position = "absolute";
 		div.style.backgroundColor = "transparent";
 	}
-	if (opts.parent) {
+
+	if (opts.parent || opts.parent === null) {
 		if (div.parentNode) {
 			div.parentNode.removeChild(div);
 			console.log("removing div child");
 		}
-		console.log("setting div parent");
-		document.getElementById(opts.parent).appendChild(div);
+		if (opts.parent) {
+			console.log("setting div parent");
+			document.getElementById(opts.parent).appendChild(div);
+		}
 	}
+
 	if (opts.pos) {
 		const pos = parseSize(opts.pos);
 		div.style.left = pos[0];
 		div.style.top = pos[1];
 		console.log("setting div pos");
 	}
+
 	if (opts.size) {
 		const size = parseSize(opts.size);
 		div.style.width = size[0];
 		div.style.height = size[1];
 		console.log("setting div size");
 	}
-	if (opts.img) {
-		var arr = div.getElementsByTagName('img');
-		var img;
-		if (arr.length >= 1) {
-			img = arr[0]
-			console.log("getting existing div img");
+
+	if (opts.img || opts.img === null) {
+		var imgElement = getDivImgElement(div)
+		if (opts.img) {
+			if (imgElement) {
+				imgElement.style.visibility = "visible"
+			} else {
+				console.log("creating div img");
+				imgElement = document.createElement("img");
+				div.appendChild(imgElement);
+			}
+			imgElement.setAttribute('src', opts.img);
 		} else {
-			console.log("creating div img");
-			img = document.createElement("img");
-			div.appendChild(img);
+			console.assert(opts.img === null);
+			if (imgElement) {
+				imgElement.style.visibility = "hidden"
+            }
 		}
-		console.log("set div img src ", opts.img);
-		img.setAttribute('src', opts.img);
 	}
+
 	if (opts.border) {
 		div.style.border = opts.border;
 		div.style.borderWidth = "thin";
 	}
+
 	if (opts.color) {
 		div.style.backgroundColor = opts.color;
 	}

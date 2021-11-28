@@ -275,10 +275,12 @@
     <Content Include="tsobg\templates\start.html" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="tsobg\ui_state.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="tsobg_test.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Skyscrapers\cards_old.py" />
     <Compile Include="Skyscrapers\card_data.py" />
     <Compile Include="Skyscrapers\card_graphics.py" />
     <Compile Include="Skyscrapers\online\Card.py" />
@@ -286,10 +288,9 @@
     <Compile Include="Skyscrapers\online\game.py" />
     <Compile Include="Skyscrapers\online\main.py" />
     <Compile Include="Skyscrapers\online\SkyscrapersGame.py" />
-    <Compile Include="Skyscrapers\table.py" />
     <Compile Include="tsobg\BaseGame.py" />
     <Compile Include="tsobg\Deck.py" />
-    <Compile Include="tsobg\ui_change_test.py">
+    <Compile Include="tsobg\ui_state_test.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tsobg\UIGrid_test.py">

@@ -4,13 +4,13 @@
 
 import unittest
 
-from tsobg.ui_change_test import UIChange_test
+from tsobg.ui_state_test import UIState_test
 from tsobg.Deck_test import Deck_test
 from tsobg.UIGrid_test import UIGrid_test
 
 
 suite = unittest.TestSuite()
-suite.addTest(UIChange_test())
+suite.addTest(UIState_test())
 suite.addTest(Deck_test())
 suite.addTest(UIGrid_test())
 
