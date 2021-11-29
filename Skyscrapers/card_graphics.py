@@ -19,9 +19,12 @@ fontHeights = {
 	"textFontS" : 11 + 3
 }
 
-cardOutputFolder = "generated_cards"
-cardDebugOutputFolder = "generated_cards_debug"
-cardOnlineOutputFolder = "generated_cards_online"
+cardOutputFolder = pathHere / "generated_cards"
+cardDebugOutputFolder = pathHere / "generated_cards_debug"
+cardOnlineOutputFolder = pathHere / "generated_cards_online"
+
+iconsFolder = pathHere / "icons"
+graphicsFolder = pathHere / "graphics"
 
 cardWidth = 180
 cardHeight = 180
@@ -37,7 +40,6 @@ cardColor = (255, 255, 255, 255)
 raiseColor = (180, 180, 180, 255)
 
 icons = {}
-iconsFolder = pathHere / "icons"
 iconFiles = [f for f in iconsFolder.iterdir() if (iconsFolder / f).is_file()]
 for filePath in iconFiles:
 	iconName = filePath.stem
@@ -512,7 +514,7 @@ def makeUpgradeCard(**kwargs):
 	return makeTextCard(title, text, ("top",), "textFontS", **kwargs)
 
 def makeCardBack(**kwargs):
-	return makeImageCard("graphics/cardBackIllustration.png", **kwargs)
+	return makeImageCard(str(graphicsFolder / "cardBackIllustration.png"), **kwargs)
 	
 # ----------------------------------------
 
@@ -530,19 +532,19 @@ cardMakeFunctions = {
 def makeAndSaveDeck(name, topCard, nDeckImages):
 	for nOutlines in range(1, nDeckImages+1):
 		deck = makeDeckImage(topCard, nOutlines)
-		#print(name, nOutlines)
-		deck.save(cardOnlineOutputFolder + "/" + name + "_deck" + "{:02d}.png".format(nOutlines))	
+		name = name + "_deck" + "{:02d}.png".format(nOutlines)
+		deck.save(str(cardOnlineOutputFolder / name))
 	
 def makeAndSaveCard(makeCardFunc, name, cardKWArgs = {}, **kwargs):
 	nDeckImages = kwargs.get("nDeckImages", 0)
 	filename = name + ".png"
-	filePath = cardOutputFolder + "/" + filename
-	debugFilePath = cardDebugOutputFolder + "/" + filename
-	onlineFilePath = cardOnlineOutputFolder + "/" + filename
-	makeCardFunc(**cardKWArgs).save(filePath)
-	makeCardFunc(**cardKWArgs, debugSections=True).save(debugFilePath)
+	filePath = cardOutputFolder / filename
+	debugFilePath = cardDebugOutputFolder / filename
+	onlineFilePath = cardOnlineOutputFolder / filename
+	makeCardFunc(**cardKWArgs).save(str(filePath))
+	makeCardFunc(**cardKWArgs, debugSections=True).save(str(debugFilePath))
 	cardOnline = makeCardFunc(**cardKWArgs, drawRaise=True)
-	cardOnline.save(onlineFilePath)
+	cardOnline.save(str(onlineFilePath))
 	if nDeckImages > 0:
 		makeAndSaveDeck(name, cardOnline, nDeckImages)
 	
@@ -557,6 +559,8 @@ def makeAllCardImages():
 	makeAndSaveCard(makeCardBack, "cardBack", nDeckImages=6) # card back (with deck images)
 
 if __name__ == "__main__":
+	print("generating cards...")
 	makeAllCardImages()
+	print("done")
 	
 	
