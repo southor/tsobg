@@ -1,8 +1,8 @@
 import unittest
 
-from .BaseGame import pruneUIChange
-from .BaseGame import uiChangeReverse
-from .BaseGame import applyUIChange
+from .ui_state import pruneUIChange
+from .ui_state import uiChangeReverse
+from .ui_state import applyUIChange
 
 class UIState_test(unittest.TestCase):
 
