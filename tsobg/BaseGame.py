@@ -5,17 +5,8 @@ from pathlib import Path
 from pathlib import PurePath
 
 from .UIChangeInterface import UIChangeInterface
+from .UIHistory import UIHistory
 
-from . import ui_state
-from .ui_state import pruneUIChange, uiChangeReverse, applyUIChange
-
-
-
-def flatten1(listOfLists):
-	return [item for sublist in listOfLists for item in sublist]
-
-def clamp(n, smallest, largest):
-	return max(smallest, min(n, largest))
 
 class BaseGame(UIChangeInterface):
 
@@ -23,32 +14,18 @@ class BaseGame(UIChangeInterface):
 	
 	def __init__(self, name, gameRootPath: Path):
 		self.name = name
-		
+		self.gameRootPath = gameRootPath
 		# One action per state
 		self.actions = []
 		self.gameStateHistory = [{}]
-		self.uiStateHistory = [ui_state.uiStartState]
-		self.uiProgression = [[]] # How to go to from stateN to stateN+1
-		self.uiRegression = [[],[]] # How to go from stateN to stateN-1
-		
-		self.gameRootPath = gameRootPath
-		
+		self.uiStateHistory = UIHistory()
 		self.currentStateN = 0
-		self.currentUIState = ui_state.uiStartState
 	
 	# ----------------- Server Methods -----------------
 		
 	def getUIChanges(self, fromStateN, toStateN):
-		fromStateN = clamp(fromStateN, 0, self.currentStateN)
-		toStateN = clamp(toStateN, 0, self.currentStateN)
-		uiChanges = [("state_n", toStateN)]
-		if fromStateN < toStateN:
-			uiChanges += flatten1(self.uiProgression[fromStateN:toStateN])
-		elif fromStateN > toStateN:
-			uiChanges += flatten1(self.uiRegression[toStateN + 1:fromStateN + 1])
-		else:
-			pass
-		return uiChanges
+		assert(self.uiStateHistory.currentStateN == self.currentStateN)
+		return self.uiStateHistory.getUIChanges(fromStateN, toStateN)
 	
 	def clientAction(self, actionObj):
 		if self.actionAllowed(actionObj):
@@ -58,10 +35,7 @@ class BaseGame(UIChangeInterface):
 			assert(newState)
 			self.gameStateHistory.append(newState)
 			self.currentStateN += 1
-			# initiate next UI state tracking
-			self.uiStateHistory.append(self.currentUIState)
-			self.uiProgression.append([])
-			self.uiRegression.append([])
+			self.uiStateHistory.initNext()
 			return True
 		else:
 			return False
@@ -88,11 +62,8 @@ class BaseGame(UIChangeInterface):
 	# ----------------- UI Methods -----------------
 	
 	def addUIChange(self, uiChange):
-		uiChange = pruneUIChange(self.currentUIState, uiChange)
-		currentStateN = self.currentStateN
-		self.uiProgression[currentStateN].append(uiChange) # record the uiChange
-		self.uiRegression[currentStateN + 1].insert(0, uiChangeReverse(self.currentUIState, uiChange)) # record the reverse uiChange
-		applyUIChange(self.currentUIState, uiChange) # apply uiChange
+		uiChange = self.uiStateHistory.pruneUIChange(uiChange)
+		self.uiStateHistory.addUIChange(uiChange)
 		
 	def addUIChanges(self, uiChanges: list):
 		for uic in uiChanges:

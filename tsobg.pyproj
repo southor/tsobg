@@ -274,6 +274,9 @@
     <Content Include="tsobg\templates\start.html" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="tsobg\UIHistory.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="tsobg\ui_state.py">
       <SubType>Code</SubType>
     </Compile>
