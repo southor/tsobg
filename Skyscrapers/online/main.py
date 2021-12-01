@@ -24,6 +24,6 @@ if __name__ == '__main__':
 			kwargs['players'] = globals()['players']
 	
 	tsobg.newGame(SkyscrapersGame(), int(nPlayers), **kwargs)
-	tsobg.runServer(False)
+	tsobg.runServer(True)
 	
 	

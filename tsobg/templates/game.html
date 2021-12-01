@@ -103,15 +103,28 @@
 </script>
 
 <body onload="requestState()">
+	
 	<div class="top-bar">
-		<p id="state_n_label">stateN: -</p>
-		<button type="button" onclick="requestState(currentStateN-1)">Back</button>
-		<button type="button" onclick="requestState(currentStateN+1)">Forward</button>
-		{{info}}
+		<table>
+			<tr>
+				<td style="width: 75px">
+					<p id="state_n_label">stateN: -</p>
+				</td>
+				<td>
+					<button type="button" onclick="requestState(currentStateN-1)">Back</button>
+					<button type="button" onclick="requestState(currentStateN+1)">Forward</button>
+				</td>
+				<td>
+					{{info}}
+				</td>
+			</tr>
+		</table>
 	</div>
+
 	
 	<div id="center">
 	</div>
-	
+		
+
 </body>
 </html>
