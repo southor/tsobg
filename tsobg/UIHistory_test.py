@@ -12,7 +12,7 @@ class UIHistory_test(unittest.TestCase):
 		# ui changes should get combined
 		uiHistory.stageUIChange(("set_div", "factory", {"parent":"town"}))
 		uiHistory.stageUIChange(("set_div", "factory", {"img":"purple_factory.png"}))
-		self.assertEqual(len(uiHistory.stagedUIChanges), 2)
+		self.assertEqual(len(uiHistory.stagedUIChanges), 1) # uiChanges should be combined
 		# commit uiState1
 		uiHistory.commitUIChanges()
 		uiState1 = uiHistory.uiStateHistory[-1]

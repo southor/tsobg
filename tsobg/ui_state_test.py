@@ -1,6 +1,6 @@
 import unittest
 
-from .ui_state import updateUIChange, pruneUIChange, uiChangeReverse, applyUIChange
+from .ui_state import combineUIChanges, pruneUIChange, uiChangeReverse, applyUIChange
 
 
 class UIState_test(unittest.TestCase):
@@ -29,20 +29,20 @@ class UIState_test(unittest.TestCase):
 		applyUIChange(uiState,  ("set_div", id, optsInput))
 		self.assertEqual(uiState, uiStateExpected)
 	
-	def testUpdate(self):
-		uic = ("set_div", "homer", {"pos":(45, 10)})
-		# command mismatch, should not update
-		res = updateUIChange(uic, ("some_command", "homer", {"pos":(30, 10)}))
+	def testCombine(self):
+		uic = ("set_div", "homer", {"pos":(45, 10), "size":(20,20)})
+		uicOriginal = uic.copy()
+		# command mismatch, should not combine
+		res = combineUIChange(uic, ("some_command", "homer", {"pos":(30, 10)}))
 		self.assertFalse(res)
-		self.assertEqual(uic[2]["pos"], (45, 10))
-		# id mismatch, should not update
-		res = updateUIChange(uic, ("set_div", "bart", {"pos":(30, 10)}))
+		# id mismatch, should not combine
+		res = combineUIChange(uic, ("set_div", "bart", {"pos":(30, 10)}))
 		self.assertFalse(res)
-		self.assertEqual(uic[2]["pos"], (45, 10))
-		# command,id match, should update
-		res = updateUIChange(uic, ("set_div", "homer", {"pos":(30, 10)}))
+		# command,id match, should combine (but original unchanged)
+		res = combineUIChange(uic, ("set_div", "homer", {"pos":(30, 10)}))
 		self.assertTrue(res)
-		self.assertEqual(uic[2]["pos"], (30, 10))
+		self.assertEqual(res[2], {"pos":(0, 10), "size":(20,20)})
+		self.assertEqual(uic, uicOriginal)
 		
 	def testPrune(self):
 		uiState = {"divs": UIState_test.createDivs()}

@@ -4,19 +4,28 @@ divOptsDefaults = {"parent":None, "pos":"auto", "size":"auto", "img":None, "bord
 uiStartState = { "divs": {} }
 
 
-def updateUIChange(uiChange, uiChangeOther):
-	""" Updates uiChange with uiChangeOther (combines)
-	returns False if uiChanges cannot be combined
+def combineUIChanges(uiChangeA, uiChangeB):
+	""" Combines the uiChanges if possible and returns the result
+	If the uiChanges cannot be combined then None is returned
 	"""
-	if uiChange[0] == "set_div":
-		if uiChangeOther[0] == "set_div":
-			if uiChange[1] != uiChangeOther[1]:
-				return False # div id differs
-			uiChange[2].update(uiChangeOther[2])
-			return True
-		if uiChangeOther[0] == "nop":
-			return True
-	return False
+	commandA = uiChangeA[0]
+	commandB = uiChangeB[0]
+	if commandA == "set_div":
+		if commandB == "set_div":
+			id = uiChangeA[1]
+			if uiChangeB[1] != id:
+				return None
+			opts = uiChangeA[2].copy()
+			opts.update(uiChangeB[2])
+			return ("set_div", id, opts)
+		elif commandB == "nop":
+			return uiChangeA
+		else:
+			raise RuntimeException("Unknown command: " + commandB)
+	elif commandA == "nop":
+		return uiChangeB
+	else:
+		raise RuntimeException("Unknown command: " + commandA)
 
 # returns pruned uiChange 
 def pruneUIChange(uiState, uiChange):

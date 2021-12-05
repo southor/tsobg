@@ -1,5 +1,5 @@
 from . import ui_state
-from .ui_state import updateUIChange, uiChangeReverse, applyUIChange
+from .ui_state import combineUIChanges, uiChangeReverse, applyUIChange
 
 
 def flatten1(listOfLists):
@@ -51,24 +51,24 @@ class UIHistory():
 		self.stagedUIChanges = []
 
 	def stageUIChange(self, uiChange):
-		self.stagedUIChanges.append(uiChange)
+		if len(self.stagedUIChanges) > 0:
+			# try to combine with previous uiChange that was staged
+			combUIChanges = ui_state.combineUIChanges(self.stagedUIChanges[-1], uiChange)
+		else:
+			combUIChanges = None
+		if combUIChanges:
+			self.stagedUIChanges[-1] = combUIChanges
+		else:
+			self.stagedUIChanges.append(uiChange)
 
 	def __applyUIChange(uiState, progUIChanges, regUIChanges, uiChange):
 		# prune uiChange
-		uiChange2 = ui_state.pruneUIChange(uiState, uiChange)
-		if uiChange2 == ("nop"):
+		uiChange = ui_state.pruneUIChange(uiState, uiChange)
+		if uiChange == ("nop"):
 			return
-		assert(uiChange2[0] != "set_div" or uiChange2 is not uiChange) # if its a set_div then it must be a copy of the original
-		uiChange = uiChange2
-		# record the uiChange (update last or append)
-		if len(progUIChanges) == 0 or not updateUIChange(progUIChanges[-1], uiChange):
-			progUIChanges.append(uiChange)
-		# record the reverse uiChange (update first or insert)
-		uiChangeRev = uiChangeReverse(uiState, uiChange)
-		if len(regUIChanges) > 0 and updateUIChange(uiChangeRev, regUIChanges[0]):
-			regUIChanges[0] = uiChangeRev
-		else:
-			regUIChanges.insert(0, uiChangeRev)
+		# record the uiChange (prog and reg)
+		progUIChanges.append(uiChange)
+		regUIChanges.insert(0, uiChangeReverse(uiState, uiChange))
 		# apply uiChange
 		applyUIChange(uiState, uiChange)
 
