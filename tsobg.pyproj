@@ -277,6 +277,9 @@
     <Compile Include="tsobg\UIHistory.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="tsobg\UIHistory_test.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="tsobg\ui_state.py">
       <SubType>Code</SubType>
     </Compile>

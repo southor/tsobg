@@ -16,7 +16,7 @@ admin_key = '905d3fe067bf'
 #user_states = {}
 
 game = None
-players = {} # playerName to playerids dict
+players = {} # playerName to playerIDs dict
 nPlayers = 0
 
 def _getPlayerNames():
@@ -106,7 +106,7 @@ def updateClientStateTo(playerId, playerName, currentStateN, newStateN):
 	currentStateN = int(currentStateN)
 	newStateN = int(newStateN)
 	print("updateClientStateTo: ", playerId, playerName, currentStateN, newStateN)
-	uiChanges = game.getUIChanges(currentStateN, newStateN)
+	uiChanges = game.getUIChanges(playerId, currentStateN, newStateN)
 	return jsonify(uiChanges)
 
 @app.route("/game/<playerId>/<playerName>/client_action/<currentStateN>", methods=['POST'])

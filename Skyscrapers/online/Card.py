@@ -41,4 +41,4 @@ class Card():
 	def setDiv(self, uiInterface: UIChangeInterface, **kwArgs):
 		divData = self.__newDivData()
 		divData.update(kwArgs)
-		uiInterface.addUIChange(("set_div", self.id, divData))
+		uiInterface.stageUIChange_AllPlayers(("set_div", self.id, divData))

@@ -7,12 +7,14 @@ import unittest
 from tsobg.ui_state_test import UIState_test
 from tsobg.Deck_test import Deck_test
 from tsobg.UIGrid_test import UIGrid_test
+from tsobg.UIHistory_test import UIHistory_test
 
 
 suite = unittest.TestSuite()
 suite.addTest(UIState_test())
 suite.addTest(Deck_test())
 suite.addTest(UIGrid_test())
+suite.addTest(UIHistory_test())
 
 
 result = unittest.TestResult()

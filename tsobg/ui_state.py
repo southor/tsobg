@@ -1,6 +1,22 @@
 
-
 divOptsDefaults = {"parent":None, "pos":"auto", "size":"auto", "img":None, "border":None, "color":"transparent"}
+
+uiStartState = { "divs": {} }
+
+
+def updateUIChange(uiChange, uiChangeOther):
+	""" Updates uiChange with uiChangeOther (combines)
+	returns False if uiChanges cannot be combined
+	"""
+	if uiChange[0] == "set_div":
+		if uiChangeOther[0] == "set_div":
+			if uiChange[1] != uiChangeOther[1]:
+				return False # div id differs
+			uiChange[2].update(uiChangeOther[2])
+			return True
+		if uiChangeOther[0] == "nop":
+			return True
+	return False
 
 # returns pruned uiChange 
 def pruneUIChange(uiState, uiChange):
@@ -15,7 +31,12 @@ def pruneUIChange(uiState, uiChange):
 			valueState = divState.get(key, divOptsDefaults[key])
 			if value != valueState:
 				prunedOpts[key] = value
-		return ("set_div", id, prunedOpts)
+		if prunedOpts == {}:
+			return ("nop")
+		else:
+			return ("set_div", id, prunedOpts)
+	elif command == "nop":
+		return uiChange
 	else:
 		raise RuntimeException("Unknown command: " + command)
 
@@ -33,7 +54,12 @@ def uiChangeReverse(uiState, uiChange):
 				revOpts[key] = divState[key]
 			else:
 				revOpts[key] = divOptsDefaults[key]
-		return ("set_div", id, revOpts)
+		if revOpts == {}:
+			return ("nop")
+		else:
+			return ("set_div", id, revOpts)
+	elif command == "nop":
+		return uiChange
 	else:
 		raise RuntimeException("Unknown command: " + command)
 	
@@ -44,13 +70,11 @@ def applyUIChange(uiState, uiChange):
 	if command == "set_div":
 		id = uiChange[1]
 		opts = uiChange[2]
-		if id not in stateDivs:
-			stateDivs[id] = opts
-		else:
+		if id in stateDivs:
 			stateDivs[id].update(opts)
+		else:
+			stateDivs[id] = opts.copy()
+	elif command == "nop":
+		return
 	else:
 		raise RuntimeException("Unknown command: " + command)
-	
-
-
-uiStartState = { "divs": {} }

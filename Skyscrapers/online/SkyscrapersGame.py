@@ -18,7 +18,7 @@ class SkyscrapersGame(BaseGame):
 
 	playerStartSupply = {"money":12}
 
-	gameStateVars = ["players", "playerSupply", "currentPlayer", "cardMarket"]
+	gameStateVars = ["playerIDs", "playerSupply", "currentPlayer", "cardMarket"]
 
 	def __init__(self):
 		gameRootPath = pathHere.parent
@@ -77,7 +77,7 @@ class SkyscrapersGame(BaseGame):
 							"img":"game_file/generated_cards_online/card_architect03.png",
 							#"border": "solid #A0A0A0"
 							})
-		self.addUIChange(uic)
+		self.stageUIChange(uic)
 	
 	# --------------- "BaseGame" expected methods ---------------
 	
@@ -92,7 +92,7 @@ class SkyscrapersGame(BaseGame):
 	def performAction(self, actionObj):
 		assert(self.actionAllowed(actionObj))
 		if actionObj[0] == "start_game":
-			self.__actionStartGame(actionObj[1]) # pass players
+			self.__actionStartGame(actionObj[1]) # pass playerIDs
 		else:
 			# TODO: throw error?
 			print("Error, unknown action", actionObj)
@@ -101,16 +101,16 @@ class SkyscrapersGame(BaseGame):
 	# --------------- Action Methods ---------------
 	
 	def __initPlayersSupply(self):
-		self.playerSupply = [SkyscrapersGame.playerStartSupply.copy() for p in self.players]
+		self.playerSupply = [SkyscrapersGame.playerStartSupply.copy() for p in self.playerIDs]
 	
-	def __actionStartGame(self, players: list):
-		self.players = players
+	def __actionStartGame(self, playerIDs: list):
+		self.playerIDs = playerIDs
 		self.currentPlayer = 0
 		self.__initPlayersSupply()
 		self.cardMarket.fillUp()
-		# TODO initiate rest of UI stuff here by calling BaseClass's self.addUIChange(uiChange)
+		# TODO initiate rest of UI stuff here by calling BaseClass's self.stageUIChange(uiChange)
 		#self.addTestImage()
-		self.addUIChange(("set_div", "center", {"size": ("auto", 500)}))
+		self.stageUIChange_AllPlayers(("set_div", "center", {"size": ("auto", 500)}))
 		
 		
 		

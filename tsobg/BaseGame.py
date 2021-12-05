@@ -18,14 +18,14 @@ class BaseGame(UIChangeInterface):
 		# One action per state
 		self.actions = []
 		self.gameStateHistory = [{}]
-		self.uiStateHistory = UIHistory()
+		self.playerUIHistories = {} # later add one UIHistory object per player
 		self.currentStateN = 0
 	
 	# ----------------- Server Methods -----------------
-		
-	def getUIChanges(self, fromStateN, toStateN):
-		assert(self.uiStateHistory.currentStateN == self.currentStateN)
-		return self.uiStateHistory.getUIChanges(fromStateN, toStateN)
+	
+	def getUIChanges(self, playerId, fromStateN, toStateN):
+		assert(self.playerUIHistories[playerId].getCurrentStateN() == self.currentStateN)
+		return self.playerUIHistories[playerId].getUIChanges(fromStateN, toStateN)
 	
 	def clientAction(self, actionObj):
 		if self.actionAllowed(actionObj):
@@ -35,17 +35,20 @@ class BaseGame(UIChangeInterface):
 			assert(newState)
 			self.gameStateHistory.append(newState)
 			self.currentStateN += 1
-			self.uiStateHistory.initNext()
+			for uiHistory in self.playerUIHistories.values():
+				uiHistory.commitUIChanges()
 			return True
 		else:
 			return False
 			
-	def startGame(self, players: list):
+	def startGame(self, playerIDs: list):
 		assert(not self.hasStarted())
-		actionObj = ["start_game", players]
+		for p in playerIDs:
+			self.playerUIHistories[p] = UIHistory()
+		actionObj = ["start_game", playerIDs]
 		res = self.clientAction(actionObj)
 		if not res:
-			print("Error: Not allowed to start game, players:", players)
+			print("Error: Not allowed to start game, playerIDs:", playerIDs)
 		return res
 		
 	def hasStarted(self):
@@ -61,11 +64,21 @@ class BaseGame(UIChangeInterface):
 	
 	# ----------------- UI Methods -----------------
 	
-	def addUIChange(self, uiChange):
-		uiChange = self.uiStateHistory.pruneUIChange(uiChange)
-		self.uiStateHistory.addUIChange(uiChange)
+	def stageUIChange_SomePlayers(self, playerIDs, uiChange):
+		for p in playerIDs:
+			self.playerUIHistories[p].stageUIChange(uiChange)
+
+	def stageUIChange_AllPlayers(self, uiChange):
+		for uiHistory in self.playerUIHistories.values():
+			uiHistory.stageUIChange(uiChange)
+
+	def stageUIChanges_SomePlayers(self, playerIDs, uiChanges: list):
+		for uiChange in uiChanges:
+			for p in playerIDs:
+				self.playerUIHistories[p].stageUIChange(uiChange)
 		
-	def addUIChanges(self, uiChanges: list):
-		for uic in uiChanges:
-			self.addUIChange(uic)
+	def stageUIChanges_AllPlayers(self, uiChanges: list):
+		for uiChange in uiChanges:
+			for uiHistory in self.playerUIHistories.values():
+				uiHistory.stageUIChange(uiChange)
 		
