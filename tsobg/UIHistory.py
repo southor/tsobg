@@ -14,9 +14,7 @@ class UIHistory():
 		self.uiStateHistory = [ui_state.uiStartState]
 		self.uiProgressionHistory = [] # member [0] tells how to go from stateN=0 to stateN=1
 		self.uiRegressionHistory = [[]] # member [1] tells how to go from stateN=1 to stateN=0
-		self.workingUIState = ui_state.uiStartState
-		self.workingUIProgression = []
-		self.workingUIRegression = []
+		self.stagedUIChanges = []
 		
 	def getNStates(self):
 		return len(self.uiStateHistory)
@@ -42,20 +40,22 @@ class UIHistory():
 
 	def commitUIChanges(self):
 		""" will create a new state from the working uiChanges and currentStateN increases by 1 """
-		self.uiStateHistory.append(self.workingUIState)
-		self.uiProgressionHistory.append(self.workingUIProgression)
-		self.uiRegressionHistory.append(self.workingUIRegression)
-		self.workingUIProgression = []
-		self.workingUIRegression = []
-
-	def pruneUIChange(self, uiChange):
-		return ui_state.pruneUIChange(self.workingUIState, uiChange)
+		uiState = self.uiStateHistory[-1]
+		progUIChanges = []
+		regUIChanges = []
+		for uiChange in self.stagedUIChanges:
+			UIHistory.__applyUIChange(uiState, progUIChanges, regUIChanges, uiChange)
+		self.uiStateHistory.append(uiState)
+		self.uiProgressionHistory.append(progUIChanges)
+		self.uiRegressionHistory.append(regUIChanges)
+		self.stagedUIChanges = []
 
 	def stageUIChange(self, uiChange):
-		progUIChanges = self.workingUIProgression
-		regUIChanges = self.workingUIRegression
+		self.stagedUIChanges.append(uiChange)
+
+	def __applyUIChange(uiState, progUIChanges, regUIChanges, uiChange):
 		# prune uiChange
-		uiChange2 = self.pruneUIChange(uiChange)
+		uiChange2 = ui_state.pruneUIChange(uiState, uiChange)
 		if uiChange2 == ("nop"):
 			return
 		assert(uiChange2[0] != "set_div" or uiChange2 is not uiChange) # if its a set_div then it must be a copy of the original
@@ -64,13 +64,13 @@ class UIHistory():
 		if len(progUIChanges) == 0 or not updateUIChange(progUIChanges[-1], uiChange):
 			progUIChanges.append(uiChange)
 		# record the reverse uiChange (update first or insert)
-		uiChangeRev = uiChangeReverse(self.workingUIState, uiChange)
+		uiChangeRev = uiChangeReverse(uiState, uiChange)
 		if len(regUIChanges) > 0 and updateUIChange(uiChangeRev, regUIChanges[0]):
 			regUIChanges[0] = uiChangeRev
 		else:
 			regUIChanges.insert(0, uiChangeRev)
 		# apply uiChange
-		applyUIChange(self.workingUIState, uiChange)
+		applyUIChange(uiState, uiChange)
 
 	def discardUIChanges(self):
 		self.workingUIState = self.uiStateHistory[-1]

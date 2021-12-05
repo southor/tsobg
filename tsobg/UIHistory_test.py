@@ -9,13 +9,10 @@ class UIHistory_test(unittest.TestCase):
 		uiHistory = UIHistory()
 		self.assertEqual(len(uiHistory.uiProgressionHistory), 0)
 		self.assertEqual(len(uiHistory.uiRegressionHistory), 1)
-		self.assertEqual(len(uiHistory.workingUIProgression), 0)
-		self.assertEqual(len(uiHistory.workingUIRegression), 0)
 		# ui changes should get combined
 		uiHistory.stageUIChange(("set_div", "factory", {"parent":"town"}))
 		uiHistory.stageUIChange(("set_div", "factory", {"img":"purple_factory.png"}))
-		self.assertEqual(len(uiHistory.workingUIProgression), 1)
-		self.assertEqual(len(uiHistory.workingUIRegression), 1)
+		self.assertEqual(len(uiHistory.stagedUIChanges), 2)
 		# commit uiState1
 		uiHistory.commitUIChanges()
 		uiState1 = uiHistory.uiStateHistory[-1]
