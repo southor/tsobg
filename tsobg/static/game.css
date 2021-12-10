@@ -15,7 +15,7 @@
 .player-surface {
     position: absolute;
     z-index: 1;
-    background-color: #808080;
+    background-color: #D0D0D0;
 }
 
 #game_table {

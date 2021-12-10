@@ -1,5 +1,5 @@
 
-__divOptsDefaults = {"parent":None, "class":None, "pos":"auto", "size":"auto", "img":None, "border":None, "color":"transparent"}
+__divOptsDefaults = {"parent":None, "class":None, "pos":"auto", "size":"auto", "img":None, "border":None, "color":"transparent", "text":None}
 
 #uiStartState = { "divs": {} }
 

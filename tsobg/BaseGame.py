@@ -47,13 +47,15 @@ class BaseGame(UIChangeInterface):
 		else:
 			return False
 			
-	def startGame(self, playerIDs: list):
+	def startGame(self, playerIDs: list, playerNames: list):
 		assert(not self.hasStarted())
 		for p in playerIDs:
 			self.playerUIHistories[p] = UIHistory()
-		actionObj = ["start_game", playerIDs]
+		actionObj = ["start_game", playerIDs, playerNames]
 		res = self.clientAction(actionObj)
-		if not res:
+		if res:
+			print("Game started, playerIDs:", playerIDs)
+		else:
 			print("Error: Not allowed to start game, playerIDs:", playerIDs)
 		return res
 		

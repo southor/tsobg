@@ -36,7 +36,7 @@ def _createPlayer(playerName):
 		players[playerName] = playerId
 		print("created player:", playerId, playerName)
 		if enoughPlayers():
-			game.startGame(list(players.values()))
+			game.startGame(list(players.values()), list(players.keys())) # relying on order being the same for keys() and values()
 		return playerId
 
 def enoughPlayers():
@@ -145,13 +145,12 @@ def newGame(game, nPlayers, **kwargs):
 	globals()['nPlayers'] = nPlayers
 	globals()['game'] = game
 	if enoughPlayers():
-		game.startGame(list(players.values()))
+		game.startGame(list(players.values()), list(players.keys())) # relying on order being the same for keys() and values()
 
 def runServer(debug):
 	global players
-	if len(players) > 0:
-		firstPlayer = _getPlayerNames()[0]
-		print("url for first player: http://127.0.0.1:5000/" + "game/" + players[firstPlayer] + "/" + firstPlayer + "/view")
+	for seatN,playerName in enumerate(players.keys()):
+		print("url for player " + str(seatN) + ": http://127.0.0.1:5000/" + "game/" + players[playerName] + "/" + playerName + "/view")
 	app.run(debug=debug, threaded=False, processes=1)
 
 if __name__ == '__main__':

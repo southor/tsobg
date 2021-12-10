@@ -92,7 +92,7 @@ class SkyscrapersGame(BaseGame):
 	def performAction(self, actionObj):
 		assert(self.actionAllowed(actionObj))
 		if actionObj[0] == "start_game":
-			self.__actionStartGame(actionObj[1]) # pass playerIDs
+			self.__actionStartGame(actionObj[1], actionObj[2]) # pass playerIDs and playerNames
 		else:
 			# TODO: throw error?
 			print("Error, unknown action", actionObj)
@@ -106,29 +106,31 @@ class SkyscrapersGame(BaseGame):
 	def __getPlayerSurfaceDivID(seatN):
 		return "player_space_" + str(seatN)
 
-	def __initPlayerSurfaces(self):
+	def __initPlayerSurfaces(self, playerNames: list):
 		nPlayers = len(self.playerIDs)
 		divOpts = {"parent":"game_table", "class":"player-surface",  "size":(800, 290)}
 		# set basic div opts
-		for seatN in range(0, nPlayers):
+		for seatN,playerName in enumerate(playerNames):
 			divID = SkyscrapersGame.__getPlayerSurfaceDivID(seatN)
 			self.stageUIChange_AllPlayers(("set_div", divID, divOpts))
+			self.stageUIChange_AllPlayers(("set_div", divID, {"text":playerName}))
 		# set div pos (unique for each player)
 		offset = 590
 		for viewingSeatN,playerID in enumerate(self.playerIDs):
 			for i in range(viewingSeatN, viewingSeatN + nPlayers):
 				viewedSeatN = i % nPlayers
+				appearedSeatN = i - viewingSeatN
 				divID = SkyscrapersGame.__getPlayerSurfaceDivID(viewedSeatN)
-				divOpts = { "pos": (0, offset + viewedSeatN * 300) }
+				divOpts = { "pos": (0, offset + appearedSeatN * 300) }
 				self.stageUIChange_OnePlayer(playerID, ("set_div", divID, divOpts))
 	
-	def __actionStartGame(self, playerIDs: list):
+	def __actionStartGame(self, playerIDs: list, playerNames: list):
 		self.playerIDs = playerIDs
 		self.currentPlayer = 0
 		self.__initPlayersSupply()
 		self.cardMarket.fillUp()
 		self.stageUIChange_AllPlayers(("set_div", "center", {"size": (800, 500)}))
-		self.__initPlayerSurfaces()
+		self.__initPlayerSurfaces(playerNames)
 		
 		
 		

@@ -1,7 +1,7 @@
 
 function parseSize(obj) {
-	var x = "auto";
-	var y = "auto";
+	let x = "auto";
+	let y = "auto";
 	if (obj !== "auto") {
 		x = obj[0];
 		y = obj[1];
@@ -20,10 +20,15 @@ function getDivImgElement(div) {
 	return (arr.length >= 1) ? arr[0] : null;
 }
 
+function getDivParagraphElement(div) {
+	const arr = div.getElementsByTagName('p');
+	return (arr.length >= 1) ? arr[0] : null;
+}
+
 // If div does not exists it is created
 function setDiv(id, opts) {
 	console.log("set div called with:", id, opts);
-	var div = document.getElementById(id);
+	let div = document.getElementById(id);
 	if ( ! div) {
 		console.log("creating div");
 		div = document.createElement("div");
@@ -63,7 +68,7 @@ function setDiv(id, opts) {
 	}
 
 	if (opts.img || opts.img === null) {
-		var imgElement = getDivImgElement(div)
+		let imgElement = getDivImgElement(div)
 		if (opts.img) {
 			if (imgElement) {
 				imgElement.style.visibility = "visible"
@@ -89,6 +94,23 @@ function setDiv(id, opts) {
 	if (opts.color) {
 		div.style.backgroundColor = opts.color;
 	}
+
+	if (opts.text || opts.text === null) {
+		let pElement = getDivParagraphElement(div)
+		if (opts.text) {
+			if ( ! pElement) {
+				console.log("creating div paragraph");
+				pElement = document.createElement("p");
+				div.appendChild(pElement);
+			}
+			pElement.innerHTML = opts.text;
+		} else {
+			console.assert(opts.text === null);
+			if (pElement) {
+				pElement.innerHTML = "";
+			}
+		}
+    }
 }
 
 /*
