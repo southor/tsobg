@@ -24,8 +24,14 @@ class BaseGame(UIChangeInterface):
 	# ----------------- Server Methods -----------------
 	
 	def getUIChanges(self, playerId, fromStateN, toStateN):
-		assert(self.playerUIHistories[playerId].getCurrentStateN() == self.currentStateN)
-		return self.playerUIHistories[playerId].getUIChanges(fromStateN, toStateN)
+		if self.hasStarted():
+			if playerId in self.playerUIHistories:
+				assert(self.playerUIHistories[playerId].getCurrentStateN() == self.currentStateN)
+				return self.playerUIHistories[playerId].getUIChanges(fromStateN, toStateN)
+			else:
+				print("Call to getUIChanges with invalid playerId: {}, fromStateN={}, toStateN={}.format(playerId, fromStateN, toStateN")
+		else:
+			return []
 	
 	def clientAction(self, actionObj):
 		if self.actionAllowed(actionObj):
@@ -64,6 +70,9 @@ class BaseGame(UIChangeInterface):
 	
 	# ----------------- UI Methods -----------------
 	
+	def stageUIChange_OnePlayer(self, playerID, uiChange):
+		self.playerUIHistories[playerID].stageUIChange(uiChange)
+	
 	def stageUIChange_SomePlayers(self, playerIDs, uiChange):
 		for p in playerIDs:
 			self.playerUIHistories[p].stageUIChange(uiChange)
@@ -72,6 +81,10 @@ class BaseGame(UIChangeInterface):
 		for uiHistory in self.playerUIHistories.values():
 			uiHistory.stageUIChange(uiChange)
 
+	def stageUIChanges_OnePlayer(self, playerIDs, uiChanges: list):
+		for uiChange in uiChanges:
+			self.playerUIHistories[playerID].stageUIChange(uiChange)
+	
 	def stageUIChanges_SomePlayers(self, playerIDs, uiChanges: list):
 		for uiChange in uiChanges:
 			for p in playerIDs:

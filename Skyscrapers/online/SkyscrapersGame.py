@@ -102,15 +102,33 @@ class SkyscrapersGame(BaseGame):
 	
 	def __initPlayersSupply(self):
 		self.playerSupply = [SkyscrapersGame.playerStartSupply.copy() for p in self.playerIDs]
+
+	def __getPlayerSurfaceDivID(seatN):
+		return "player_space_" + str(seatN)
+
+	def __initPlayerSurfaces(self):
+		nPlayers = len(self.playerIDs)
+		divOpts = {"parent":"game_table", "class":"player-surface",  "size":(800, 290)}
+		# set basic div opts
+		for seatN in range(0, nPlayers):
+			divID = SkyscrapersGame.__getPlayerSurfaceDivID(seatN)
+			self.stageUIChange_AllPlayers(("set_div", divID, divOpts))
+		# set div pos (unique for each player)
+		offset = 590
+		for viewingSeatN,playerID in enumerate(self.playerIDs):
+			for i in range(viewingSeatN, viewingSeatN + nPlayers):
+				viewedSeatN = i % nPlayers
+				divID = SkyscrapersGame.__getPlayerSurfaceDivID(viewedSeatN)
+				divOpts = { "pos": (0, offset + viewedSeatN * 300) }
+				self.stageUIChange_OnePlayer(playerID, ("set_div", divID, divOpts))
 	
 	def __actionStartGame(self, playerIDs: list):
 		self.playerIDs = playerIDs
 		self.currentPlayer = 0
 		self.__initPlayersSupply()
 		self.cardMarket.fillUp()
-		# TODO initiate rest of UI stuff here by calling BaseClass's self.stageUIChange(uiChange)
-		#self.addTestImage()
-		self.stageUIChange_AllPlayers(("set_div", "center", {"size": ("auto", 500)}))
+		self.stageUIChange_AllPlayers(("set_div", "center", {"size": (800, 500)}))
+		self.__initPlayerSurfaces()
 		
 		
 		

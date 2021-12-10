@@ -1,7 +1,10 @@
 
-divOptsDefaults = {"parent":None, "pos":"auto", "size":"auto", "img":None, "border":None, "color":"transparent"}
+__divOptsDefaults = {"parent":None, "class":None, "pos":"auto", "size":"auto", "img":None, "border":None, "color":"transparent"}
 
-uiStartState = { "divs": {} }
+#uiStartState = { "divs": {} }
+
+def getUIStartState():
+	return { "divs": {} }
 
 
 def combineUIChanges(uiChangeA, uiChangeB):
@@ -37,7 +40,7 @@ def pruneUIChange(uiState, uiChange):
 		divState = stateDivs.get(id, {})
 		prunedOpts = {}
 		for key,value in opts.items():
-			valueState = divState.get(key, divOptsDefaults[key])
+			valueState = divState.get(key, __divOptsDefaults[key])
 			if value != valueState:
 				prunedOpts[key] = value
 		if prunedOpts == {}:
@@ -62,7 +65,7 @@ def uiChangeReverse(uiState, uiChange):
 			if key in divState:
 				revOpts[key] = divState[key]
 			else:
-				revOpts[key] = divOptsDefaults[key]
+				revOpts[key] = __divOptsDefaults[key]
 		if revOpts == {}:
 			return ("nop")
 		else:

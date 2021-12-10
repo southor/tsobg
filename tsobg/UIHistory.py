@@ -11,7 +11,7 @@ def clamp(n, smallest, largest):
 class UIHistory():
 
 	def __init__(self):
-		self.uiStateHistory = [ui_state.uiStartState]
+		self.uiStateHistory = [ui_state.getUIStartState()]
 		self.uiProgressionHistory = [] # member [0] tells how to go from stateN=0 to stateN=1
 		self.uiRegressionHistory = [[]] # member [1] tells how to go from stateN=1 to stateN=0
 		self.stagedUIChanges = []

@@ -28,19 +28,24 @@ function setDiv(id, opts) {
 		console.log("creating div");
 		div = document.createElement("div");
 		div.setAttribute('id', id);
-		div.style.position = "absolute";
-		div.style.backgroundColor = "transparent";
+		div.style.position = "relative";
 	}
 
 	if (opts.parent || opts.parent === null) {
 		if (div.parentNode) {
 			div.parentNode.removeChild(div);
+			div.style.position = "relative"
 			console.log("removing div child");
 		}
 		if (opts.parent) {
 			console.log("setting div parent");
+			div.style.position = "absolute"
 			document.getElementById(opts.parent).appendChild(div);
 		}
+	}
+
+	if (opts.class) {
+		div.setAttribute("class", opts.class)
 	}
 
 	if (opts.pos) {

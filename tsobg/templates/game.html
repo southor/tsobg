@@ -104,26 +104,30 @@
 
 <body onload="requestState()">
 
-	<div class="top-bar">
-		<table>
-			<tr>
-				<td style="width: 75px">
-					<p id="state_n_label">stateN: -</p>
-				</td>
-				<td>
-					<button type="button" onclick="requestState(currentStateN-1)">Back</button>
-					<button type="button" onclick="requestState(currentStateN+1)">Forward</button>
-				</td>
-				<td>
-					{{info}}
-				</td>
-			</tr>
-		</table>
-	</div>
+	<div id="game_table">
 
+		<div class="top-bar">
+			<table>
+				<tr>
+					<td style="width: 75px">
+						<p id="state_n_label">stateN: -</p>
+					</td>
+					<td>
+						<button type="button" onclick="requestState(currentStateN-1)">Back</button>
+						<button type="button" onclick="requestState(currentStateN+1)">Forward</button>
+					</td>
+					<td>
+						{{info}}
+					</td>
+				</tr>
+			</table>
+		</div>
 
-	<div class="common-surface" id="center">
+		<div class="common-surface" id="center">
+		</div>
+
 	</div>
+	
 
 </body>
 </html>
