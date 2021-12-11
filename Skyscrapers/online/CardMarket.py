@@ -5,20 +5,16 @@ from pathlib import Path
 pathHere = Path(__file__).absolute().parent
 sys.path.append(str(pathHere.parent.parent))
 from tsobg import Deck
-from tsobg import UIGrid
 from tsobg import UIChangeInterface
 
 # import SkyScraper cards
 from Card import Card, createAllCards
-pathHere = Path(__file__).absolute().parent
-sys.path.append(str(pathHere.parent))
-from card_graphics import cardSize
+from CardGrid import CardGrid
 
 
-class CardMarket():
+class CardMarket(CardGrid):
 
 	nSpaces = 8
-	cellPadding = 10
 	
 	def __initCardDict(self, allCards):
 		self.cardDict = {}
@@ -29,22 +25,15 @@ class CardMarket():
 		return self.cardDict[cardId]
 	
 	def __init__(self, uiInterface: UIChangeInterface):
-		self.uiInterface = uiInterface
+		super().__init__(uiInterface, "center", (2, 4))
 		allCards = createAllCards()
 		self.__initCardDict(allCards)
 		self.deck = Deck(allCards)
-		cellSize = (cardSize[0] + CardMarket.cellPadding,
-					cardSize[1] + CardMarket.cellPadding)
-		self.grid = UIGrid(2, 4, cellSize, uiOffsetPos=(10, 10))
-	
-	def nCards(self):
-		return self.grid.getNOccupied()
 	
 	def fillUp(self):
 		nMissingCards = CardMarket.nSpaces - self.nCards()
 		newCards = self.deck.draw(nMissingCards)
 		for card in newCards:
-			uiPos = self.grid.addItem(card)
-			card.setDiv(self.uiInterface, parent="center", pos=uiPos)
+			self.addCard(card)
 	
 	

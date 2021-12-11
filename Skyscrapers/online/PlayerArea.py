@@ -8,6 +8,9 @@ sys.path.append(str(pathHere.parent.parent))
 from tsobg import UIGrid
 from tsobg import UIChangeInterface
 
+# import SkyScraper cards
+from Card import Card
+from CardGrid import CardGrid
 
 class PlayerArea(object):
 	
@@ -21,6 +24,7 @@ class PlayerArea(object):
 		self.uiInterface = uiInterface
 		self.seatN = seatN
 		self.surfaceDivId = surfaceDivId
+		# init player supply items divs
 		for i,itemName in enumerate(["money", "steel", "concrete"]):
 			yPos = PlayerArea.itemsYOffset + i * PlayerArea.itemsYInterval
 			# set img div

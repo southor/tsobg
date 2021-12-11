@@ -277,6 +277,9 @@
     <Compile Include="Skyscrapers\graphics.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Skyscrapers\online\CardGrid.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Skyscrapers\online\PlayerArea.py">
       <SubType>Code</SubType>
     </Compile>
