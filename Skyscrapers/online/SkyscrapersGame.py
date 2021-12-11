@@ -11,6 +11,7 @@ from tsobg import BaseGame
 # import SkyScrapers cards
 #sys.path.append(str(pathHere.parent))
 #import card_graphics
+from PlayerArea import PlayerArea
 from CardMarket import CardMarket
 
 
@@ -18,7 +19,7 @@ class SkyscrapersGame(BaseGame):
 
 	playerStartSupply = {"money":12}
 
-	gameStateVars = ["playerIDs", "playerSupply", "currentPlayer", "cardMarket"]
+	gameStateVars = ["playerIDs", "playersSupply", "currentPlayer", "playerAreas", "cardMarket"]
 
 	def __init__(self):
 		gameRootPath = pathHere.parent
@@ -99,9 +100,6 @@ class SkyscrapersGame(BaseGame):
 		return self.__exportGameState()
 		
 	# --------------- Action Methods ---------------
-	
-	def __initPlayersSupply(self):
-		self.playerSupply = [SkyscrapersGame.playerStartSupply.copy() for p in self.playerIDs]
 
 	def __getPlayerSurfaceDivID(seatN):
 		return "player_space_" + str(seatN)
@@ -124,13 +122,21 @@ class SkyscrapersGame(BaseGame):
 				divOpts = { "pos": (0, offset + appearedSeatN * 300) }
 				self.stageUIChange_OnePlayer(playerID, ("set_div", divID, divOpts))
 	
+	def __initPlayerAreas(self):		
+		self.playersSupply = [SkyscrapersGame.playerStartSupply.copy() for p in self.playerIDs]
+		self.playerAreas = []
+		for seatN,items in enumerate(self.playersSupply):
+			playerSurfaceDivID = SkyscrapersGame.__getPlayerSurfaceDivID(seatN)
+			self.playerAreas.append(PlayerArea(self, seatN, playerSurfaceDivID, items))
+
 	def __actionStartGame(self, playerIDs: list, playerNames: list):
 		self.playerIDs = playerIDs
 		self.currentPlayer = 0
-		self.__initPlayersSupply()
+		self.__initPlayerSurfaces(playerNames)
+		self.__initPlayerAreas()
 		self.cardMarket.fillUp()
 		self.stageUIChange_AllPlayers(("set_div", "center", {"size": (800, 500)}))
-		self.__initPlayerSurfaces(playerNames)
+		
 		
 		
 		

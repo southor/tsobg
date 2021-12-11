@@ -11,6 +11,7 @@ from tsobg import UIChangeInterface
 sys.path.append(str(pathHere.parent))
 import card_data
 
+
 def createAllCards():
 	res = []
 	for cardData in card_data.cardDatas:
@@ -28,7 +29,7 @@ class Card():
 	def __getFilename(self):
 		return "game_file/generated_cards_online/" + self.data["name"] + ".png"
 
-	def __newDivData(self):
+	def __newDivOpts(self):
 		if self.divCreated:
 			return {}
 		else:
@@ -39,6 +40,6 @@ class Card():
 		return self.data is otherCard.data
 		
 	def setDiv(self, uiInterface: UIChangeInterface, **kwArgs):
-		divData = self.__newDivData()
-		divData.update(kwArgs)
-		uiInterface.stageUIChange_AllPlayers(("set_div", self.id, divData))
+		divOpts = self.__newDivOpts()
+		divOpts.update(kwArgs)
+		uiInterface.stageUIChange_AllPlayers(("set_div", self.id, divOpts))

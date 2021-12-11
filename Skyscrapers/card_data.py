@@ -104,7 +104,10 @@ __addCardDatas("production",
 		("steel mill", 9, {"steel": 2}, {"steel": 2}),
 		("concrete factory", 8, {}, {"concrete": 4})
 		])
-
+		
+# add wearhouse card (stores materials) ?
+# add material trader card (sell material at any time) ?
+		
 __addCardDatas("upgrade",	
 	("title", "buyPrice", "effects"), [
 		("Material Engineer", 3, [("materialDiscount", "steel", [(3, -1), (5, -2)])]), 

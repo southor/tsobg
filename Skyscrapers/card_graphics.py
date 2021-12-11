@@ -5,6 +5,7 @@ from pathlib import Path
 pathHere = Path(__file__).absolute().parent
 
 import card_data
+import graphics
 
 
 fonts = {
@@ -23,9 +24,6 @@ cardOutputFolder = pathHere / "generated_cards"
 cardDebugOutputFolder = pathHere / "generated_cards_debug"
 cardOnlineOutputFolder = pathHere / "generated_cards_online"
 
-iconsFolder = pathHere / "icons"
-graphicsFolder = pathHere / "graphics"
-
 cardWidth = 180
 cardHeight = 180
 cardBorder = 6
@@ -39,11 +37,7 @@ cardSize = (cardWidth, cardHeight)
 cardColor = (255, 255, 255, 255)
 raiseColor = (180, 180, 180, 255)
 
-icons = {}
-iconFiles = [f for f in iconsFolder.iterdir() if (iconsFolder / f).is_file()]
-for filePath in iconFiles:
-	iconName = filePath.stem
-	icons[iconName] = Image.open(filePath, 'r')
+icons = graphics.getIconImages()
 
 typeColors = {
 	"shop" : (200, 0, 0),
@@ -514,7 +508,8 @@ def makeUpgradeCard(**kwargs):
 	return makeTextCard(title, text, ("top",), "textFontS", **kwargs)
 
 def makeCardBack(**kwargs):
-	return makeImageCard(str(graphicsFolder / "cardBackIllustration.png"), **kwargs)
+	graphicsFilePath = graphics.getGrapchisFilepath("cardBackIllustration.png")
+	return makeImageCard(graphicsFilePath, **kwargs)
 	
 # ----------------------------------------
 

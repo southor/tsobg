@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-# import tsobg BaseGame
+# tsobg imports
 pathHere = Path(__file__).absolute().parent
 sys.path.append(str(pathHere.parent.parent))
 from tsobg import Deck

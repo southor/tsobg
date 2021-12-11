@@ -274,6 +274,12 @@
     <Content Include="tsobg\templates\start.html" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Skyscrapers\graphics.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Skyscrapers\online\PlayerArea.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="tsobg\UIHistory.py">
       <SubType>Code</SubType>
     </Compile>
