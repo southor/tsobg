@@ -1,4 +1,24 @@
 
+
+// store created div elements in a Map object, accessed by div id
+divs = null;
+
+function getDiv(id) {
+	if (divs === null) {
+		divs = new Map();
+	}
+	let div = divs.get(id) ?? document.getElementById(id);
+	if ( ! div) {
+		console.log("creating div: " + id);
+		div = document.createElement("div");
+		div.setAttribute('id', id);
+		div.style.position = "relative";
+		divs.set(id, div);
+	}
+	return div
+}
+
+
 function parseSize(obj) {
 	let x = "auto";
 	let y = "auto";
@@ -25,32 +45,35 @@ function getDivParagraphElement(div) {
 	return (arr.length >= 1) ? arr[0] : null;
 }
 
+function setImgOnClick(div, imgElement, onClickFunc, actions) {
+	console.log("setImgOnClick: ", actions);
+	imgElement.onclick = function() {
+		console.log("img on click");
+		onClickFunc(div.getAttribute("id"), actions);
+	};
+}
+
 // If div does not exists it is created
-function setDiv(id, opts) {
+function setDiv(id, opts, onClickFunc) {
 	console.log("set div called with:", id, opts);
-	let div = document.getElementById(id);
-	if ( ! div) {
-		console.log("creating div");
-		div = document.createElement("div");
-		div.setAttribute('id', id);
-		div.style.position = "relative";
-	}
+	let div = getDiv(id);
+	let imgElement = null;
 
 	if (opts.parent || opts.parent === null) {
 		if (div.parentNode) {
 			div.parentNode.removeChild(div);
-			div.style.position = "relative"
+			div.style.position = "relative";
 			console.log("removing div child");
 		}
 		if (opts.parent) {
 			console.log("setting div parent");
-			div.style.position = "absolute"
-			document.getElementById(opts.parent).appendChild(div);
+			div.style.position = "absolute";
+			getDiv(opts.parent).appendChild(div);
 		}
 	}
 
 	if (opts.class) {
-		div.setAttribute("class", opts.class)
+		div.setAttribute("class", opts.class);
 	}
 
 	if (opts.pos) {
@@ -67,25 +90,6 @@ function setDiv(id, opts) {
 		console.log("setting div size");
 	}
 
-	if (opts.img || opts.img === null) {
-		let imgElement = getDivImgElement(div)
-		if (opts.img) {
-			if (imgElement) {
-				imgElement.style.visibility = "visible"
-			} else {
-				console.log("creating div img");
-				imgElement = document.createElement("img");
-				div.appendChild(imgElement);
-			}
-			imgElement.setAttribute('src', opts.img);
-		} else {
-			console.assert(opts.img === null);
-			if (imgElement) {
-				imgElement.style.visibility = "hidden"
-            }
-		}
-	}
-
 	if (opts.border) {
 		div.style.border = opts.border;
 		div.style.borderWidth = "thin";
@@ -95,8 +99,49 @@ function setDiv(id, opts) {
 		div.style.backgroundColor = opts.color;
 	}
 
+	if (opts.img || opts.img === null) {
+		imgElement = getDivImgElement(div);
+		if (opts.img) {
+			if (imgElement) {
+				imgElement.style.visibility = "visible";
+			} else {
+				console.log("creating div img");
+				imgElement = document.createElement("img");
+				div.appendChild(imgElement);
+				actions = div.getAttribute("data-actions");
+				if (actions) {
+					setImgOnClick(div, imgElement, onClickFunc, actions);
+				}
+			}
+			imgElement.setAttribute('src', opts.img);
+		} else {
+			console.assert(opts.img === null);
+			if (imgElement) {
+				imgElement.style.visibility = "hidden";
+			}
+		}
+	}
+
+	if (opts.actions || opts.actions === null || opts.actions === []) {
+		let actions = opts.actions;
+		if ( ! imgElement) {
+			imgElement = getDivImgElement(div);
+		}
+		if (actions) {
+			div.setAttribute("data-actions", actions);
+			if (imgElement) {
+				setImgOnClick(div, imgElement, onClickFunc, actions);
+			}
+		} else {
+			div.removeAttribute("data-actions", actions);
+			if (imgElement) {
+				imgElement.removeAttribute("onclick");
+			}
+		}
+	}
+
 	if (opts.text || opts.text === null) {
-		let pElement = getDivParagraphElement(div)
+		let pElement = getDivParagraphElement(div);
 		if (opts.text) {
 			if ( ! pElement) {
 				console.log("creating div paragraph");
@@ -110,12 +155,6 @@ function setDiv(id, opts) {
 				pElement.innerHTML = "";
 			}
 		}
-    }
+	}
+	
 }
-
-/*
-function removeDiv(id) {
-	var div = document.getElementById("id");
-	div.parentNode.removeChild(div);
-}
-*/

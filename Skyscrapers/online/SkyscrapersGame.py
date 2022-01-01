@@ -85,8 +85,9 @@ class SkyscrapersGame(BaseGame):
 	def actionAllowed(self, actionObj):
 		if actionObj[0] == "start_game":
 			return False if hasattr(self, "players") else True
+		elif actionObj[0] == "take_card":
+			return True
 		else:
-			# TODO: throw error?
 			print("Error, unknown action", actionObj)
 			return False
 	
@@ -94,8 +95,9 @@ class SkyscrapersGame(BaseGame):
 		assert(self.actionAllowed(actionObj))
 		if actionObj[0] == "start_game":
 			self.__actionStartGame(actionObj[1], actionObj[2]) # pass playerIDs and playerNames
+		elif actionObj[0] == "take_card":
+			self.cardMarket.removeCard(actionObj[1])
 		else:
-			# TODO: throw error?
 			print("Error, unknown action", actionObj)
 		return self.__exportGameState()
 		

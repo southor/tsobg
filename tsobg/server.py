@@ -1,6 +1,6 @@
 import secrets
 import flask
-from flask import Flask, render_template, jsonify, send_file
+from flask import Flask, render_template, jsonify, send_file, Response
 app = Flask(__name__)
 
 from pathlib import PurePath
@@ -58,7 +58,7 @@ def createPlayer(playerName):
 	if res:
 		return jsonify(res)
 	else:
-		flask.abort(404)
+		flask.abort(405)
 
 '''
 @app.route("/get_turn_info")
@@ -95,28 +95,32 @@ def gamePage(playerId, playerName):
 			info = ""
 		return render_template('game.html', gameName=game.name, playerId=playerId, playerName=playerName, info=info)
 
-@app.route("/game/<playerId>/<playerName>/update_client_state/<currentStateN>", methods=['GET'])
-def updateClientState(playerId, playerName, currentStateN):
+@app.route("/game/<playerId>/<playerName>/update_client_state/<fromStateN>", methods=['GET'])
+def updateClientState(playerId, playerName, fromStateN):
 	global game
-	return updateClientStateTo(playerId, playerName, int(currentStateN), game.currentStateN)
+	return updateClientStateTo(playerId, playerName, int(fromStateN), game.currentStateN)
 
-@app.route("/game/<playerId>/<playerName>/update_client_state/<currentStateN>/<newStateN>", methods=['GET'])
-def updateClientStateTo(playerId, playerName, currentStateN, newStateN):
+@app.route("/game/<playerId>/<playerName>/update_client_state/<fromStateN>/<toStateN>", methods=['GET'])
+def updateClientStateTo(playerId, playerName, fromStateN, toStateN):
 	global game
-	currentStateN = int(currentStateN)
-	newStateN = int(newStateN)
-	print("updateClientStateTo: ", playerId, playerName, currentStateN, newStateN)
-	uiChanges = game.getUIChanges(playerId, currentStateN, newStateN)
+	fromStateN = int(fromStateN)
+	toStateN = int(toStateN)
+	print("updateClientStateTo: ", playerId, playerName, fromStateN, toStateN)
+	uiChanges = game.getUIChanges(playerId, fromStateN, toStateN)
 	return jsonify(uiChanges)
 
-@app.route("/game/<playerId>/<playerName>/client_action/<currentStateN>", methods=['POST'])
-def clientAction(playerId, playerName, currentStateN):
+@app.route("/game/<playerId>/<playerName>/client_action/<stateN>", methods=['POST'])
+def clientAction(playerId, playerName, stateN):
 	global game
-	# TODO: read json data and convert to python data
-	actionObj = flask.request
+	if not flask.request.is_json:
+		print("not json, instead: ", flask.request.content_type)
+		flask.abort(400)
+	actionObj = flask.request.get_json()
 	print("client action:", actionObj)
-	allowed = game.clientAction(int(currentStateN), actionObj)
-	return jsonify(allowed)
+	if game.clientAction(int(stateN), actionObj):
+		return updateClientState(playerId, playerName, stateN)
+	else:
+		return Response("action not allowed", status=403, mimetype='application/json')
 
 @app.route("/game/<playerId>/<playerName>/game_file/<path:gameFilePath>", methods=['GET'])
 def gameFile(playerId, playerName, gameFilePath):

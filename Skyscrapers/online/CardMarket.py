@@ -24,7 +24,7 @@ class CardMarket(CardGrid):
 	def __lookupCardId(self, cardId):
 		return self.cardDict[cardId]
 	
-	def __init__(self, uiInterface: UIChangeInterface):
+	def __init__(self, uiInterface:UIChangeInterface):
 		super().__init__(uiInterface, "center", (2, 4))
 		allCards = createAllCards()
 		self.__initCardDict(allCards)
@@ -34,6 +34,10 @@ class CardMarket(CardGrid):
 		nMissingCards = CardMarket.nSpaces - self.nCards()
 		newCards = self.deck.draw(nMissingCards)
 		for card in newCards:
-			self.addCard(card)
+			self.addCard(card, {"actions":[("take_card", card.id)]})
+
+	def removeCard(self, cardId):
+		card = self.__lookupCardId(cardId)
+		return super().removeCard(card, {"actions":[]})
 	
 	

@@ -42,7 +42,7 @@
 			url: urlParams.join('/'),
 			cache: false,
 			type: "POST",
-			contentType: "json", // send data type
+			contentType: "application/json", // send data type
 			dataType: "json", // return data type
 			data: JSON.stringify(data),
 			success: successFunc,
@@ -62,6 +62,11 @@
 	function sendAction(stateN, actionObj) {
 		ajaxPost(["client_action", stateN], actionObj, updateState, failedAction);
 	}
+
+	function divUserAction(divId, actions) {
+		// TODO: make sure we don't 'sendAction again if we are already waiting for a result
+		sendAction(currentStateN, actions[0]);
+	}
 	
 	// ------------------ callback functions ------------------
 	
@@ -75,7 +80,7 @@
 			data.forEach(function (uData, idx) {
 				if (uData instanceof Array && uData.length >= 1) {
 					if (uData[0] === "set_div") {
-						setDiv(uData[1], uData[2]);
+						setDiv(uData[1], uData[2], divUserAction);
 					} else if (uData[0] === "state_n") {
 						currentStateN = uData[1]
 						document.getElementById("state_n_label").innerHTML = "stateN: " + currentStateN.toString();;

@@ -9,8 +9,6 @@ from .UIHistory import UIHistory
 
 
 class BaseGame(UIChangeInterface):
-
-	# TODO: part of the UI should be individual (secret to others)
 	
 	def __init__(self, name, gameRootPath: Path):
 		self.name = name
@@ -33,7 +31,9 @@ class BaseGame(UIChangeInterface):
 		else:
 			return []
 	
-	def clientAction(self, actionObj):
+	def clientAction(self, stateN, actionObj):
+		if stateN != self.currentStateN:
+			return False # TODO: respond 409 conflict?
 		if self.actionAllowed(actionObj):
 			# advance game state
 			self.actions.append(actionObj)
@@ -51,8 +51,8 @@ class BaseGame(UIChangeInterface):
 		assert(not self.hasStarted())
 		for p in playerIDs:
 			self.playerUIHistories[p] = UIHistory()
-		actionObj = ["start_game", playerIDs, playerNames]
-		res = self.clientAction(actionObj)
+		actionObj = ("start_game", playerIDs, playerNames)
+		res = self.clientAction(0, actionObj)
 		if res:
 			print("Game started, playerIDs:", playerIDs)
 		else:
@@ -83,7 +83,7 @@ class BaseGame(UIChangeInterface):
 		for uiHistory in self.playerUIHistories.values():
 			uiHistory.stageUIChange(uiChange)
 
-	def stageUIChanges_OnePlayer(self, playerIDs, uiChanges: list):
+	def stageUIChanges_OnePlayer(self, playerID, uiChanges: list):
 		for uiChange in uiChanges:
 			self.playerUIHistories[playerID].stageUIChange(uiChange)
 	

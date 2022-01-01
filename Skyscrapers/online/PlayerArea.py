@@ -12,7 +12,7 @@ from tsobg import UIChangeInterface
 from Card import Card
 from CardGrid import CardGrid
 
-class PlayerArea(object):
+class PlayerArea(CardGrid):
 	
 	def __getPlayerSupplyItemDivID(self, itemName, elementType):
 		return "player_" + itemName + "_" + elementType + "_" + str(self.seatN)
@@ -21,7 +21,7 @@ class PlayerArea(object):
 	itemsYInterval = 30
 
 	def __init__(self, uiInterface: UIChangeInterface, seatN, surfaceDivId, items):
-		self.uiInterface = uiInterface
+		super().__init__(uiInterface, surfaceDivId, (1, 3), uiOffsetPos=(60,10))
 		self.seatN = seatN
 		self.surfaceDivId = surfaceDivId
 		# init player supply items divs
@@ -42,6 +42,5 @@ class PlayerArea(object):
 		textDivID = self.__getPlayerSupplyItemDivID(itemName, "text")
 		self.uiInterface.stageUIChange_AllPlayers(("set_div", textDivID, {"text":str(amount)}))
 
-		
 
 

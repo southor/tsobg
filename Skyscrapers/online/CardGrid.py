@@ -19,7 +19,7 @@ class CardGrid():
 	
 	cellPadding = 10
 
-	def __init__(self, uiInterface: UIChangeInterface, surfaceDivID, gridSpaces: tuple, **kwargs):
+	def __init__(self, uiInterface:UIChangeInterface, surfaceDivID, gridSpaces:tuple, **kwargs):
 		uiOffsetPos = kwargs.get("uiOffsetPos", (10, 10))
 		self.uiInterface = uiInterface
 		self.surfaceDivID = surfaceDivID
@@ -30,6 +30,16 @@ class CardGrid():
 	def nCards(self):
 		return self.grid.getNOccupied()
 
-	def addCard(self, card: Card):
+	def addCard(self, card:Card, extraDivOpts:dict = {}):
 		uiPos = self.grid.addItem(card)
-		card.setDiv(self.uiInterface, parent=self.surfaceDivID, pos=uiPos)
+		divOpts = {"parent":self.surfaceDivID, "pos":uiPos}
+		divOpts.update(extraDivOpts)
+		card.setDiv(self.uiInterface, **divOpts)
+
+	def removeCard(self, card:Card, extraDivOpts:dict = {}):
+		if self.grid.removeItem(card):
+			divOpts = {**{"parent":None}, **extraDivOpts}
+			card.setDiv(self.uiInterface, **divOpts)
+			return True
+		else:
+			return False
