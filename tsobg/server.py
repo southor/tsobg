@@ -60,15 +60,8 @@ def createPlayer(playerName):
 	else:
 		flask.abort(405)
 
-'''
-@app.route("/get_turn_info")
-def getTurnInfo():
-	return jsonify({'turnN':turnN, 'stepN':stepN})
-'''
-
-def checkPlayer(playerId, playerName):
+def checkPlayerID(playerId, playerName):
 	global players
-	#if (playerId not in playerNames) or (playerName != playerNames[playerId]):
 	if (playerName not in players):
 		return "player does not exist: " + playerName
 	if (playerId != players[playerName]):
@@ -85,7 +78,7 @@ def gamePage(playerId, playerName):
 	global game
 	global players
 	global nPlayers
-	msg = checkPlayer(playerId, playerName)
+	msg = checkPlayerID(playerId, playerName)
 	if msg:
 		return renderError(msg)
 	else:
@@ -103,6 +96,8 @@ def updateClientState(playerId, playerName, fromStateN):
 @app.route("/game/<playerId>/<playerName>/update_client_state/<fromStateN>/<toStateN>", methods=['GET'])
 def updateClientStateTo(playerId, playerName, fromStateN, toStateN):
 	global game
+	if checkPlayerID(playerId, playerName) != None:
+		flask.abort(409)
 	fromStateN = int(fromStateN)
 	toStateN = int(toStateN)
 	print("updateClientStateTo: ", playerId, playerName, fromStateN, toStateN)
@@ -112,6 +107,8 @@ def updateClientStateTo(playerId, playerName, fromStateN, toStateN):
 @app.route("/game/<playerId>/<playerName>/client_action/<stateN>", methods=['POST'])
 def clientAction(playerId, playerName, stateN):
 	global game
+	if checkPlayerID(playerId, playerName) != None:
+		flask.abort(409)
 	if not flask.request.is_json:
 		print("not json, instead: ", flask.request.content_type)
 		flask.abort(400)
@@ -125,6 +122,8 @@ def clientAction(playerId, playerName, stateN):
 @app.route("/game/<playerId>/<playerName>/game_file/<path:gameFilePath>", methods=['GET'])
 def gameFile(playerId, playerName, gameFilePath):
 	global game
+	if checkPlayerID(playerId, playerName) != None:
+		flask.abort(409)
 	gameFilePath = PurePath(gameFilePath)
 	print("wants to get file:", gameFilePath)
 	if "." in str(gameFilePath.parent):

@@ -5,24 +5,12 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="{{ url_for("static", filename="game.css") }}"> 
 </head>
-<!--
-<script type="text/javascript" src="game.js"></script>
--->
 <script type="text/javascript" src="{{ url_for("static", filename="div_manipulation.js") }}"></script>
 <script type = "text/JavaScript">
 	
 	var playerId = "{{playerId}}";
 	var playerName = "{{playerName}}";
 	var currentStateN = 0;
-	
-	/*
-	function makeURL(params) {
-		var url = ["game", playerId, playerName].concat(params)
-		// TODO: Add query number at the end to avoid cashing?
-		console.log(url)
-		return url.join('/')
-	}
-	*/
 	
 	// ------------------ request/send functions ------------------
 	
@@ -64,7 +52,6 @@
 	}
 
 	function divUserAction(divId, actions) {
-		// TODO: make sure we don't 'sendAction again if we are already waiting for a result
 		sendAction(currentStateN, actions[0]);
 	}
 	
