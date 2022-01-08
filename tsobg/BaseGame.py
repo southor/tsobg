@@ -4,11 +4,11 @@ import flask
 from pathlib import Path
 from pathlib import PurePath
 
-from .UIChangeInterface import UIChangeInterface
+from .UIInterface import UIInterface
 from .UIHistory import UIHistory
 
 
-class BaseGame(UIChangeInterface):
+class BaseGame(UIInterface):
 	
 	def __init__(self, name, gameRootPath: Path):
 		self.name = name

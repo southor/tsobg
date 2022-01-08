@@ -5,7 +5,7 @@ from pathlib import Path
 pathHere = Path(__file__).absolute().parent
 sys.path.append(str(pathHere.parent.parent))
 from tsobg import Deck
-from tsobg import UIChangeInterface
+from tsobg import UIInterface
 
 # import SkyScraper cards
 from Card import Card, createAllCards
@@ -24,7 +24,7 @@ class CardMarket(CardGrid):
 	def __lookupCardId(self, cardId):
 		return self.cardDict[cardId]
 	
-	def __init__(self, uiInterface:UIChangeInterface):
+	def __init__(self, uiInterface:UIInterface):
 		super().__init__(uiInterface, "center", (2, 4))
 		allCards = createAllCards()
 		self.__initCardDict(allCards)

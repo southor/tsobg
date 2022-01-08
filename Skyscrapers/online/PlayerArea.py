@@ -6,7 +6,7 @@ pathHere = Path(__file__).absolute().parent
 # tsobg imports
 sys.path.append(str(pathHere.parent.parent))
 from tsobg import UIGrid
-from tsobg import UIChangeInterface
+from tsobg import UIInterface
 
 # import SkyScraper cards
 from Card import Card
@@ -20,7 +20,7 @@ class PlayerArea(CardGrid):
 	itemsYOffset = 50
 	itemsYInterval = 30
 
-	def __init__(self, uiInterface: UIChangeInterface, seatN, surfaceDivId, items):
+	def __init__(self, uiInterface: UIInterface, seatN, surfaceDivId, items):
 		super().__init__(uiInterface, surfaceDivId, (1, 3), uiOffsetPos=(60,10))
 		self.seatN = seatN
 		self.surfaceDivId = surfaceDivId

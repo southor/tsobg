@@ -1,6 +1,6 @@
 
 
-class UIChangeInterface:
+class UIInterface:
 
 	def stageUIChange_OnePlayer(self, playerID, uiChange):
 		pass

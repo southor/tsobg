@@ -3,9 +3,9 @@ from pathlib import Path
 
 pathHere = Path(__file__).absolute().parent
 
-# import tsobg UIChangeInterface
+# import tsobg UIInterface
 sys.path.append(str(pathHere.parent.parent))
-from tsobg import UIChangeInterface
+from tsobg import UIInterface
 
 # import SkyScraper card_data
 sys.path.append(str(pathHere.parent))
@@ -39,7 +39,7 @@ class Card():
 	def sameCardAs(self, otherCard):
 		return self.data is otherCard.data
 		
-	def setDiv(self, uiInterface: UIChangeInterface, **divOpts):
+	def setDiv(self, uiInterface: UIInterface, **divOpts):
 		""" stages set_div on uiInterface for this card with divOpts, img is added automatically to divOpts """
 		divOpts2 = self.__newDivOpts()
 		divOpts2.update(divOpts)

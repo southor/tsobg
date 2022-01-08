@@ -289,6 +289,7 @@
     <Compile Include="tsobg\UIHistory_test.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="tsobg\UIInterface.py" />
     <Compile Include="tsobg\ui_state.py">
       <SubType>Code</SubType>
     </Compile>
@@ -314,7 +315,6 @@
     <Compile Include="tsobg\Deck_test.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="tsobg\UIChangeInterface.py" />
     <Compile Include="tsobg\UIGrid.py" />
     <Compile Include="tsobg\__init__.py" />
   </ItemGroup>

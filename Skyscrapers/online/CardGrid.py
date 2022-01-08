@@ -6,7 +6,7 @@ pathHere = Path(__file__).absolute().parent
 # tsobg imports
 sys.path.append(str(pathHere.parent.parent))
 from tsobg import UIGrid
-from tsobg import UIChangeInterface
+from tsobg import UIInterface
 
 # Skyscrapers imports
 sys.path.append(str(pathHere.parent))
@@ -19,7 +19,7 @@ class CardGrid():
 	
 	cellPadding = 10
 
-	def __init__(self, uiInterface:UIChangeInterface, surfaceDivID, gridSpaces:tuple, **kwargs):
+	def __init__(self, uiInterface:UIInterface, surfaceDivID, gridSpaces:tuple, **kwargs):
 		uiOffsetPos = kwargs.get("uiOffsetPos", (10, 10))
 		self.uiInterface = uiInterface
 		self.surfaceDivID = surfaceDivID
