@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-	<title>{{gameName}}</title>
+	<title>{{pageTitle}}</title>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="{{ url_for("static", filename="game.css") }}"> 
 </head>
+
 <script type="text/javascript" src="{{ url_for("static", filename="div_manipulation.js") }}"></script>
+
 <script type = "text/JavaScript">
 	
 	var playerId = "{{playerId}}";
@@ -44,11 +47,11 @@
 		if (newStateN !== undefined) {
 			urlParams.push(newStateN);
 		}
-		ajaxGet(urlParams, updateState, failedState);
+		ajaxGet(urlParams, updateState, failedRequestState);
 	}
 	
 	function sendAction(stateN, actionObj) {
-		ajaxPost(["client_action", stateN], actionObj, updateState, failedAction);
+		ajaxPost(["client_action", stateN], actionObj, updateState, failedSendAction);
 	}
 
 	function divUserAction(divId, actions) {
@@ -56,21 +59,25 @@
 	}
 	
 	// ------------------ callback functions ------------------
-	
+
 	function unknownDataError(data, context) {
 		console.log("Error! Received unknown data in " + context + ": ", data);
 		alert("Error! Received unknown data in " + context + ", see log.");
 	}
-	
+
 	function updateState(data) {
 		if (data instanceof Array) {
 			data.forEach(function (uData, idx) {
 				if (uData instanceof Array && uData.length >= 1) {
-					if (uData[0] === "set_div") {
+					if (uData[0] === "state_n") {
+						stateN = uData[1]
+						if (stateN != currentStateN) {
+							currentStateN = stateN;
+							document.getElementById("state_n_label").innerHTML = "stateN: " + currentStateN.toString();
+							document.getElementById("top_bar_info").innerHTML = ""; // clear any info in top bar
+						}
+					} else if (uData[0] === "set_div") {
 						setDiv(uData[1], uData[2], divUserAction);
-					} else if (uData[0] === "state_n") {
-						currentStateN = uData[1]
-						document.getElementById("state_n_label").innerHTML = "stateN: " + currentStateN.toString();;
 					} else {
 						unknownDataError(uData, "updateState 3");
 					}
@@ -83,16 +90,22 @@
 		}
 	}
 	
-	function failedState(err, msg) {
+	function failedRequestState(err, msg) {
 		console.log(msg);
 	}
 	
-	function failedAction(err, msg) {
+	function failedSendAction(err, msg) {
 		console.log(msg);
 		alert(msg);
 	}
 	
 </script>
+
+<style type="text/css">
+	td {
+		padding: 0 10px;
+	}
+</style>
 
 <body onload="requestState()">
 
@@ -101,7 +114,10 @@
 		<div class="top-bar">
 			<table>
 				<tr>
-					<td style="width: 75px">
+					<td>
+						<b>{{pageTitle}}</b>
+					</td>
+					<td>
 						<p id="state_n_label">stateN: -</p>
 					</td>
 					<td>
@@ -109,7 +125,7 @@
 						<button type="button" onclick="requestState(currentStateN+1)">Forward</button>
 					</td>
 					<td>
-						{{info}}
+						<b id="top_bar_info">{{info|safe}}</b>
 					</td>
 				</tr>
 			</table>

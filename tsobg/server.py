@@ -82,11 +82,12 @@ def gamePage(playerId, playerName):
 	if msg:
 		return renderError(msg)
 	else:
+		pageTitle = game.name + " ({} players)".format(str(nPlayers))
+		infos = game.getInfoTexts()
 		if not enoughPlayers():
-			info = game.name + f": waiting for other players..."
-		else:
-			info = ""
-		return render_template('game.html', gameName=game.name, playerId=playerId, playerName=playerName, info=info)
+			infos.append("waiting for other players...")
+		info =  ", ".join(infos) if infos else ""
+		return render_template('game.html', pageTitle=pageTitle, playerId=playerId, playerName=playerName, info=info)
 
 @app.route("/game/<playerId>/<playerName>/update_client_state/<fromStateN>", methods=['GET'])
 def updateClientState(playerId, playerName, fromStateN):

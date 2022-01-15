@@ -53,11 +53,56 @@ function setImgOnClick(div, imgElement, onClickFunc, actions) {
 	};
 }
 
+// updates div image and/or img actions according to opts
+function setDivImg(div, opts, onClickFunc) {
+	let imgElement = null;
+	
+	if (opts.img || opts.img === null) {
+		imgElement = getDivImgElement(div);
+		if (opts.img) {
+			if (imgElement) {
+				imgElement.style.visibility = "visible";
+			} else {
+				console.log("creating div img");
+				imgElement = document.createElement("img");
+				div.appendChild(imgElement);
+				actions = div.getAttribute("data-actions");
+				if (actions) {
+					setImgOnClick(div, imgElement, onClickFunc, actions);
+				}
+			}
+			imgElement.setAttribute('src', opts.img);
+		} else {
+			console.assert(opts.img === null);
+			if (imgElement) {
+				imgElement.style.visibility = "hidden";
+			}
+		}
+	}
+
+	if (opts.actions || opts.actions === null || opts.actions === []) {
+		let actions = opts.actions;
+		if ( ! imgElement) {
+			imgElement = getDivImgElement(div);
+		}
+		if (actions) {
+			div.setAttribute("data-actions", actions);
+			if (imgElement) {
+				setImgOnClick(div, imgElement, onClickFunc, actions);
+			}
+		} else {
+			div.removeAttribute("data-actions", actions);
+			if (imgElement) {
+				imgElement.removeAttribute("onclick");
+			}
+		}
+	}
+}
+
 // If div does not exists it is created
 function setDiv(id, opts, onClickFunc) {
 	console.log("set div called with:", id, opts);
 	let div = getDiv(id);
-	let imgElement = null;
 
 	if (opts.parent || opts.parent === null) {
 		if (div.parentNode) {
@@ -99,46 +144,7 @@ function setDiv(id, opts, onClickFunc) {
 		div.style.backgroundColor = opts.color;
 	}
 
-	if (opts.img || opts.img === null) {
-		imgElement = getDivImgElement(div);
-		if (opts.img) {
-			if (imgElement) {
-				imgElement.style.visibility = "visible";
-			} else {
-				console.log("creating div img");
-				imgElement = document.createElement("img");
-				div.appendChild(imgElement);
-				actions = div.getAttribute("data-actions");
-				if (actions) {
-					setImgOnClick(div, imgElement, onClickFunc, actions);
-				}
-			}
-			imgElement.setAttribute('src', opts.img);
-		} else {
-			console.assert(opts.img === null);
-			if (imgElement) {
-				imgElement.style.visibility = "hidden";
-			}
-		}
-	}
-
-	if (opts.actions || opts.actions === null || opts.actions === []) {
-		let actions = opts.actions;
-		if ( ! imgElement) {
-			imgElement = getDivImgElement(div);
-		}
-		if (actions) {
-			div.setAttribute("data-actions", actions);
-			if (imgElement) {
-				setImgOnClick(div, imgElement, onClickFunc, actions);
-			}
-		} else {
-			div.removeAttribute("data-actions", actions);
-			if (imgElement) {
-				imgElement.removeAttribute("onclick");
-			}
-		}
-	}
+	setDivImg(div, opts, onClickFunc);
 
 	if (opts.text || opts.text === null) {
 		let pElement = getDivParagraphElement(div);

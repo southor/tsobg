@@ -20,6 +20,9 @@ class BaseGame(UIInterface):
 		self.currentStateN = 0
 	
 	# ----------------- Server Methods -----------------
+
+	def getInfoTexts():
+		return []
 	
 	def getUIChanges(self, playerId, fromStateN, toStateN):
 		if self.hasStarted():

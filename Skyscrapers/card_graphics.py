@@ -1,3 +1,6 @@
+# Run this file to generate cards
+# It creates three card folders, one for online game, one for printing, and one for graphics debugging
+
 from PIL import Image, ImageFont, ImageDraw
 import os
 from pathlib import Path
@@ -549,6 +552,9 @@ def makeAndSaveCards(cardDatas):
 		makeAndSaveCard(cardMakeFunctions[category], cardData["name"], cardData["cardKWArgs"])
 
 def makeAllCardImages():
+	cardOutputFolder.mkdir(exist_ok=True)
+	cardDebugOutputFolder.mkdir(exist_ok=True)
+	cardOnlineOutputFolder.mkdir(exist_ok=True)
 	cardDatas = card_data.cardDatas
 	makeAndSaveCards(cardDatas) # card fronts
 	makeAndSaveCard(makeCardBack, "cardBack", nDeckImages=6) # card back (with deck images)

@@ -20,6 +20,7 @@
     <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="README.md" />
     <Content Include="Skyscrapers\generated_cards\cardBack.png" />
     <Content Include="Skyscrapers\generated_cards\card_architect01.png" />
     <Content Include="Skyscrapers\generated_cards\card_architect02.png" />

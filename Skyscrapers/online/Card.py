@@ -11,6 +11,15 @@ from tsobg import UIInterface
 sys.path.append(str(pathHere.parent))
 import card_data
 
+cardsFolder = "generated_cards_online"
+
+
+def checkCardImageFiles():
+	cardsFolderPath = pathHere.parent / cardsFolder
+	if cardsFolderPath.exists() and cardsFolderPath.is_dir():
+		return ""
+	else:
+		return "\nCard image files not generated! Please run card_graphics.py and restart server\n"
 
 def createAllCards():
 	res = []
@@ -27,7 +36,7 @@ class Card():
 		self.divCreated = False
 		
 	def __getFilename(self):
-		return "game_file/generated_cards_online/" + self.data["name"] + ".png"
+		return "game_file/" + cardsFolder + "/" + self.data["name"] + ".png"
 
 	def __newDivOpts(self):
 		if self.divCreated:

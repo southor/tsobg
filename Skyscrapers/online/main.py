@@ -1,3 +1,5 @@
+# See README.md
+
 import sys
 from pathlib import Path
 
@@ -7,9 +9,8 @@ import tsobg
 
 from SkyscrapersGame import SkyscrapersGame
 
-# for testing
-nPlayers = 3
-players = {'Adolf':'ad34ea20', 'Bosse':'b0f8cf24', 'Caesar':'ca01e770'}
+#nPlayers = 3
+#players = {'Adolf':'ad34ea20', 'Bob':'b0f8cf24', 'Caesar':'ca01e770'}
 
 
 if __name__ == '__main__':
@@ -25,5 +26,4 @@ if __name__ == '__main__':
 	
 	tsobg.newGame(SkyscrapersGame(), int(nPlayers), **kwargs)
 	tsobg.runServer(False)
-	
 	

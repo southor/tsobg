@@ -11,6 +11,7 @@ from tsobg import BaseGame
 # import SkyScrapers cards
 #sys.path.append(str(pathHere.parent))
 #import card_graphics
+from Card import checkCardImageFiles
 from PlayerArea import PlayerArea
 from CardMarket import CardMarket
 
@@ -24,6 +25,9 @@ class SkyscrapersGame(BaseGame):
 	def __init__(self):
 		gameRootPath = pathHere.parent
 		super().__init__("Skyscrapers", gameRootPath)
+		msg = checkCardImageFiles()
+		if msg:
+			print(msg)
 		self.cardMarket = CardMarket(self)
 		
 	# --------------- Helper methods ---------------
@@ -81,6 +85,10 @@ class SkyscrapersGame(BaseGame):
 		self.stageUIChange(uic)
 	
 	# --------------- "BaseGame" expected methods ---------------
+
+	def getInfoTexts(self):
+		msg = checkCardImageFiles()
+		return [msg] if msg else []
 	
 	def actionAllowed(self, actionObj):
 		if actionObj[0] == "start_game":
