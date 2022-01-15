@@ -116,7 +116,7 @@ class SkyscrapersGame(BaseGame):
 
 	def __initPlayerSurfaces(self, playerNames: list):
 		nPlayers = len(self.playerIDs)
-		divOpts = {"parent":"game_table", "class":"player-surface",  "size":(800, 290)}
+		divOpts = {"parent":"game_page", "class":"player-surface",  "size":(800, 290)}
 		# set basic div opts
 		for seatN,playerName in enumerate(playerNames):
 			divID = SkyscrapersGame.__getPlayerSurfaceDivID(seatN)

@@ -141,13 +141,15 @@ def gameFile(playerId, playerName, gameFilePath):
 
 def newGame(game, nPlayers, **kwargs):
 	assert(not game.hasStarted())
+	globals()['game'] = game
+	globals()['nPlayers'] = nPlayers
 	if 'players' in kwargs:
 		players = kwargs['players']
+		assert(isinstance(players, dict))
+		assert(len(players) <= nPlayers)
 		globals()['players'] = players
 	else:
 		players = globals()['players']
-	globals()['nPlayers'] = nPlayers
-	globals()['game'] = game
 	if enoughPlayers():
 		game.startGame(list(players.values()), list(players.keys())) # relying on order being the same for keys() and values()
 

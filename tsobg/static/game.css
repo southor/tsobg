@@ -1,4 +1,10 @@
 
+.game-page {
+    position: relative;
+    top: 0px;
+    left: 0px;
+}
+
 .top-bar {
     position: fixed;
     z-index: 2;
@@ -18,12 +24,6 @@
     background-color: #D0D0D0;
 }
 
-#game_table {
-    position: relative;
-    top: 0px;
-    left: 0px;
-}
-
 #center {
     top: 80px;
     width: 800px;
@@ -34,3 +34,6 @@ p {
     margin-top: 0px;
 }
 
+td {
+    padding: 0 10px;
+}

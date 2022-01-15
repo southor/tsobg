@@ -9,8 +9,8 @@ import tsobg
 
 from SkyscrapersGame import SkyscrapersGame
 
-#nPlayers = 3
-#players = {'Adolf':'ad34ea20', 'Bob':'b0f8cf24', 'Caesar':'ca01e770'}
+nPlayers = 3
+players = {'Adolf':'ad34ea20', 'Bob':'b0f8cf24', 'Caesar':'ca01e770'}
 
 
 if __name__ == '__main__':
