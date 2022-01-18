@@ -12,7 +12,7 @@ function getDiv(id) {
 		console.log("creating div: " + id);
 		div = document.createElement("div");
 		div.setAttribute('id', id);
-		div.style.position = "relative";
+		div.style.position = "absolute";
 		divs.set(id, div);
 	}
 	return div

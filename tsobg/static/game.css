@@ -1,31 +1,30 @@
 
-.game-page {
-    position: relative;
-    top: 0px;
-    left: 0px;
-}
+
 
 .top-bar {
-    position: fixed;
-    z-index: 2;
+    position: static;
     background-color: #D0D0D0;
-    padding: 5px 5px 5px 5px;
+    margin: 8px 0px;
+}
+
+.game-area {
+    position: relative;
+    margin: 8px 0px;
 }
 
 .common-surface {
     position: absolute;
-    z-index: 1;
     background-color: #506550;
+    padding: 5px;
 }
 
 .player-surface {
     position: absolute;
-    z-index: 1;
     background-color: #D0D0D0;
+    padding: 5px;
 }
 
 #center {
-    top: 80px;
     width: 800px;
     height: 500px;
 }
@@ -34,6 +33,8 @@ p {
     margin-top: 0px;
 }
 
-td {
-    padding: 0 10px;
+
+td.top-bar-td {
+    padding: 5px 10px;
 }
+

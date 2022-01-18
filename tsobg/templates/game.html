@@ -103,33 +103,31 @@
 
 <body onload="requestState()">
 
-	<div class="game-page" id="game_page">
+	<div class="top-bar">
+		<table>
+			<tr>
+				<td class="top-bar-td">
+					<b>{{pageTitle}}</b>
+				</td>
+				<td class="top-bar-td">
+					<p id="state_n_label">stateN: -</p>
+				</td>
+				<td class="top-bar-td">
+					<button type="button" onclick="requestState(currentStateN-1)">Back</button>
+					<button type="button" onclick="requestState(currentStateN+1)">Forward</button>
+				</td>
+				<td class="top-bar-td">
+					<b id="top_bar_info">{{info|safe}}</b>
+				</td>
+			</tr>
+		</table>
+	</div>
 
-		<div class="top-bar">
-			<table>
-				<tr>
-					<td>
-						<b>{{pageTitle}}</b>
-					</td>
-					<td>
-						<p id="state_n_label">stateN: -</p>
-					</td>
-					<td>
-						<button type="button" onclick="requestState(currentStateN-1)">Back</button>
-						<button type="button" onclick="requestState(currentStateN+1)">Forward</button>
-					</td>
-					<td>
-						<b id="top_bar_info">{{info|safe}}</b>
-					</td>
-				</tr>
-			</table>
-		</div>
-
+	<div class="game-area" id="game_area">
 		<div class="common-surface" id="center">
 		</div>
-
 	</div>
-	
+
 
 </body>
 </html>
