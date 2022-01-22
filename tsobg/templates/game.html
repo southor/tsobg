@@ -41,17 +41,21 @@
 		});
 	}
 	
-	function requestState(newStateN) {
-		console.log("requestState: ", newStateN)
+	/**
+	 * Request an update of the latest (or specific) state from the server.
+	 * @param { Number } [newStateN] if supplied it requests this state instead of the latest.
+	 */
+	function requestUpdate(newStateN) {
+		console.log("requestUpdate: ", newStateN)
 		var urlParams = ["update_client_state", currentStateN];
 		if (newStateN !== undefined) {
 			urlParams.push(newStateN);
 		}
-		ajaxGet(urlParams, updateState, failedRequestState);
+		ajaxGet(urlParams, receiveUpdate, failedRequestUpdate);
 	}
 	
 	function sendAction(stateN, actionObj) {
-		ajaxPost(["client_action", stateN], actionObj, updateState, failedSendAction);
+        ajaxPost(["client_action", stateN], actionObj, receiveUpdate, failedSendAction);
 	}
 
 	function divUserAction(divId, actions) {
@@ -65,7 +69,11 @@
 		alert("Error! Received unknown data in " + context + ", see log.");
 	}
 
-	function updateState(data) {
+	/**
+	 * Receive an Array of updates from the server
+	 * @param { Array } data
+	 */
+	function receiveUpdate(data) {
 		if (data instanceof Array) {
 			data.forEach(function (uData, idx) {
 				if (uData instanceof Array && uData.length >= 1) {
@@ -79,18 +87,18 @@
 					} else if (uData[0] === "set_div") {
 						setDiv(uData[1], uData[2], divUserAction);
 					} else {
-						unknownDataError(uData, "updateState 3");
+						unknownDataError(uData, "receiveUpdate 3");
 					}
 				} else {
-					unknownDataError(uData, "updateState 2");
+					unknownDataError(uData, "receiveUpdate 2");
 				}
 			});
 		} else {
-			unknownDataError(data, "updateState 1");
+			unknownDataError(data, "receiveUpdate 1");
 		}
 	}
 	
-	function failedRequestState(err, msg) {
+	function failedRequestUpdate(err, msg) {
 		console.log(msg);
 	}
 	
@@ -101,7 +109,7 @@
 	
 </script>
 
-<body onload="requestState()">
+<body onload="requestUpdate()">
 
 	<div class="hole-page">
 
@@ -115,8 +123,8 @@
 						<p id="state_n_label">stateN: -</p>
 					</td>
 					<td class="top-bar-td">
-						<button type="button" onclick="requestState(currentStateN-1)">Back</button>
-						<button type="button" onclick="requestState(currentStateN+1)">Forward</button>
+						<button type="button" onclick="requestUpdate(currentStateN-1)">Back</button>
+						<button type="button" onclick="requestUpdate(currentStateN+1)">Forward</button>
 					</td>
 					<td class="top-bar-td">
 						<b id="top_bar_info">{{info|safe}}</b>
