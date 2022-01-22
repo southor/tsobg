@@ -89,19 +89,19 @@ def gamePage(playerId, playerName):
 		info =  ", ".join(infos) if infos else ""
 		return render_template('game.html', pageTitle=pageTitle, playerId=playerId, playerName=playerName, info=info)
 
-@app.route("/game/<playerId>/<playerName>/update_client_state/<fromStateN>", methods=['GET'])
-def updateClientState(playerId, playerName, fromStateN):
+@app.route("/game/<playerId>/<playerName>/update_client/<fromStateN>", methods=['GET'])
+def updateClient(playerId, playerName, fromStateN):
 	global game
-	return updateClientStateTo(playerId, playerName, int(fromStateN), game.currentStateN)
+	return updateClientToState(playerId, playerName, int(fromStateN), game.currentStateN)
 
-@app.route("/game/<playerId>/<playerName>/update_client_state/<fromStateN>/<toStateN>", methods=['GET'])
-def updateClientStateTo(playerId, playerName, fromStateN, toStateN):
+@app.route("/game/<playerId>/<playerName>/update_client/<fromStateN>/<toStateN>", methods=['GET'])
+def updateClientToState(playerId, playerName, fromStateN, toStateN):
 	global game
 	if checkPlayerID(playerId, playerName) != None:
 		flask.abort(409)
 	fromStateN = int(fromStateN)
 	toStateN = int(toStateN)
-	print("updateClientStateTo: ", playerId, playerName, fromStateN, toStateN)
+	print("updateClientToState: ", playerId, playerName, fromStateN, toStateN)
 	uiChanges = game.getUIChanges(playerId, fromStateN, toStateN)
 	return jsonify(uiChanges)
 
@@ -116,7 +116,7 @@ def clientAction(playerId, playerName, stateN):
 	actionObj = flask.request.get_json()
 	print("client action:", actionObj)
 	if game.clientAction(int(stateN), actionObj):
-		return updateClientState(playerId, playerName, stateN)
+		return updateClient(playerId, playerName, stateN)
 	else:
 		return Response("action not allowed", status=403, mimetype='application/json')
 

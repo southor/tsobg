@@ -47,7 +47,7 @@
 	 */
 	function requestUpdate(newStateN) {
 		console.log("requestUpdate: ", newStateN)
-		var urlParams = ["update_client_state", currentStateN];
+		var urlParams = ["update_client", currentStateN];
 		if (newStateN !== undefined) {
 			urlParams.push(newStateN);
 		}
