@@ -12,9 +12,16 @@
 
 <script type = "text/JavaScript">
 	
+	const refreshCheckInterval = 100; // The interval at which time checks are made
+	const requestDelay = 300; // delay from last update to the next request is sent
+
 	var playerId = "{{playerId}}";
 	var playerName = "{{playerName}}";
 	var currentStateN = 0;
+	
+	var timeLastRequest = 0;
+	var timeLastUpdate = 0;
+	
 
 	/*
 	function addInfo(level, text) {
@@ -31,6 +38,25 @@
 		console.log("removed info: " + html);
 	}
 	*/
+
+	// Checks if we should request latest game state immediately
+	function refreshCheck() {
+		if (timeLastRequest > timeLastUpdate) {
+			return; // first wait for response or timeout
+		}
+		if (document.getElementById("checkbox_view_latest").checked) {
+			now = new Date();
+			timeDiff = now - timeLastUpdate;
+			if (timeDiff >= requestDelay) {
+				requestUpdate();
+			}
+		}
+	}
+
+	function onLoad() {
+		requestUpdate();
+		setInterval(refreshCheck, refreshCheckInterval);
+	}
 	
 	// ------------------ request/send functions ------------------
 	
@@ -41,7 +67,8 @@
 			type: "GET",
 			dataType: "json", // return data type
 			success: successFunc,
-			error: errorFunc
+			error: errorFunc,
+			timeout: 5000
 		});
 	}
 	
@@ -68,6 +95,7 @@
 		if (newStateN !== undefined) {
 			urlParams.push(newStateN);
 		}
+		timeLastRequest = new Date();
 		ajaxGet(urlParams, receiveUpdate, failedRequestUpdate);
 	}
 	
@@ -98,7 +126,7 @@
 						stateN = uData[1]
 						if (stateN != currentStateN) {
 							currentStateN = stateN;
-							document.getElementById("state_n_label").innerHTML = "stateN: " + currentStateN.toString();
+							document.getElementById("state_n_label").innerHTML = "Viewing game state: " + currentStateN.toString();
 							document.getElementById("top_bar_info").innerHTML = ""; // clear any info in top bar
 						}
 					} else if (uData[0] === "set_div") {
@@ -120,10 +148,12 @@
 		} else {
 			unknownDataError(data, "receiveUpdate 1");
 		}
+		timeLastUpdate = new Date();
 	}
 	
 	function failedRequestUpdate(err, msg) {
 		console.log(msg);
+		timeLastUpdate = new Date();
 	}
 	
 	function failedSendAction(err, msg) {
@@ -133,7 +163,7 @@
 	
 </script>
 
-<body onload="requestUpdate()">
+<body onload="onLoad()">
 
 	<div class="hole-page">
 
@@ -144,11 +174,15 @@
 						<b>{{pageTitle}}</b>
 					</td>
 					<td class="top-bar-td">
-						<p id="state_n_label">stateN: -</p>
+						<p id="state_n_label">Viewing game state: -</p>
 					</td>
 					<td class="top-bar-td">
 						<button type="button" onclick="requestUpdate(currentStateN-1)">Back</button>
 						<button type="button" onclick="requestUpdate(currentStateN+1)">Forward</button>
+					</td>
+					<td class="top-bar-td">
+						<input type="checkbox" id="checkbox_view_latest" checked/>
+						<label for="checkbox_view_latest">latest</label>
 					</td>
 					<td class="top-bar-td">
 						<b id="top_bar_info">{{info|safe}}</b>

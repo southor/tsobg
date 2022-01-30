@@ -1,7 +1,9 @@
-import secrets
-import flask
+import secrets, logging, flask
 from flask import Flask, render_template, jsonify, send_file, Response
 app = Flask(__name__)
+
+werkzeugLogger = logging.getLogger('werkzeug')
+werkzeugLogger.setLevel(logging.ERROR)
 
 from pathlib import PurePath
 
@@ -98,7 +100,7 @@ def updateClientTo(playerId, playerName, fromStateN, toStateN):
 		flask.abort(409)
 	fromStateN = int(fromStateN)
 	toStateN = int(toStateN)
-	print("updateClientTo: ", playerId, playerName, fromStateN, toStateN)
+	#print("updateClientTo: ", playerId, playerName, fromStateN, toStateN)
 	data = game.getClientUpdates(playerId, fromStateN, toStateN)
 	return jsonify(data)
 
