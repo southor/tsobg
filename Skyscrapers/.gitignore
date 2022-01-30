@@ -1,6 +1,4 @@
 _backup/
-generated_cards/*.png
-generated_cards_debug/*.png
-generated_cards_online/*.png
-online/__pycache__/
-*.pyc
+generated_cards/
+generated_cards_debug/
+generated_cards_online/

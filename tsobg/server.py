@@ -83,27 +83,24 @@ def gamePage(playerId, playerName):
 		return renderError(msg)
 	else:
 		pageTitle = game.name + " ({} players)".format(str(nPlayers))
-		infos = game.getInfoTexts()
-		if not enoughPlayers():
-			infos.append("waiting for other players...")
-		info =  ", ".join(infos) if infos else ""
+		info = "" if enoughPlayers() else "waiting for other players..."
 		return render_template('game.html', pageTitle=pageTitle, playerId=playerId, playerName=playerName, info=info)
 
 @app.route("/game/<playerId>/<playerName>/update_client/<fromStateN>", methods=['GET'])
 def updateClient(playerId, playerName, fromStateN):
 	global game
-	return updateClientToState(playerId, playerName, int(fromStateN), game.currentStateN)
+	return updateClientTo(playerId, playerName, int(fromStateN), game.currentStateN)
 
 @app.route("/game/<playerId>/<playerName>/update_client/<fromStateN>/<toStateN>", methods=['GET'])
-def updateClientToState(playerId, playerName, fromStateN, toStateN):
+def updateClientTo(playerId, playerName, fromStateN, toStateN):
 	global game
 	if checkPlayerID(playerId, playerName) != None:
 		flask.abort(409)
 	fromStateN = int(fromStateN)
 	toStateN = int(toStateN)
-	print("updateClientToState: ", playerId, playerName, fromStateN, toStateN)
-	uiChanges = game.getUIChanges(playerId, fromStateN, toStateN)
-	return jsonify(uiChanges)
+	print("updateClientTo: ", playerId, playerName, fromStateN, toStateN)
+	data = game.getClientUpdates(playerId, fromStateN, toStateN)
+	return jsonify(data)
 
 @app.route("/game/<playerId>/<playerName>/client_action/<stateN>", methods=['POST'])
 def clientAction(playerId, playerName, stateN):

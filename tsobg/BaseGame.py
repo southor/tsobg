@@ -6,6 +6,7 @@ from pathlib import PurePath
 
 from .UIInterface import UIInterface
 from .UIHistory import UIHistory
+from .GameLog import GameLog
 
 
 class BaseGame(UIInterface):
@@ -13,18 +14,26 @@ class BaseGame(UIInterface):
 	def __init__(self, name, gameRootPath: Path):
 		self.name = name
 		self.gameRootPath = gameRootPath
-		# One action per state
-		self.actions = []
+		self.actions = [] # one action per state
 		self.gameStateHistory = [{}]
-		self.playerUIHistories = {} # later add one UIHistory object per player
+		self.playerUIHistories = {}
 		self.currentStateN = 0
-	
-	# ----------------- Server Methods -----------------
+		self.gameLog = GameLog() # game log entries shared by players
+		self.clientMsgs = {} # instant messages waiting to be sent to players
 
-	def getInfoTexts():
-		return []
+	# ----------------- Help Methods -----------------
 	
-	def getUIChanges(self, playerId, fromStateN, toStateN):
+	def __popClientMessages(self, playerId):
+		msgEntries = self.clientMsgs.get(playerId, [])
+		if msgEntries:
+			self.clientMsgs[playerId] = []
+		return [("msg",) + m for m in msgEntries]
+
+	def __getLogEntries(self, fromStateN, toStateN):
+		logEntries = self.gameLog.getLogEntries(fromStateN, toStateN)
+		return [("game_log",) + l for l in logEntries]
+
+	def __getUIChanges(self, playerId, fromStateN, toStateN):
 		if self.hasStarted():
 			if playerId in self.playerUIHistories:
 				assert(self.playerUIHistories[playerId].getCurrentStateN() == self.currentStateN)
@@ -33,6 +42,15 @@ class BaseGame(UIInterface):
 				print("Call to getUIChanges with invalid playerId: {}, fromStateN={}, toStateN={}.format(playerId, fromStateN, toStateN")
 		else:
 			return []
+	
+	# ----------------- Server Methods -----------------
+	
+	def getClientUpdates(self, playerId, fromStateN, toStateN):
+		data = self.__popClientMessages(playerId)
+		if self.hasStarted():
+			data += self.__getLogEntries(fromStateN, toStateN)
+			data += self.__getUIChanges(playerId, fromStateN, toStateN)
+		return data
 	
 	def clientAction(self, stateN, actionObj):
 		if stateN != self.currentStateN:
@@ -54,6 +72,7 @@ class BaseGame(UIInterface):
 		assert(not self.hasStarted())
 		for p in playerIDs:
 			self.playerUIHistories[p] = UIHistory()
+			self.clientMsgs[p] = []
 		actionObj = ("start_game", playerIDs, playerNames)
 		res = self.clientAction(0, actionObj)
 		if res:
@@ -73,6 +92,27 @@ class BaseGame(UIInterface):
 		else:
 			return None
 	
+	# ----------------- Client Message methods -----------------
+	
+	def sendMessageToPlayer(self, msgEntry, playerID):
+		""" msgEntry: tuple (type, text) """
+		self.clientMsgs[playerID].append(msgEntry)
+
+	def sendMessageToPlayers(self, msgEntry, playerIDs = None):
+		""" msgEntry: tuple (type, text) """
+		if not playerIDs:
+			playerIDs = self.clientMsgs.keys() # get all players
+		for p in playerIDs:
+			self.clientMsgs[p].append(msgEntry)
+
+	# ----------------- Game Log Methods (All players) -----------------
+
+	def stageLogEntry(self, msg: str):
+		self.gameLog.addLogEntry(self.currentStateN, msg)
+
+	def stageLogEntries(self, msgs: list):
+		self.gameLog.addLogEntries(self.currentStateN, msgs)
+
 	# ----------------- UI Methods -----------------
 	
 	def stageUIChange_OnePlayer(self, playerID, uiChange):

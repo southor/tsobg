@@ -2,6 +2,30 @@
 
 class UIInterface:
 
+	# ----------------- Client Message methods -----------------
+	
+	def sendMessageToPlayer(self, msgEntry, playerID):
+		""" Arg msgEntry (tuple): (type, text) """
+		pass
+
+	def sendMessageToPlayers(self, msgEntry, playerIDs = None):
+		""" 
+		Args:
+			msgEntry (tuple): (type, text)
+			playerIDs (iterable): optional, if not provided message goes to all players
+		"""
+		pass
+	
+	# ----------------- Game Log Methods -----------------
+	
+	def stageLogEntry(self, msg):
+		pass
+
+	def stageLogEntries(self, msgs):
+		pass
+
+	# ----------------- UI Methods -----------------
+
 	def stageUIChange_OnePlayer(self, playerID, uiChange):
 		pass
 	

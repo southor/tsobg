@@ -3,16 +3,23 @@
 // store created div elements in a Map object, accessed by div id
 divs = null;
 
+function log(level, ...msgArgs) {
+	//console.log(level, msgArgs)
+}
+
+/**
+ * Get div from DOM, create div if it doesn't exist
+ * @param { String } id The div id
+ */
 function getDiv(id) {
 	if (divs === null) {
 		divs = new Map();
 	}
 	let div = divs.get(id) ?? document.getElementById(id);
 	if ( ! div) {
-		console.log("creating div: " + id);
+		log("info", "creating div: " + id);
 		div = document.createElement("div");
 		div.setAttribute('id', id);
-		div.style.position = "absolute";
 		divs.set(id, div);
 	}
 	return div
@@ -46,9 +53,9 @@ function getDivParagraphElement(div) {
 }
 
 function setImgOnClick(div, imgElement, onClickFunc, actions) {
-	console.log("setImgOnClick: ", actions);
+	log("info", "setImgOnClick: ", actions);
 	imgElement.onclick = function() {
-		console.log("img on click");
+		log("info", "setImgOnClick: ");
 		onClickFunc(div.getAttribute("id"), actions);
 	};
 }
@@ -63,7 +70,7 @@ function setDivImg(div, opts, onClickFunc) {
 			if (imgElement) {
 				imgElement.style.visibility = "visible";
 			} else {
-				console.log("creating div img");
+				log("info", "creating div img");
 				imgElement = document.createElement("img");
 				div.appendChild(imgElement);
 				actions = div.getAttribute("data-actions");
@@ -97,24 +104,31 @@ function setDivImg(div, opts, onClickFunc) {
 			}
 		}
 	}
+
+	return imgElement;
 }
 
 // If div does not exists it is created
 function setDiv(id, opts, onClickFunc) {
-	console.log("set div called with:", id, opts);
+	log("info", "set div called with:", id, opts);
+	//let div = getDiv(id, "absolute");
 	let div = getDiv(id);
 
 	if (opts.parent || opts.parent === null) {
 		if (div.parentNode) {
 			div.parentNode.removeChild(div);
-			div.style.position = "relative";
-			console.log("removing div child");
+			//div.style.position = "relative";
+			log("info", "removing div child");
 		}
 		if (opts.parent) {
-			console.log("setting div parent");
-			div.style.position = "absolute";
+			log("info", "setting div parent");
+			//div.style.position = "absolute";
 			getDiv(opts.parent).appendChild(div);
 		}
+	}
+
+	if (opts.divPositioning) {
+		div.style.position = opts.divPositioning;
 	}
 
 	if (opts.class) {
@@ -125,14 +139,14 @@ function setDiv(id, opts, onClickFunc) {
 		const pos = parseSize(opts.pos);
 		div.style.left = pos[0];
 		div.style.top = pos[1];
-		console.log("setting div pos");
+		log("info", "setting div pos");
 	}
 
 	if (opts.size) {
 		const size = parseSize(opts.size);
 		div.style.width = size[0];
 		div.style.height = size[1];
-		console.log("setting div size");
+		log("info", "setting div size");
 	}
 
 	if (opts.border) {
@@ -150,7 +164,7 @@ function setDiv(id, opts, onClickFunc) {
 		let pElement = getDivParagraphElement(div);
 		if (opts.text) {
 			if ( ! pElement) {
-				console.log("creating div paragraph");
+				log("info", "creating div paragraph");
 				pElement = document.createElement("p");
 				div.appendChild(pElement);
 			}
@@ -163,4 +177,5 @@ function setDiv(id, opts, onClickFunc) {
 		}
 	}
 	
+	return div;
 }

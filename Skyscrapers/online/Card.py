@@ -15,11 +15,12 @@ cardsFolder = "generated_cards_online"
 
 
 def checkCardImageFiles():
+	""" Returns empty string if all good otherwise returns an error text string """
 	cardsFolderPath = pathHere.parent / cardsFolder
 	if cardsFolderPath.exists() and cardsFolderPath.is_dir():
 		return ""
 	else:
-		return "\nCard image files not generated! Please run card_graphics.py and restart server\n"
+		return "Card image files not generated! Please run card_graphics.py and restart server."
 
 def createAllCards():
 	res = []
@@ -43,7 +44,7 @@ class Card():
 			return {}
 		else:
 			self.divCreated = True
-			return {"img":self.__getFilename()}
+			return {"divPositioning":"absolute", "img":self.__getFilename()}
 		
 	def sameCardAs(self, otherCard):
 		return self.data is otherCard.data

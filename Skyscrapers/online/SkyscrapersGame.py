@@ -85,14 +85,10 @@ class SkyscrapersGame(BaseGame):
 		self.stageUIChange(uic)
 	
 	# --------------- "BaseGame" expected methods ---------------
-
-	def getInfoTexts(self):
-		msg = checkCardImageFiles()
-		return [msg] if msg else []
 	
 	def actionAllowed(self, actionObj):
 		if actionObj[0] == "start_game":
-			return False if hasattr(self, "players") else True
+			return not hasattr(self, "playerIDs")
 		elif actionObj[0] == "take_card":
 			return True
 		else:
@@ -105,6 +101,7 @@ class SkyscrapersGame(BaseGame):
 			self.__actionStartGame(actionObj[1], actionObj[2]) # pass playerIDs and playerNames
 		elif actionObj[0] == "take_card":
 			self.cardMarket.removeCard(actionObj[1])
+			self.stageLogEntry("card " + actionObj[1] + " was taken")
 		else:
 			print("Error, unknown action", actionObj)
 		return self.__exportGameState()
@@ -116,7 +113,7 @@ class SkyscrapersGame(BaseGame):
 
 	def __initPlayerSurfaces(self, playerNames: list):
 		nPlayers = len(self.playerIDs)
-		divOpts = {"parent":"game_area", "class":"player-surface",  "size":(800, 280)}
+		divOpts = {"divPositioning":"absolute", "parent":"game_area", "class":"player-surface",  "size":(800, 280)}
 		# set basic div opts
 		for seatN,playerName in enumerate(playerNames):
 			divID = SkyscrapersGame.__getPlayerSurfaceDivID(seatN)
@@ -129,7 +126,7 @@ class SkyscrapersGame(BaseGame):
 				viewedSeatN = i % nPlayers
 				appearedSeatN = i - viewingSeatN
 				divID = SkyscrapersGame.__getPlayerSurfaceDivID(viewedSeatN)
-				divOpts = { "pos": (0, offset + appearedSeatN * 300) }
+				divOpts = {"divPositioning":"absolute", "pos": (0, offset + appearedSeatN * 300) }
 				self.stageUIChange_OnePlayer(playerID, ("set_div", divID, divOpts))
 	
 	def __initPlayerAreas(self):		
@@ -140,12 +137,18 @@ class SkyscrapersGame(BaseGame):
 			self.playerAreas.append(PlayerArea(self, seatN, playerSurfaceDivID, items))
 
 	def __actionStartGame(self, playerIDs: list, playerNames: list):
+		# check card image files
+		text = checkCardImageFiles()
+		if text:
+			self.sendMessageToPlayers(("error", text))
+		# init game
 		self.playerIDs = playerIDs
 		self.currentPlayer = 0
 		self.__initPlayerSurfaces(playerNames)
 		self.__initPlayerAreas()
 		self.cardMarket.fillUp()
 		self.stageUIChange_AllPlayers(("set_div", "center", {"size": (800, 500)}))
+		self.stageLogEntry("Game started, players: " + ", ".join(playerNames))
 		
 		
 		

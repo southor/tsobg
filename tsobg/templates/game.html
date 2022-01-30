@@ -8,12 +8,29 @@
 </head>
 
 <script type="text/javascript" src="{{ url_for("static", filename="div_manipulation.js") }}"></script>
+<script type="text/javascript" src="{{ url_for("static", filename="game_log.js") }}"></script>
 
 <script type = "text/JavaScript">
 	
 	var playerId = "{{playerId}}";
 	var playerName = "{{playerName}}";
 	var currentStateN = 0;
+
+	/*
+	function addInfo(level, text) {
+		text = level.toUpperCase() + ": " + text
+		html = document.getElementById("top_bar_info").innerHTML;
+		html = html ? html + ", " + text : text;
+		document.getElementById("top_bar_info").innerHTML = html;
+		console.log("added info: " + text)
+	}
+
+	function clearInfo() {
+		html = document.getElementById("top_bar_info").innerHTML;
+		document.getElementById("top_bar_info").innerHTML = "";
+		console.log("removed info: " + html);
+	}
+	*/
 	
 	// ------------------ request/send functions ------------------
 	
@@ -46,7 +63,7 @@
 	 * @param { Number } [newStateN] if supplied it requests this state instead of the latest.
 	 */
 	function requestUpdate(newStateN) {
-		console.log("requestUpdate: ", newStateN)
+		log("info", "requestUpdate: ", newStateN)
 		var urlParams = ["update_client", currentStateN];
 		if (newStateN !== undefined) {
 			urlParams.push(newStateN);
@@ -55,7 +72,7 @@
 	}
 	
 	function sendAction(stateN, actionObj) {
-        ajaxPost(["client_action", stateN], actionObj, receiveUpdate, failedSendAction);
+		ajaxPost(["client_action", stateN], actionObj, receiveUpdate, failedSendAction);
 	}
 
 	function divUserAction(divId, actions) {
@@ -65,7 +82,7 @@
 	// ------------------ callback functions ------------------
 
 	function unknownDataError(data, context) {
-		console.log("Error! Received unknown data in " + context + ": ", data);
+		log("error", "Received unknown data in " + context + ": ", data);
 		alert("Error! Received unknown data in " + context + ", see log.");
 	}
 
@@ -86,6 +103,13 @@
 						}
 					} else if (uData[0] === "set_div") {
 						setDiv(uData[1], uData[2], divUserAction);
+					} else if (uData[0] === "msg") {
+						level = uData[1];
+						text = uData[2];
+						addMsg(level, text);
+						alert(combineMsgLevelAndText(level, text));
+					} else if (uData[0] === "game_log") {
+						addToGameLog(uData[1], uData[2], uData[3]);
 					} else {
 						unknownDataError(uData, "receiveUpdate 3");
 					}
@@ -137,8 +161,8 @@
 			<div class="common-surface" id="center">
 			</div>
 		</div>
-
-		<div class="log-window">
+		
+		<div id="log_window">
 		</div>
 
 	</div>

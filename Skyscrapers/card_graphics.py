@@ -240,7 +240,7 @@ def drawText(img, posInfo, text, fontName):
 			#print("color: " + part[1])
 			if part[1] == "previous":
 				if len(prevColors) < 1:
-					RuntimeError("Tried to set previous color when stack is empty: ", text)
+					raise RuntimeError("Tried to set previous color when stack is empty: ", text)
 				color = prevColors.pop()
 			else:
 				prevColors.append(color)
