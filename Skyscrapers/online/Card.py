@@ -53,4 +53,4 @@ class Card():
 		""" stages set_div on uiInterface for this card with divOpts, img is added automatically to divOpts """
 		divOpts2 = self.__newDivOpts()
 		divOpts2.update(divOpts)
-		uiInterface.stageUIChange_AllPlayers(("set_div", self.id, divOpts2))
+		uiInterface.stageUIChange(("set_div", self.id, divOpts2))

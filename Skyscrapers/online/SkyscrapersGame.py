@@ -117,8 +117,8 @@ class SkyscrapersGame(BaseGame):
 		# set basic div opts
 		for seatN,playerName in enumerate(playerNames):
 			divID = SkyscrapersGame.__getPlayerSurfaceDivID(seatN)
-			self.stageUIChange_AllPlayers(("set_div", divID, divOpts))
-			self.stageUIChange_AllPlayers(("set_div", divID, {"text":playerName}))
+			self.stageUIChange(("set_div", divID, divOpts))
+			self.stageUIChange(("set_div", divID, {"text":playerName}))
 		# set div pos (unique for each player)
 		offset = 520
 		for viewingSeatN,playerID in enumerate(self.playerIDs):
@@ -127,7 +127,7 @@ class SkyscrapersGame(BaseGame):
 				appearedSeatN = i - viewingSeatN
 				divID = SkyscrapersGame.__getPlayerSurfaceDivID(viewedSeatN)
 				divOpts = {"divPositioning":"absolute", "pos": (0, offset + appearedSeatN * 300) }
-				self.stageUIChange_OnePlayer(playerID, ("set_div", divID, divOpts))
+				self.stageUIChange(("set_div", divID, divOpts), playerID=playerID)
 	
 	def __initPlayerAreas(self):		
 		self.playersSupply = [SkyscrapersGame.playerStartSupply.copy() for p in self.playerIDs]
@@ -147,7 +147,7 @@ class SkyscrapersGame(BaseGame):
 		self.__initPlayerSurfaces(playerNames)
 		self.__initPlayerAreas()
 		self.cardMarket.fillUp()
-		self.stageUIChange_AllPlayers(("set_div", "center", {"size": (800, 500)}))
+		self.stageUIChange(("set_div", "center", {"size": (800, 500)}))
 		self.stageLogEntry("Game started, players: " + ", ".join(playerNames))
 		
 		

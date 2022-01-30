@@ -113,30 +113,21 @@ class BaseGame(UIInterface):
 	def stageLogEntries(self, msgs: list):
 		self.gameLog.addLogEntries(self.currentStateN, msgs)
 
-	# ----------------- UI Methods -----------------
-	
-	def stageUIChange_OnePlayer(self, playerID, uiChange):
-		self.playerUIHistories[playerID].stageUIChange(uiChange)
-	
-	def stageUIChange_SomePlayers(self, playerIDs, uiChange):
-		for p in playerIDs:
-			self.playerUIHistories[p].stageUIChange(uiChange)
+	# ----------------- UI Methods -----------------	
 
-	def stageUIChange_AllPlayers(self, uiChange):
-		for uiHistory in self.playerUIHistories.values():
-			uiHistory.stageUIChange(uiChange)
+	def stageUIChange(self, uiChange, playerID = None, playerIDs = None):
+		"""playerID and playerIDs are optional, but don't pass more than one of them. If none are passed then it applies to all players."""
+		self.stageUIChanges([uiChange], playerID=playerID, playerIDs=playerIDs)
 
-	def stageUIChanges_OnePlayer(self, playerID, uiChanges: list):
-		for uiChange in uiChanges:
-			self.playerUIHistories[playerID].stageUIChange(uiChange)
-	
-	def stageUIChanges_SomePlayers(self, playerIDs, uiChanges: list):
+	def stageUIChanges(self, uiChanges: list, playerID = None, playerIDs = None):
+		"""playerID and playerIDs are optional, but don't pass more than one of them. If none are passed then it applies to all players."""
+		if playerID:
+			if playerIDs:
+				raise ValueError("Received both arguments playerID and playerIDs")
+			playerIDs = [playerID]
+		elif not playerIDs:
+			playerIDs = self.playerUIHistories.keys()
+		assert(playerIDs)
 		for uiChange in uiChanges:
 			for p in playerIDs:
 				self.playerUIHistories[p].stageUIChange(uiChange)
-		
-	def stageUIChanges_AllPlayers(self, uiChanges: list):
-		for uiChange in uiChanges:
-			for uiHistory in self.playerUIHistories.values():
-				uiHistory.stageUIChange(uiChange)
-		

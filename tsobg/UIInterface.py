@@ -26,20 +26,10 @@ class UIInterface:
 
 	# ----------------- UI Methods -----------------
 
-	def stageUIChange_OnePlayer(self, playerID, uiChange):
-		pass
-	
-	def stageUIChange_SomePlayers(self, playerIDs, uiChange):
+	def stageUIChange(self, uiChange, playerID = None, playerIDs = None):
+		"""playerID and playerIDs are optional, but don't pass more than one of them. If none are passed then it applies to all players."""
 		pass
 
-	def stageUIChange_AllPlayers(self, uiChange):
-		pass
-
-	def stageUIChanges_OnePlayer(self, playerIDs, uiChanges: list):
-		pass
-	
-	def stageUIChanges_SomePlayers(self, playerIDs, uiChanges: list):
-		pass
-		
-	def stageUIChanges_AllPlayers(self, uiChanges: list):
+	def stageUIChanges(self, uiChanges: list, playerID = None, playerIDs = None):
+		"""playerID and playerIDs are optional, but don't pass more than one of them. If none are passed then it applies to all players."""
 		pass
