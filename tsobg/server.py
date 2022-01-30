@@ -70,7 +70,7 @@ def checkPlayerID(playerId, playerName):
 		return "playerName - playerId mismatch: " + playerName + " " + playerId
 	else:
 		return None
-		
+
 def renderError(msg):
 	print("Error:", msg)
 	return render_template('error.html', gameName=game.name, msg=msg)

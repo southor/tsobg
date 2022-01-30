@@ -150,15 +150,29 @@
 		}
 		timeLastUpdate = new Date();
 	}
+
+	function unknownResponseError(refName, jqXHR, textStatus, errorThrown, showAlert) {
+		console.log("-" + refName + "- jqXHR, textStatus, errorThrown:", jqXHR, textStatus, errorThrown);
+		if (showAlert) {
+			let alertMsg = "failedRequestUpdate";
+			if (textStatus || errorThrown) {
+				alertMsg += " (";
+				if (textStatus) alertMsg += textStatus;
+				if (textStatus && errorThrown) alertMsg += ", ";
+				if (errorThrown) alertMsg += errorThrown;
+				alertMsg += ")";
+			}
+			alert(alertMsg + ", more info in console log.");
+		}
+	}
 	
-	function failedRequestUpdate(err, msg) {
-		console.log(msg);
+	function failedRequestUpdate(jqXHR, textStatus, errorThrown) {
+		unknownResponseError("failedRequestUpdate", jqXHR, textStatus, errorThrown, false);
 		timeLastUpdate = new Date();
 	}
 	
-	function failedSendAction(err, msg) {
-		console.log(msg);
-		alert(msg);
+	function failedSendAction(jqXHR, textStatus, errorThrown) {
+		unknownResponseError("failedSendAction", jqXHR, textStatus, errorThrown, true);
 	}
 	
 </script>
