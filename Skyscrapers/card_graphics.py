@@ -307,7 +307,9 @@ def upgradeEffectText(effect):
 	textLambdas = {
 		"materialDiscount" : discountTextMulti,
 		"increaseMaxHeight" : lambda nFloors: "+" + str(nFloors) + " max building height",
-		"ignoreTenantCriteria" : lambda n: "Ignore " + writtenNumber(n) + " criteria when\npicking a tenant"
+		"ignoreTenantCriteria" : lambda n: "Ignore " + writtenNumber(n) + " criteria when\npicking a tenant",
+		"cardDiscount" : lambda n: "card discound:\n " + str(n) + " @icon:money; for every hire/buy cost",
+		"takeCards" : lambda n: "Take extra cards:\n" + "Discard this card to take up to\n" + str(n) + " cards instead of one during\ncard phase."
 	}
 	effectType,effectArgs = card_data.unpackEffect(effect)
 	return textLambdas[effectType](*effectArgs)
@@ -418,10 +420,17 @@ def makeDeckImage(topCardImg, nOutlines):
 
 # buyPrice: the cost in money
 # gain: instant gain as dict with type and amount
-def makeMaterialCard(**kwargs):
+def makeMaterialsCard(**kwargs):
+	type = kwargs.pop("type")
 	gainText = resourcesText(kwargs.pop("gain"))
-	return makeTextCard("Materials", gainText, (), "textFontL", **kwargs)
-	
+	if type == "supply":
+		return makeTextCard("Materials supply", gainText, (), "textFontL", **kwargs)
+	elif type == "contract":
+		extraText = "\n\nDiscard this card to use the\nmaterials in a single\nconstruction project"
+		return makeTextCard("Materials contract", gainText + extraText, ("top",), "textFontS", **kwargs)
+	else:
+		raise RuntimeError("Unknown Materials card type: " + type)
+
 # hirePrice: the hire cost in money
 # beauty: a number representing extra building attraction
 # types: list of floor type that the architect can create
@@ -517,7 +526,7 @@ def makeCardBack(**kwargs):
 # ----------------------------------------
 
 cardMakeFunctions = {
-	"material": makeMaterialCard,
+	"materials": makeMaterialsCard,
 	"architect": makeArchitectCard,
 	"construction": makeConstructionCard,
 	"tenant": makeTenantCard,

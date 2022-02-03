@@ -44,13 +44,13 @@ def __addCardDatas(category, header, rows):
 		cardData = {"category":category, "name":name, "nDuplicates":nDuplicates, "cardKWArgs":kwargs}
 		cardDatas.append(cardData)
 
-__addCardDatas("material",
-	("nDuplicates", "buyPrice", "gain"), [
-		(1, 3, {"steel": 3, "concrete": 3}),
-		(1, 3, {"steel": 8}),
-		(1, 4, {"concrete": 10}),
-		(1, 0, {"steel": 2}),
-		(1, 0, {"concrete": 2})
+__addCardDatas("materials",
+	("nDuplicates", "buyPrice", "type", "gain"), [
+		(1, 3, "supply", {"steel": 3, "concrete": 3}),
+		(1, 3, "supply", {"steel": 8}),
+		(1, 4, "supply", {"concrete": 10}),
+		(1, 0, "contract", {"steel": 2}),
+		(1, 0, "contract", {"concrete": 2})
 	])
 
 __addCardDatas("architect",	
@@ -107,6 +107,7 @@ __addCardDatas("production",
 		
 # add wearhouse card (stores materials) ?
 # add material trader card (sell material at any time) ?
+# add logistics card (save overflow from material contracts + something else?)
 		
 __addCardDatas("upgrade",	
 	("title", "buyPrice", "effects"), [
@@ -114,6 +115,9 @@ __addCardDatas("upgrade",
 		("Material Engineer", 3, [("materialDiscount", "steel", [(4, -1), (6, -2)])]),
 		("Strength Engineer", 4, [("increaseMaxHeight", 2)]),
 		("Strength Engineer", 6, [("increaseMaxHeight", 4)]),
-		("Talented Broker", 6, [("ignoreTenantCriteria", 1)])
+		("Talented Broker", 6, [("ignoreTenantCriteria", 1)]),
+		("Manager", 4, [("cardDiscount", -1)]),
+		("Manager overtime", 2, [("takeCards", 3)])
+
 		])
 		
