@@ -113,22 +113,20 @@ class SkyscrapersGame(BaseGame):
 
 	def __initPlayerSurfaces(self, playerNames: list):
 		nPlayers = len(self.playerIDs)
-		divOpts = {"divPositioning":"absolute", "parent":"game_area", "class":"player-surface",  "size":(800, 280)}
-		# set basic div opts
-		for seatN,playerName in enumerate(playerNames):
-			divID = SkyscrapersGame.__getPlayerSurfaceDivID(seatN)
-			self.stageUIChange(("set_div", divID, divOpts))
-			self.stageUIChange(("set_div", divID, {"text":playerName}))
-		# set div pos (unique for each player)
-		offset = 520
+		# create divs but add to parent in viewed order (unique for each player)
+		divOpts = {"parent":"game_area", "class":"player-surface",  "size":(800, 280)}
 		for viewingSeatN,playerID in enumerate(self.playerIDs):
+			appearedOrder_divIds = [0] * nPlayers
 			for i in range(viewingSeatN, viewingSeatN + nPlayers):
 				viewedSeatN = i % nPlayers
 				appearedSeatN = i - viewingSeatN
 				divID = SkyscrapersGame.__getPlayerSurfaceDivID(viewedSeatN)
-				divOpts = {"divPositioning":"absolute", "pos": (0, offset + appearedSeatN * 300) }
+				self.stageUIChange(("set_div", divID, {"text":playerNames[viewedSeatN]}))
+				appearedOrder_divIds[appearedSeatN] = divID # save divId in appeared order for later
+			# set div parent and rest of divopts in appearedOrder (for this player)
+			for divID in appearedOrder_divIds:
 				self.stageUIChange(("set_div", divID, divOpts), playerID=playerID)
-	
+
 	def __initPlayerAreas(self):		
 		self.playersSupply = [SkyscrapersGame.playerStartSupply.copy() for p in self.playerIDs]
 		self.playerAreas = []
@@ -144,10 +142,10 @@ class SkyscrapersGame(BaseGame):
 		# init game
 		self.playerIDs = playerIDs
 		self.currentPlayer = 0
+		self.stageUIChange(("set_div", "center", {"parent": "game_area", "class": "common-surface", "size": (800, 500)}))
 		self.__initPlayerSurfaces(playerNames)
 		self.__initPlayerAreas()
 		self.cardMarket.fillUp()
-		self.stageUIChange(("set_div", "center", {"size": (800, 500)}))
 		self.stageLogEntry("Game started, players: " + ", ".join(playerNames))
 		
 		

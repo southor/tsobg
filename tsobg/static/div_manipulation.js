@@ -10,8 +10,9 @@ function log(level, ...msgArgs) {
 /**
  * Get div from DOM, create div if it doesn't exist
  * @param { String } id The div id
+ * @param { String } defaultDivPositioning optional argument that sets changes default divPositioning which noramlly is "static". This argument will only have an effect if the div does not exist and has to be created
  */
-function getDiv(id) {
+function getDiv(id, defaultDivPositioning) {
 	if (divs === null) {
 		divs = new Map();
 	}
@@ -20,6 +21,9 @@ function getDiv(id) {
 		log("info", "creating div: " + id);
 		div = document.createElement("div");
 		div.setAttribute('id', id);
+		if (defaultDivPositioning) {
+			div.style.position = defaultDivPositioning;
+		}
 		divs.set(id, div);
 	}
 	return div
@@ -111,19 +115,16 @@ function setDivImg(div, opts, onClickFunc) {
 // If div does not exists it is created
 function setDiv(id, opts, onClickFunc) {
 	log("info", "set div called with:", id, opts);
-	//let div = getDiv(id, "absolute");
-	let div = getDiv(id);
+	let div = getDiv(id, "relative");
 
 	if (opts.parent || opts.parent === null) {
 		if (div.parentNode) {
 			div.parentNode.removeChild(div);
-			//div.style.position = "relative";
 			log("info", "removing div child");
 		}
 		if (opts.parent) {
 			log("info", "setting div parent");
-			//div.style.position = "absolute";
-			getDiv(opts.parent).appendChild(div);
+			getDiv(opts.parent, "relative").appendChild(div);
 		}
 	}
 

@@ -22,41 +22,6 @@
 	var timeLastRequest = 0;
 	var timeLastUpdate = 0;
 	
-
-	/*
-	function addInfo(level, text) {
-		text = level.toUpperCase() + ": " + text
-		html = document.getElementById("top_bar_info").innerHTML;
-		html = html ? html + ", " + text : text;
-		document.getElementById("top_bar_info").innerHTML = html;
-		console.log("added info: " + text)
-	}
-
-	function clearInfo() {
-		html = document.getElementById("top_bar_info").innerHTML;
-		document.getElementById("top_bar_info").innerHTML = "";
-		console.log("removed info: " + html);
-	}
-	*/
-
-	// Checks if we should request latest game state immediately
-	function refreshCheck() {
-		if (timeLastRequest > timeLastUpdate) {
-			return; // first wait for response or timeout
-		}
-		if (document.getElementById("checkbox_view_latest").checked) {
-			now = new Date();
-			timeDiff = now - timeLastUpdate;
-			if (timeDiff >= requestDelay) {
-				requestUpdate();
-			}
-		}
-	}
-
-	function onLoad() {
-		requestUpdate();
-		setInterval(refreshCheck, refreshCheckInterval);
-	}
 	
 	// ------------------ request/send functions ------------------
 	
@@ -107,7 +72,7 @@
 		sendAction(currentStateN, actions[0]);
 	}
 	
-	// ------------------ callback functions ------------------
+	// ------------------ response callback functions ------------------
 
 	function unknownDataError(data, context) {
 		log("error", "Received unknown data in " + context + ": ", data);
@@ -174,6 +139,52 @@
 	function failedSendAction(jqXHR, textStatus, errorThrown) {
 		unknownResponseError("failedSendAction", jqXHR, textStatus, errorThrown, true);
 	}
+
+	// ------------------ other UI functions ------------------
+
+	/*
+	function addInfo(level, text) {
+		text = level.toUpperCase() + ": " + text
+		html = document.getElementById("top_bar_info").innerHTML;
+		html = html ? html + ", " + text : text;
+		document.getElementById("top_bar_info").innerHTML = html;
+		console.log("added info: " + text)
+	}
+
+	function clearInfo() {
+		html = document.getElementById("top_bar_info").innerHTML;
+		document.getElementById("top_bar_info").innerHTML = "";
+		console.log("removed info: " + html);
+	}
+	*/
+
+	// Checks if we should request latest game state immediately
+	function refreshCheck() {
+		if (timeLastRequest > timeLastUpdate) {
+			return; // first wait for response or timeout
+		}
+		if (document.getElementById("checkbox_view_latest").checked) {
+			now = new Date();
+			timeDiff = now - timeLastUpdate;
+			if (timeDiff >= requestDelay) {
+				requestUpdate();
+			}
+		}
+	}
+
+	function onLoad() {
+		requestUpdate();
+		setInterval(refreshCheck, refreshCheckInterval);
+	}
+
+	function backButtonClicked() {
+		document.getElementById("checkbox_view_latest").checked = false;
+		requestUpdate(currentStateN - 1);
+	}
+
+	function forwardButtonClicked() {
+		requestUpdate(currentStateN + 1)
+	}
 	
 </script>
 
@@ -191,8 +202,8 @@
 						<p id="state_n_label">Viewing game state: -</p>
 					</td>
 					<td class="top-bar-td">
-						<button type="button" onclick="requestUpdate(currentStateN-1)">Back</button>
-						<button type="button" onclick="requestUpdate(currentStateN+1)">Forward</button>
+						<button type="button" onclick="backButtonClicked()">Back</button>
+						<button type="button" onclick="forwardButtonClicked()">Forward</button>
 					</td>
 					<td class="top-bar-td">
 						<input type="checkbox" id="checkbox_view_latest" checked/>
@@ -206,8 +217,6 @@
 		</div>
 
 		<div class="game-area" id="game_area">
-			<div class="common-surface" id="center">
-			</div>
 		</div>
 		
 		<div id="log_window">
