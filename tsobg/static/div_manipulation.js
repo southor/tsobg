@@ -29,23 +29,6 @@ function getDiv(id, defaultDivPositioning) {
 	return div
 }
 
-
-function parseSize(obj) {
-	let x = "auto";
-	let y = "auto";
-	if (obj !== "auto") {
-		x = obj[0];
-		y = obj[1];
-		if (x !== "auto") {
-			x = x + 'px';
-		}
-		if (y !== "auto") {
-			y = y + 'px';
-		}
-	}
-	return [x, y];
-}
-
 function getDivImgElement(div) {
 	const arr = div.getElementsByTagName('img');
 	return (arr.length >= 1) ? arr[0] : null;
@@ -136,18 +119,28 @@ function setDiv(id, opts, onClickFunc) {
 		div.setAttribute("class", opts.class);
 	}
 
-	if (opts.pos) {
-		const pos = parseSize(opts.pos);
-		div.style.left = pos[0];
-		div.style.top = pos[1];
-		log("info", "setting div pos");
+	if (opts.left) {
+		div.style.left = opts.left;
 	}
 
-	if (opts.size) {
-		const size = parseSize(opts.size);
-		div.style.width = size[0];
-		div.style.height = size[1];
-		log("info", "setting div size");
+	if (opts.top) {
+		div.style.top = opts.top;
+	}
+	
+	if (opts.right) {
+		div.style.right = opts.right;
+	}
+	
+	if (opts.bottom) {
+		div.style.bottom = opts.bottom;
+	}
+
+	if (opts.width) {
+		div.style.width = opts.width;
+	}
+
+	if (opts.height) {
+		div.style.height = opts.height;
 	}
 
 	if (opts.border) {
