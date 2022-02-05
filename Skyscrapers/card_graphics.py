@@ -346,6 +346,13 @@ def drawSectionBarrier(draw, color, section, sides="all"):
 		for side in sides:
 			draw.line(borderShapes[side], fill=color, width=0)
 	
+def supplyGainText(rDict, forceTwoLines = False):
+	if rDict:
+		useSecondLine = forceTwoLines or len(rDict.keys()) > 1
+		return "Add to supply:" + ("\n" if useSecondLine else " ") + resourcesText(rDict)
+	else:
+		return ""
+
 def makeTextCard(title, text, textAlign, fontName, **kwargs):
 	doDrawRaise = kwargs.get("drawRaise", False)
 	picture = kwargs.get("picture", None)
@@ -421,15 +428,16 @@ def makeDeckImage(topCardImg, nOutlines):
 # buyPrice: the cost in money
 # gain: instant gain as dict with type and amount
 def makeMaterialsCard(**kwargs):
-	type = kwargs.pop("type")
-	gainText = resourcesText(kwargs.pop("gain"))
-	if type == "supply":
-		return makeTextCard("Materials supply", gainText, (), "textFontL", **kwargs)
-	elif type == "contract":
-		extraText = "\n\nDiscard this card to use the\nmaterials in a single\nconstruction project"
-		return makeTextCard("Materials contract", gainText + extraText, ("top",), "textFontS", **kwargs)
+	if "gain" in kwargs:
+		assert("contractSupply" not in kwargs) # we don't support both at the same time
+		gainText = supplyGainText(kwargs.pop("gain"), True)
+		return makeTextCard("Materials", gainText, (), "textFontL", **kwargs)
+	elif "contractSupply" in kwargs:
+		text = resourcesText(kwargs.pop("contractSupply"))
+		extraText = "Discard this card to use the\nmaterials in a single\nconstruction project"
+		return makeTextCard("Materials contract", text + "\n\n" + extraText, ("top",), "textFontS", **kwargs)
 	else:
-		raise RuntimeError("Unknown Materials card type: " + type)
+		raise RuntimeError("Materials card without any gain or contractSupply: " + str(kwargs))
 
 # hirePrice: the hire cost in money
 # beauty: a number representing extra building attraction
@@ -503,7 +511,7 @@ def makeProductionCard(**kwargs):
 	production = kwargs.pop("production", {})
 	text = ""
 	if gain:
-		text += resourcesText(gain) + "@newline:1.5;"
+		text += supplyGainText(gain) + "@newline:1.5;"
 	if production:
 		text += "Production: " + resourcesText(production)
 	return makeTextCard(title, text, ("top",), "textFontL", **kwargs)

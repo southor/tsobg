@@ -44,13 +44,17 @@ def __addCardDatas(category, header, rows):
 		cardData = {"category":category, "name":name, "nDuplicates":nDuplicates, "cardKWArgs":kwargs}
 		cardDatas.append(cardData)
 
-__addCardDatas("materials",
-	("nDuplicates", "buyPrice", "type", "gain"), [
-		(1, 3, "supply", {"steel": 3, "concrete": 3}),
-		(1, 3, "supply", {"steel": 8}),
-		(1, 4, "supply", {"concrete": 10}),
-		(1, 0, "contract", {"steel": 2}),
-		(1, 0, "contract", {"concrete": 2})
+__addCardDatas("materials", # matrials to supply
+	("nDuplicates", "buyPrice", "gain"), [
+		(1, 3, {"steel": 3, "concrete": 3}),
+		(1, 3, {"steel": 8}),
+		(1, 4, {"concrete": 10})
+	])
+
+__addCardDatas("materials", # matrials as contract
+	("nDuplicates", "buyPrice", "contractSupply"), [
+		(1, 0, {"steel": 2}),
+		(1, 0, {"concrete": 2})
 	])
 
 __addCardDatas("architect",	
