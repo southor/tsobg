@@ -11,6 +11,12 @@ class UIState_test(unittest.TestCase):
 		divs["restaurant_space"] = {"parent":"center", "img":"restaurant.png"}
 		return divs
 
+	def testSizeToCSSpxComponents(size):
+		pass # todo
+
+	def testDeAliasUIChange(self):
+		pass # todo
+
 	def testSetDivPrune(self, uiState, id, optsInput, optsExpected = None):
 		prunedUIChange = pruneUIChange(uiState, ("set_div", id, optsInput))
 		if optsExpected == None:
@@ -30,26 +36,26 @@ class UIState_test(unittest.TestCase):
 		self.assertEqual(uiState, uiStateExpected)
 	
 	def testCombine(self):
-		uic = ("set_div", "homer", {"pos":(45, 10), "size":(20,20)})
+		uic = ("set_div", "homer", {"left":"45px", "top":"10px"})
 		uicOriginal = uic.copy()
 		# command mismatch, should not combine
-		res = combineUIChange(uic, ("some_command", "homer", {"pos":(30, 10)}))
+		res = combineUIChange(uic, ("some_command", "homer", {"left":20}))
 		self.assertFalse(res)
 		# id mismatch, should not combine
-		res = combineUIChange(uic, ("set_div", "bart", {"pos":(30, 10)}))
+		res = combineUIChange(uic, ("set_div", "bart", {"left":20}))
 		self.assertFalse(res)
 		# command,id match, should combine (but original unchanged)
-		res = combineUIChange(uic, ("set_div", "homer", {"pos":(30, 10)}))
+		res = combineUIChange(uic, ("set_div", "homer", {"left":20}))
 		self.assertTrue(res)
-		self.assertEqual(res[2], {"pos":(0, 10), "size":(20,20)})
+		self.assertEqual(res[2], {"left":10, "top":5})
 		self.assertEqual(uic, uicOriginal)
 		
 	def testPrune(self):
 		uiState = {"divs": UIState_test.createDivs()}
 		self.testSetDivPrune(uiState, "restaurant_space",	{"img":"restaurant.png"}) # expecting nop
-		self.testSetDivPrune(uiState, "restaurant_space",	{"pos":"auto"}) # expecting nop
+		self.testSetDivPrune(uiState, "restaurant_space",	{"left":"auto"}) # expecting nop
 		self.testSetDivPrune(uiState, "restaurant_space",	{"img":"food.png"},			{"img":"food.png"})
-		self.testSetDivPrune(uiState, "plaza_space",		{"pos":"auto"}) # expecting nop
+		self.testSetDivPrune(uiState, "plaza_space",		{"left":"auto"}) # expecting nop
 		
 	def testReverse(self):
 		uiState = {"divs": UIState_test.createDivs()}
@@ -67,10 +73,10 @@ class UIState_test(unittest.TestCase):
 					}
 		divs2 = {
 					"factory_space":  {"parent":"center", "img":"factory.png"},
-					"workshop_space":  {"parent":"center", "img":"factory.png", "pos":(10, 10)}
+					"workshop_space":  {"parent":"center", "img":"factory.png", "left":10, "top":10}
 					}
 		self.testSetDivApply({"divs": divs1}, "workshop_space", {"parent":"center", "img":"workshop.png"}, {"divs":divs1}) # no actual changes
-		self.testSetDivApply({"divs": divs1}, "workshop_space", {"parent":"center", "img":"factory.png", "pos":(10, 10)}, {"divs":divs2}) # two actual changes
+		self.testSetDivApply({"divs": divs1}, "workshop_space", {"parent":"center", "img":"factory.png", "left":10, "top":10}, {"divs":divs2}) # two actual changes
 		
 	def runTest(self):
 		self.testPrune()

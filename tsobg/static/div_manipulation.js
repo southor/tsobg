@@ -95,6 +95,11 @@ function setDivImg(div, opts, onClickFunc) {
 	return imgElement;
 }
 
+// If val is Number it returns it as string and adds "px", else returns val as is
+function addPXIfNeeded(val) {
+	return (typeof val == "number") ? (val.toString() + "px") : val;
+}
+
 // If div does not exists it is created
 function setDiv(id, opts, onClickFunc) {
 	log("info", "set div called with:", id, opts);
@@ -120,27 +125,27 @@ function setDiv(id, opts, onClickFunc) {
 	}
 
 	if (opts.left) {
-		div.style.left = opts.left;
+		div.style.left = addPXIfNeeded(opts.left);
 	}
 
 	if (opts.top) {
-		div.style.top = opts.top;
+		div.style.top = addPXIfNeeded(opts.top);
 	}
 	
 	if (opts.right) {
-		div.style.right = opts.right;
+		div.style.right = addPXIfNeeded(opts.right);
 	}
 	
 	if (opts.bottom) {
-		div.style.bottom = opts.bottom;
+		div.style.bottom = addPXIfNeeded(opts.bottom);
 	}
 
 	if (opts.width) {
-		div.style.width = opts.width;
+		div.style.width = addPXIfNeeded(opts.width);
 	}
 
 	if (opts.height) {
-		div.style.height = opts.height;
+		div.style.height = addPXIfNeeded(opts.height);
 	}
 
 	if (opts.border) {

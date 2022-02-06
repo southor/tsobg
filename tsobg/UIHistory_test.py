@@ -38,7 +38,7 @@ class UIHistory_test(unittest.TestCase):
 		self.assertEqual(uiChanges, [("state_n", 3),
 									("set_div", "harbor", {"parent":"town"}),
 									("set_div", "factory", {"img":"pink_factory.png"}),
-									("set_div", "harbor", {"img":"harbor.png", "pos":(10,10)})])
+									("set_div", "harbor", {"img":"harbor.png", "left":10, "top":10})])
 		# test get uiChanges backward 1 steps
 		uiChanges = uiHistory.getUIChanges(2,1)
 		self.assertEqual(uiChanges, [("state_n", 1),

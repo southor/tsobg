@@ -4,12 +4,15 @@ __divOptsDefaults = {
 	# css properties
 	"class":None,
 	"divPositioning":"static", # style.position
+	
+	# css positioning properties, number valeus will be converted to strings with "px" attached
 	"left":"auto",
 	"top":"auto",
 	"right":"auto",
 	"bottom":"auto",
 	"width":"auto",
 	"height":"auto",
+	
 	"color":"transparent", # style.backgroundColor
 	"border":None, # style.border
 	# element configurations
@@ -34,10 +37,6 @@ def sizeToCSSpxComponents(size):
 			raise RuntimeError("pos/size property has too few elements: " + str(size))
 		x = size[0]
 		y = size[1]
-		if (x != "auto"):
-			x = str(x) + "px"
-		if (y != "auto"):
-			y = str(y) + "px"
 	elif (size != "auto"):
 		raise RuntimeError("Unknown pos/size property: " + str(size))
 	return (x, y)
