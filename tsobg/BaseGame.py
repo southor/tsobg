@@ -8,20 +8,23 @@ from .UIInterface import UIInterface
 from .UIHistory import UIHistory
 from .GameLog import GameLog
 
-
 class BaseGame(UIInterface):
 	
 	def __init__(self, name, gameRootPath: Path):
 		self.name = name
 		self.gameRootPath = gameRootPath
 		self.actions = [] # one action per state
-		self.gameStateHistory = [{}]
+		self.gameStateHistory = []
 		self.playerUIHistories = {}
+		self.currentRevertN = 0
 		self.currentStateN = 0
 		self.gameLog = GameLog() # game log entries shared by players
 		self.clientMsgs = {} # instant messages waiting to be sent to players
 
 	# ----------------- Help Methods -----------------
+
+	def __clampNumber(n, smallest, largest):
+		return max(smallest, min(n, largest))
 	
 	def __popClientMessages(self, playerId):
 		msgEntries = self.clientMsgs.get(playerId, [])
@@ -45,20 +48,29 @@ class BaseGame(UIInterface):
 	
 	# ----------------- Server Methods -----------------
 	
-	def getClientUpdates(self, playerId, fromStateN, toStateN):
-		data = self.__popClientMessages(playerId)
+
+	def getClientUpdates(self, playerId, revertN, fromStateN, toStateN):
+		fromStateN = BaseGame.__clampNumber(fromStateN, 0, self.currentStateN)
+		toStateN = BaseGame.__clampNumber(toStateN, 0, self.currentStateN)
+		data = []
+		if revertN != self.currentRevertN:
+			# we reset the client and let it recreate divs and log from stateN zero
+			data += [("reset_ui",), ("revert_n", self.currentRevertN)]
+			fromStateN = 0
+		data += [("state_n", toStateN)]
+		data += self.__popClientMessages(playerId)
 		if self.hasStarted():
 			data += self.__getLogEntries(fromStateN, toStateN)
 			data += self.__getUIChanges(playerId, fromStateN, toStateN)
 		return data
 	
-	def clientAction(self, stateN, actionObj):
+	def clientAction(self, currentRevertN, stateN, actionObj, playerId = None):
 		if stateN != self.currentStateN:
 			return False # TODO: respond 409 conflict?
-		if self.actionAllowed(actionObj):
+		if self.actionAllowed(actionObj, playerId=playerId):
 			# advance game state
 			self.actions.append(actionObj)
-			newState = self.performAction(actionObj)
+			newState = self.performAction(actionObj, playerId=playerId)
 			assert(newState)
 			self.gameStateHistory.append(newState)
 			self.currentStateN += 1
@@ -70,11 +82,12 @@ class BaseGame(UIInterface):
 			
 	def startGame(self, playerIDs: list, playerNames: list):
 		assert(not self.hasStarted())
+		assert(self.currentRevertN == 0)
 		for p in playerIDs:
 			self.playerUIHistories[p] = UIHistory()
 			self.clientMsgs[p] = []
 		actionObj = ("start_game", playerIDs, playerNames)
-		res = self.clientAction(0, actionObj)
+		res = self.clientAction(0, 0, actionObj)
 		if res:
 			print("Game started, playerIDs:", playerIDs)
 		else:
@@ -83,6 +96,25 @@ class BaseGame(UIInterface):
 		
 	def hasStarted(self):
 		return self.currentStateN > 0
+
+	def revertToStateN(self, stateN):
+		toStateN = BaseGame.__clampNumber(stateN, 1, self.currentStateN)
+		if toStateN < self.currentStateN:
+			# revert game state
+			fromStateN = self.currentStateN
+			self.gameLog.clearLogEntries(toStateN)
+			self.actions = self.actions[0:toStateN]
+			self.loadGameState(self.gameStateHistory[toStateN])
+			self.gameStateHistory = self.gameStateHistory[0:toStateN]
+			self.currentRevertN += 1
+			self.currentStateN = toStateN
+			for uiHistory in self.playerUIHistories.values():
+				uiHistory.revertTo(toStateN)
+			msg = "Reverted from game state {} to {}".format(fromStateN, toStateN)
+			self.sendMessageToPlayers(msg)
+			return msg
+		else:
+			return "No revert happened (stateN {} is not smaller than current {})".format(stateN, self.currentStateN)
 	
 	# returns 'None' if path is forbidden
 	def getFullPath(self, gameFile: PurePath):
@@ -95,11 +127,15 @@ class BaseGame(UIInterface):
 	# ----------------- Client Message methods -----------------
 	
 	def sendMessageToPlayer(self, msgEntry, playerID):
-		""" msgEntry: tuple (type, text) """
+		""" msgEntry: tuple (level, text) or just text """
+		if isinstance(msgEntry, str):
+			msgEntry = ("info", msgEntry)
 		self.clientMsgs[playerID].append(msgEntry)
 
 	def sendMessageToPlayers(self, msgEntry, playerIDs = None):
-		""" msgEntry: tuple (type, text) """
+		""" msgEntry: tuple (level, text) or just text """
+		if isinstance(msgEntry, str):
+			msgEntry = ("info", msgEntry)
 		if not playerIDs:
 			playerIDs = self.clientMsgs.keys() # get all players
 		for p in playerIDs:

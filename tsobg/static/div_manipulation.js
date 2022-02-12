@@ -4,7 +4,7 @@
 divs = null;
 
 function log(level, ...msgArgs) {
-	//console.log(level, msgArgs)
+	//console.log(level, msgArgs);
 }
 
 /**
@@ -26,7 +26,13 @@ function getDiv(id, defaultDivPositioning) {
 		}
 		divs.set(id, div);
 	}
-	return div
+	return div;
+}
+
+function deleteAllCreatedDivs() {
+	if (divs !== null) {
+		divs.clear();
+	}
 }
 
 function getDivImgElement(div) {

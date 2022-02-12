@@ -24,6 +24,11 @@ function addToGameLogUI(logId, text) {
 	parentDiv.prepend(div);
 }
 
+function removeFromGameLogUI(logId) {
+	let logDivId = "log_div_" + logId;
+	setDiv(logDivId, {parent:null});
+}
+
 /*
 function addMsg(stateN, level, text) {
 	ensureIndex(msgLog, stateN);
@@ -78,4 +83,19 @@ function addToGameLog(logId, stateN, text) {
 		assertLogObj(obj, stateN, text);
 	}
 	console.log(logId, stateN, text);
+}
+
+// clear entries but not the log UI element
+function deleteAllGamelogEntries() {
+	gameLog = []
+}
+
+// clear effected entries and their UI counterparts
+function clearFromGamelog(fromStateN) {
+	for (let i=gameLog.length-1; i>0; --i) {
+		if (gameLog[i][0] < fromStateN) {
+			gameLog = gameLog.slice(0, i+1);
+		}
+		removeFromGameLogUI(i);
+	}
 }

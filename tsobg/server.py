@@ -46,7 +46,6 @@ def enoughPlayers():
 	global nPlayers
 	return len(players) >= nPlayers
 
-
 @app.route("/", methods=['GET'])
 def startPage():
 	if enoughPlayers():
@@ -71,6 +70,9 @@ def checkPlayerID(playerId, playerName):
 	else:
 		return None
 
+def renderMsg(msg):
+	return render_template('msg.html', gameName=game.name, msg=msg)
+
 def renderError(msg):
 	print("Error:", msg)
 	return render_template('error.html', gameName=game.name, msg=msg)
@@ -88,24 +90,21 @@ def gamePage(playerId, playerName):
 		info = "" if enoughPlayers() else "waiting for other players..."
 		return render_template('game.html', pageTitle=pageTitle, playerId=playerId, playerName=playerName, info=info)
 
-@app.route("/game/<playerId>/<playerName>/update_client/<fromStateN>", methods=['GET'])
-def updateClient(playerId, playerName, fromStateN):
+@app.route("/game/<playerId>/<playerName>/update_client/<revertN>/<fromStateN>", methods=['GET'])
+def updateClient(playerId, playerName, revertN, fromStateN):
 	global game
-	return updateClientTo(playerId, playerName, int(fromStateN), game.currentStateN)
+	return updateClientTo(playerId, playerName, int(revertN), int(fromStateN), game.currentStateN)
 
-@app.route("/game/<playerId>/<playerName>/update_client/<fromStateN>/<toStateN>", methods=['GET'])
-def updateClientTo(playerId, playerName, fromStateN, toStateN):
+@app.route("/game/<playerId>/<playerName>/update_client/<revertN>/<fromStateN>/<toStateN>", methods=['GET'])
+def updateClientTo(playerId, playerName, revertN, fromStateN, toStateN):
 	global game
 	if checkPlayerID(playerId, playerName) != None:
 		flask.abort(409)
-	fromStateN = int(fromStateN)
-	toStateN = int(toStateN)
-	#print("updateClientTo: ", playerId, playerName, fromStateN, toStateN)
-	data = game.getClientUpdates(playerId, fromStateN, toStateN)
+	data = game.getClientUpdates(playerId, int(revertN), int(fromStateN), int(toStateN))
 	return jsonify(data)
 
-@app.route("/game/<playerId>/<playerName>/client_action/<stateN>", methods=['POST'])
-def clientAction(playerId, playerName, stateN):
+@app.route("/game/<playerId>/<playerName>/client_action/<revertN>/<stateN>", methods=['POST'])
+def clientAction(playerId, playerName, revertN, stateN):
 	global game
 	if checkPlayerID(playerId, playerName) != None:
 		flask.abort(409)
@@ -114,8 +113,8 @@ def clientAction(playerId, playerName, stateN):
 		flask.abort(400)
 	actionObj = flask.request.get_json()
 	print("client action:", actionObj)
-	if game.clientAction(int(stateN), actionObj):
-		return updateClient(playerId, playerName, stateN)
+	if game.clientAction(int(revertN), int(stateN), actionObj, playerId=playerId):
+		return updateClient(playerId, playerName, revertN, stateN)
 	else:
 		return Response("action not allowed", status=403, mimetype='application/json')
 
@@ -137,6 +136,13 @@ def gameFile(playerId, playerName, gameFilePath):
 			flask.abort(404)
 	else:
 		flask.abort(403)
+
+@app.route("/game/revert_to/<toStateN>", methods=['GET'])
+def revertGameTo(toStateN):
+	global game
+	toStateN = int(toStateN)
+	msg = game.revertToStateN(toStateN)
+	return renderMsg(msg)
 
 def newGame(game, nPlayers, **kwargs):
 	assert(not game.hasStarted())

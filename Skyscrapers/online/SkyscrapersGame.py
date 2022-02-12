@@ -1,6 +1,7 @@
 import sys
 from pathlib import Path
 import random
+from copy import deepcopy
 
 pathHere = Path(__file__).absolute().parent
 
@@ -36,7 +37,7 @@ class SkyscrapersGame(BaseGame):
 	def __exportGameState(self):
 		# TODO: implement compression (card/cardId can be just an int)
 		selfVars = vars(self)
-		return {v: selfVars[v] for v in self.gameStateVars}
+		return {k: deepcopy(selfVars[k]) for k in self.gameStateVars}
 		
 	# TODO: create class for UIChange ?
 		
@@ -86,7 +87,7 @@ class SkyscrapersGame(BaseGame):
 	
 	# --------------- "BaseGame" expected methods ---------------
 	
-	def actionAllowed(self, actionObj):
+	def actionAllowed(self, actionObj, playerId=None):
 		if actionObj[0] == "start_game":
 			return not hasattr(self, "playerIDs")
 		elif actionObj[0] == "take_card":
@@ -95,16 +96,25 @@ class SkyscrapersGame(BaseGame):
 			print("Error, unknown action", actionObj)
 			return False
 	
-	def performAction(self, actionObj):
+	def performAction(self, actionObj, playerId=None):
 		assert(self.actionAllowed(actionObj))
 		if actionObj[0] == "start_game":
 			self.__actionStartGame(actionObj[1], actionObj[2]) # pass playerIDs and playerNames
 		elif actionObj[0] == "take_card":
-			self.cardMarket.removeCard(actionObj[1])
-			self.stageLogEntry("card " + actionObj[1] + " was taken")
+			if playerId == None:
+				raise RuntimeError("recieved actionObj without playerId: ", actionObj)
+			if self.cardMarket.removeCard(actionObj[1]):
+				self.stageLogEntry("card " + actionObj[1] + " was taken")
+			else:
+				self.sendMessageToPlayer(("error", "card " + actionObj[1] + " could not be taken, does not exists in the market!"), playerId)
 		else:
 			print("Error, unknown action", actionObj)
 		return self.__exportGameState()
+
+	def loadGameState(self, gameState):
+		selfVars = vars(self)
+		for k,v in gameState.items():
+			selfVars[k] = v
 		
 	# --------------- Action Methods ---------------
 

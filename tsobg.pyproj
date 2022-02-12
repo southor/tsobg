@@ -273,6 +273,7 @@
     <Content Include="tsobg\static\game_log.js" />
     <Content Include="tsobg\templates\error.html" />
     <Content Include="tsobg\templates\game.html" />
+    <Content Include="tsobg\templates\msg.html" />
     <Content Include="tsobg\templates\start.html" />
   </ItemGroup>
   <ItemGroup>

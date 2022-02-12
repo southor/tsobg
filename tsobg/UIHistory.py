@@ -5,8 +5,6 @@ from .ui_state import combineUIChanges, uiChangeReverse, applyUIChange
 def flatten1(listOfLists):
 	return [item for sublist in listOfLists for item in sublist]
 
-def clamp(n, smallest, largest):
-	return max(smallest, min(n, largest))
 
 class UIHistory():
 
@@ -27,16 +25,14 @@ class UIHistory():
 
 	def getUIChanges(self, fromStateN, toStateN):
 		currentStateN = self.getCurrentStateN()
-		fromStateN = clamp(fromStateN, 0, currentStateN)
-		toStateN = clamp(toStateN, 0, currentStateN)
-		uiChanges = [("state_n", toStateN)]
+		assert(fromStateN >= 0 and fromStateN <= currentStateN)
+		assert(toStateN >= 0 and toStateN <= currentStateN)
 		if fromStateN < toStateN:
-			uiChanges += flatten1(self.uiProgressionHistory[fromStateN:toStateN])
+			return flatten1(self.uiProgressionHistory[fromStateN:toStateN])
 		elif fromStateN > toStateN:
-			uiChanges += flatten1(self.uiRegressionHistory[toStateN + 1:fromStateN + 1])
+			return flatten1(self.uiRegressionHistory[toStateN + 1:fromStateN + 1])
 		else:
-			pass
-		return uiChanges
+			return []
 
 	def commitUIChanges(self):
 		""" will create a new state from the working uiChanges and currentStateN increases by 1 """
@@ -73,19 +69,14 @@ class UIHistory():
 		# apply uiChange
 		applyUIChange(uiState, uiChange)
 
-	def discardUIChanges(self):
-		self.workingUIState = self.uiStateHistory[-1]
-		self.workingUIProgression = []
-		self.workingUIRegression = []
-
 	def revertTo(self, stateN):
+		assert(stateN >= 0)
 		currentStateN = self.getCurrentStateN()
 		if stateN > currentStateN:
 			return False
-		self.discardUIChanges()
+		self.stagedUIChanges = []
 		if stateN == currentStateN:
 			return True
-		self.workingUIState = self.uiStateHistory[stateN]
 		self.uiStateHistory = self.uiStateHistory[0:stateN+1]
 		self.uiProgressionHistory = self.uiProgressionHistory[0:stateN]
 		self.uiRegressionHistory = self.uiRegressionHistory[0:stateN+1]
