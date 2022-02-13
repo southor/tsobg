@@ -13,8 +13,9 @@ class BaseGame(UIInterface):
 	def __init__(self, name, gameRootPath: Path):
 		self.name = name
 		self.gameRootPath = gameRootPath
-		self.actions = [] # one action per state
-		self.gameStateHistory = []
+		self.actionHistory = [] # A list of tuples (playerId, actionObj)
+		#self.gameStateHistory = []
+		self.gameStateAtStart = {} # Will contain a deep copy of the game state at stateN=1 (just after "start game")
 		self.playerUIHistories = {}
 		self.currentRevertN = 0
 		self.currentStateN = 0
@@ -69,10 +70,12 @@ class BaseGame(UIInterface):
 			return False # TODO: respond 409 conflict?
 		if self.actionAllowed(actionObj, playerId=playerId):
 			# advance game state
-			self.actions.append(actionObj)
+			self.actionHistory.append((playerId, actionObj))
 			newState = self.performAction(actionObj, playerId=playerId)
 			assert(newState)
-			self.gameStateHistory.append(newState)
+			#self.gameStateHistory.append(newState)
+			if actionObj[0] == "start_game":
+				self.gameStateAtStart = newState
 			self.currentStateN += 1
 			for uiHistory in self.playerUIHistories.values():
 				uiHistory.commitUIChanges()
@@ -101,16 +104,26 @@ class BaseGame(UIInterface):
 		toStateN = BaseGame.__clampNumber(stateN, 1, self.currentStateN)
 		if toStateN < self.currentStateN:
 			# revert game state
+			# set state back to stateN=1 (just after "start_game") then replay all actions up to "toStateN"
 			fromStateN = self.currentStateN
-			self.gameLog.clearLogEntries(toStateN)
-			self.actions = self.actions[0:toStateN]
-			self.loadGameState(self.gameStateHistory[toStateN])
-			self.gameStateHistory = self.gameStateHistory[0:toStateN]
+			#self.gameLog.clearLogEntries(toStateN)
+			self.gameLog.clearLogEntries(1)
+			#self.actionHistory = self.actionHistory[0:toStateN]
+			actionsToReplay = self.actionHistory[1:toStateN]
+			self.actionHistory = self.actionHistory[0:1]
+			#self.loadGameState(self.gameStateHistory[toStateN])
+			#self.gameStateHistory = self.gameStateHistory[0:toStateN]
+			self.loadGameState(self.gameStateAtStart)
 			self.currentRevertN += 1
-			self.currentStateN = toStateN
+			#self.currentStateN = toStateN
+			self.currentStateN = 1
 			for uiHistory in self.playerUIHistories.values():
-				uiHistory.revertTo(toStateN)
+				#uiHistory.revertTo(toStateN)
+				uiHistory.revertTo(1)
+			for playerId,actionObj in actionsToReplay:
+				self.clientAction(self.currentRevertN, self.currentStateN, actionObj, playerId = playerId)
 			msg = "Reverted from game state {} to {}".format(fromStateN, toStateN)
+			print(msg)
 			self.sendMessageToPlayers(msg)
 			return msg
 		else:

@@ -1,6 +1,6 @@
 import unittest
 
-from .ui_state import combineUIChanges, pruneUIChange, uiChangeReverse, applyUIChange
+from .ui_state import sizeToCSSpxComponents, deAliasUIChange, combineUIChanges, pruneUIChange, uiChangeReverse, applyUIChange
 
 
 class UIState_test(unittest.TestCase):
@@ -11,11 +11,31 @@ class UIState_test(unittest.TestCase):
 		divs["restaurant_space"] = {"parent":"center", "img":"restaurant.png"}
 		return divs
 
-	def testSizeToCSSpxComponents(size):
-		pass # todo
+	def testSizeToCSSpxComponents(self):
+		self.assertEqual(sizeToCSSpxComponents("auto"), ("auto", "auto"))
+		self.assertEqual(sizeToCSSpxComponents(("auto", "auto")), ("auto", "auto"))
+		self.assertEqual(sizeToCSSpxComponents((5, "auto")), ("5px", "auto"))
+		self.assertEqual(sizeToCSSpxComponents(("auto", 10)), ("auto", "10px"))
+		self.assertEqual(sizeToCSSpxComponents((5, 10)), ("5px", "10px"))
+		self.assertEqual(sizeToCSSpxComponents([5, "auto"]), ("5px", "10px")) # list should also work
 
 	def testDeAliasUIChange(self):
-		pass # todo
+		uiChange1 = ("set_div", "foo_div", {"parent":"bar_div", "pos":(10, 20)})
+		uiChange2 = ("set_div", "foo_div", {"color":"red", "size":(30, 40)})
+		uiChange3 = ("set_div", "foo_div", {"parent":"bar_div", "color":"blue"})
+		combUIChange = combineUIChanges(uiChange1, uiChange2)
+		daUIChange1 = deAliasUIChange(uiChange1)
+		daUIChange2 = deAliasUIChange(uiChange2)
+		daUIChange3 = deAliasUIChange(uiChange3)
+		daUIChangeComb = deAliasUIChange(combUIChange)
+		self.assertFalse(uiChange1 is daUIChange1) # should not be the same object
+		self.assertFalse(uiChange2 is daUIChange2) # should not be the same object
+		self.assertFalse(uiChange3 is daUIChange3) # should be the same object (since no alias exists)
+		self.assertEqual(daUIChange1, ("set_div", "foo_div", {"parent":"bar_div", "left":"10px", "top":"20px"}))
+		self.assertEqual(daUIChange2, ("set_div", "foo_div", {"color":"red", "width":"30px", "height":"40px"}))
+		self.assertEqual(daUIChange3, ("set_div", "foo_div", {"parent":"bar_div", "color":"blue"}))
+		self.assertEqual(combUIChange, ("set_div", "foo_div", {"parent":"bar_div", "color":"red", "left":"10px", "top":"20px", "width":"30px", "height":"40px"}))
+
 
 	def testSetDivPrune(self, uiState, id, optsInput, optsExpected = None):
 		prunedUIChange = pruneUIChange(uiState, ("set_div", id, optsInput))

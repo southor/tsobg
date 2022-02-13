@@ -1,6 +1,6 @@
 
 
-// store created div elements in a Map object, accessed by div id
+// store div elements that was created by this file in a Map object, accessed by div id
 divs = null;
 
 function log(level, ...msgArgs) {
@@ -31,6 +31,13 @@ function getDiv(id, defaultDivPositioning) {
 
 function deleteAllCreatedDivs() {
 	if (divs !== null) {
+		for (const [id, div] of divs.entries()) {
+			const parentNode = div.parentNode;
+			if (parentNode) {
+				console.log("removing " + id + " from document");
+				parentNode.removeChild(div);
+			}
+		}
 		divs.clear();
 	}
 }

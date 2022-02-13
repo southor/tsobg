@@ -43,10 +43,6 @@ class SkyscrapersGame(BaseGame):
 		
 	# TODO: create class for actionObj ?
 	
-	def __importGameState(self):
-		# TODO
-		raise RuntimeException("Not implemented")
-	
 	def addTestImage(self):
 		"""
 		uic = ("set_div", {"id":"deck_outline1",

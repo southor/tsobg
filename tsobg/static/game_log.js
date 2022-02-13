@@ -52,6 +52,7 @@ function combineMsgLevelAndText(level, text) {
 }
 
 function addMsg(level, text) {
+	console.log(level, text)
 	msgLog.push([level, text]);
 	let logText =  combineMsgLevelAndText(level, text);
 	addToGameLogUI("msg" + msgLog.length, logText);

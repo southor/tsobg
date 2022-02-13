@@ -33,8 +33,8 @@
 			type: "GET",
 			dataType: "json", // return data type
 			success: successFunc,
-			error: errorFunc,
-			timeout: 5000
+			error: errorFunc//,
+			//timeout: 10000
 		});
 	}
 	
@@ -95,8 +95,10 @@
 							document.getElementById("state_n_label").innerHTML = "Viewing game state: " + currentStateN.toString();
 							document.getElementById("top_bar_info").innerHTML = ""; // clear any info in top bar
 						}
+						console.log("state_n", stateN);
 					} else if (uData[0] === "set_div") {
 						setDiv(uData[1], uData[2], divUserAction);
+						console.log("set_div", uData);
 					} else if (uData[0] === "msg") {
 						level = uData[1];
 						text = uData[2];

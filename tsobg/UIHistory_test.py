@@ -32,19 +32,17 @@ class UIHistory_test(unittest.TestCase):
 		uiHistory.commitUIChanges()
 		# test get uiChanges forward 1 step
 		uiChanges = uiHistory.getUIChanges(1,2)
-		self.assertEqual(uiChanges, [("state_n", 2),
-									("set_div", "harbor", {"parent":"town"}),
+		self.assertEqual(uiChanges, [("set_div", "harbor", {"parent":"town"}),
 									("set_div", "factory", {"img":"pink_factory.png"})])
 		# test get uiChanges forward 2 steps
 		uiChanges = uiHistory.getUIChanges(1,3)
-		twoStepsExpected =  [("state_n", 3),
-								("set_div", "harbor", {"parent":"town"}),
+		twoStepsExpected =  [("set_div", "harbor", {"parent":"town"}),
 								("set_div", "factory", {"img":"pink_factory.png"}),
 								("set_div", "harbor", {"img":"harbor.png", "left":10, "top":10})]
 		self.assertEqual(uiChanges, twoStepsExpected)
 		# test get uiChanges forward 3 steps
 		uiChanges = uiHistory.getUIChanges(1,4)
-		threeStepsExpected = [("state_n", 4)] + twoStepsExpected[1:]
+		threeStepsExpected = twoStepsExpected
 		self.assertEqual(uiChanges, threeStepsExpected)
 		# more changes
 		uiHistory.stageUIChange(("set_div", "harbor", {"left":30}))
@@ -55,15 +53,13 @@ class UIHistory_test(unittest.TestCase):
 		self.assertEqual(uiChanges, threeStepsExpected)
 		# test uiChanges forward 4 steps
 		uiChanges = uiHistory.getUIChanges(1,5)
-		self.assertEqual(uiChanges, [("state_n", 5),
-									("set_div", "harbor", {"parent":"town"}),
+		self.assertEqual(uiChanges, [("set_div", "harbor", {"parent":"town"}),
 									("set_div", "factory", {"img":"pink_factory.png"}),
 									("set_div", "harbor", {"img":"harbor.png", "left":10, "top":10}),
 									("set_div", "harbor", {"left":30})])
 		# test get uiChanges backward 1 steps
 		uiChanges = uiHistory.getUIChanges(2,1)
-		self.assertEqual(uiChanges, [("state_n", 1),
-									("set_div", "factory", {"img":"purple_factory.png"}),
+		self.assertEqual(uiChanges, [("set_div", "factory", {"img":"purple_factory.png"}),
 									("set_div", "harbor", {"parent":None})])
 		
 		
@@ -83,7 +79,6 @@ class UIHistory_test(unittest.TestCase):
 		uiHistory.commitUIChanges()
 		# test get uiChanges 2 steps
 		uiChanges = uiHistory.getUIChanges(0,2)
-		self.assertEqual(uiChanges, [("state_n",2),
-									("set_div", "factory", {"parent":"town", "img":"purple_factory.png"}),
+		self.assertEqual(uiChanges, [("set_div", "factory", {"parent":"town", "img":"purple_factory.png"}),
 									("set_div", "harbor", {"parent":"island"})
 									])

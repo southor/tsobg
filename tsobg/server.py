@@ -124,13 +124,13 @@ def gameFile(playerId, playerName, gameFilePath):
 	if checkPlayerID(playerId, playerName) != None:
 		flask.abort(409)
 	gameFilePath = PurePath(gameFilePath)
-	print("wants to get file:", gameFilePath)
+	#print("wants to get file:", gameFilePath)
 	if "." in str(gameFilePath.parent):
 		flask.abort(403)
 	filePath = game.getFullPath(gameFilePath)
 	if filePath:
 		if filePath.is_file():
-			print("sending file: ", filePath)
+			#print("sending file: ", filePath)
 			return send_file(str(filePath))
 		else:
 			flask.abort(404)

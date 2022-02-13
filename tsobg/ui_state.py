@@ -45,7 +45,7 @@ def sizeToCSSpxComponents(size):
 posToCSSpxComponents = sizeToCSSpxComponents
 
 def deAliasUIChange(uiChange):
-	""" Replaces uiChange where alias properties like "pos" and "size" has been replaced with "left","right" and "width","height".
+	""" Replaces uiChange alias properties like "pos" and "size" with "left","right" and "width","height".
 	Either returns the modified uiChange or the original if not modifications needed"""
 	if uiChange[0] != "set_div":
 		return uiChange
