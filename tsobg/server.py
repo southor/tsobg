@@ -160,8 +160,12 @@ def newGame(game, nPlayers, **kwargs):
 
 def runServer(debug):
 	global players
+	print()
 	for seatN,playerName in enumerate(players.keys()):
-		print("url for player " + str(seatN) + ": http://127.0.0.1:5000/" + "game/" + players[playerName] + "/" + playerName + "/view")
+		print("Url for player " + str(seatN) + ": http://127.0.0.1:5000/" + "game/" + players[playerName] + "/" + playerName + "/view")
+	if len(players.keys()) < nPlayers:
+		print("Each new player, start at this URL: http://127.0.0.1:5000/")
+	print()
 	app.run(debug=debug, threaded=False, processes=1)
 
 if __name__ == '__main__':

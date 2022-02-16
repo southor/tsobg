@@ -2,3 +2,4 @@ _backup/
 generated_cards/
 generated_cards_debug/
 generated_cards_online/
+online/game_settings.py

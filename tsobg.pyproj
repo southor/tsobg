@@ -283,6 +283,9 @@
     <Compile Include="Skyscrapers\online\CardGrid.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Skyscrapers\online\game_settings.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Skyscrapers\online\PlayerArea.py">
       <SubType>Code</SubType>
     </Compile>
@@ -309,7 +312,6 @@
     <Compile Include="Skyscrapers\card_graphics.py" />
     <Compile Include="Skyscrapers\online\Card.py" />
     <Compile Include="Skyscrapers\online\CardMarket.py" />
-    <Compile Include="Skyscrapers\online\game.py" />
     <Compile Include="Skyscrapers\online\main.py" />
     <Compile Include="Skyscrapers\online\SkyscrapersGame.py" />
     <Compile Include="tsobg\BaseGame.py" />

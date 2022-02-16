@@ -35,7 +35,7 @@ Now go to the root page of the server in the browser.
 You should see a page that lets you enter your player name.
 All players have to do this, and the game starts when playar count has filled up.
 
-It is possible to hardcode number of players and some or all player names (also require user id's) in main.py.
+It is possible to hardcode number of players and some or all player names (also require user id's) in game_settings.py.
 
 ### Unit Tests
 
@@ -52,13 +52,15 @@ tsobg contains the web server, and the client files as well.
 Once the game has started, the client game page acts as a single-page application.
 The board game project (Skyscrapers) sends client updates to the platform, these updates are sent via the "UIInterface" class.
 The game project both creates and alternates the UI for the game as it goes on sending "uiChanges".
-These uiChanges uses div element id's and can position divs, set size, set parent div, set colors, add a text and/or image to div etc...
+These uiChanges uses div element id's and can position divs, set size, set parent div, set background colors, add a text and/or image to div etc...
 The uiChanges is then picked up by the client when it asks the server platform for the latest uiChanges.
 It is possible to select only a subset of players when making uiChanges, to handle for example secret information.
 
 The game project can also add one or more actions to a div (under development). These should be sent back to board game object when user interacts.
 If the action is valid the board game object will progress the game by updating its state, and send new uiChanges to the clients.
 
-### UI History, Game State History
-Finally, the platform includes a uiHistory and game state history. The uiHistory makes it possible for the clients to step backwards to see what happened in the past.
-The game state history should make it possible to revert one or more moves if all players agrees that this is ok to do so (when it has been implemented).
+### UI History, actionHistory
+Finally, the platform includes a uiHistory and player action history. The uiHistory makes it possible for the clients to step backwards to see what happened in the past.
+The actionHistory makes it possible to revert one or more moves if all players agrees that this is ok to do so.
+This is an expermintal feature, can be tested by first taking some actions to progress the game a couple of states,
+then trigger this url once: http://127.0.0.1:5000/game/revert_to/3. Change the number to the state number you want to revert to.

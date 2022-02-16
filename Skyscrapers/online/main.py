@@ -9,20 +9,21 @@ import tsobg
 
 from SkyscrapersGame import SkyscrapersGame
 
-nPlayers = 3
-players = {'Adolf':'ad34ea20', 'Bob':'b0f8cf24', 'Caesar':'ca01e770'}
+import game_settings
 
 
 if __name__ == '__main__':
 	
-	if 'nPlayers' in globals():
-		nPlayers = globals()['nPlayers']
-	else:
+	try:
+		nPlayers = game_settings.nPlayers
+	except AttributeError:
 		nPlayers = input("Input number of players: ")
 	
 	kwargs = {}
-	if 'players' in globals():
-			kwargs['players'] = globals()['players']
+	try:
+		kwargs['players'] = game_settings.players
+	except AttributeError:
+		pass # let kwargs be empty
 	
 	tsobg.newGame(SkyscrapersGame(), int(nPlayers), **kwargs)
 	tsobg.runServer(False)
