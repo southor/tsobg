@@ -34,7 +34,7 @@ function deleteAllCreatedDivs() {
 		for (const [id, div] of divs.entries()) {
 			const parentNode = div.parentNode;
 			if (parentNode) {
-				console.log("removing " + id + " from document");
+				//log("removing " + id + " from document");
 				parentNode.removeChild(div);
 			}
 		}

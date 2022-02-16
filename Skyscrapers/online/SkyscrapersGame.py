@@ -32,16 +32,6 @@ class SkyscrapersGame(BaseGame):
 		self.cardMarket = CardMarket(self)
 		
 	# --------------- Helper methods ---------------
-		
-	# exports game state as a dictionary
-	def __exportGameState(self):
-		# TODO: implement compression (card/cardId can be just an int)
-		selfVars = vars(self)
-		return {k: deepcopy(selfVars[k]) for k in self.gameStateVars}
-		
-	# TODO: create class for UIChange ?
-		
-	# TODO: create class for actionObj ?
 	
 	def addTestImage(self):
 		"""
@@ -105,12 +95,6 @@ class SkyscrapersGame(BaseGame):
 				self.sendMessageToPlayer(("error", "card " + actionObj[1] + " could not be taken, does not exists in the market!"), playerId)
 		else:
 			print("Error, unknown action", actionObj)
-		return self.__exportGameState()
-
-	def loadGameState(self, gameState):
-		selfVars = vars(self)
-		for k,v in gameState.items():
-			selfVars[k] = v
 
 	def resetGameState(self):
 		""" reset game state to the same as after __init__"""

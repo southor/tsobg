@@ -14,8 +14,6 @@ class BaseGame(UIInterface):
 		self.name = name
 		self.gameRootPath = gameRootPath
 		self.actionHistory = [] # A list of tuples (playerId, actionObj)
-		#self.gameStateHistory = []
-		self.gameStateAtStart = {} # Will contain a deep copy of the game state at stateN=1 (just after "start game")
 		self.playerUIHistories = {} # map from playerId to UIHistory object
 		self.currentRevertN = 0
 		self.currentStateN = 0
@@ -71,11 +69,7 @@ class BaseGame(UIInterface):
 		if self.actionAllowed(actionObj, playerId=playerId):
 			# advance game state
 			self.actionHistory.append((playerId, actionObj))
-			newState = self.performAction(actionObj, playerId=playerId)
-			assert(newState)
-			#self.gameStateHistory.append(newState)
-			if actionObj[0] == "start_game":
-				self.gameStateAtStart = newState
+			self.performAction(actionObj, playerId=playerId)
 			self.currentStateN += 1
 			for uiHistory in self.playerUIHistories.values():
 				uiHistory.commitUIChanges()
