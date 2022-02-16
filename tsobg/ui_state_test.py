@@ -1,4 +1,5 @@
 import unittest
+from copy import deepcopy
 
 from .ui_state import sizeToCSSpxComponents, deAliasUIChange, combineUIChanges, pruneUIChange, uiChangeReverse, applyUIChange
 
@@ -51,9 +52,12 @@ class UIState_test(unittest.TestCase):
 		else:
 			self.assertEqual(uicReverse, ("set_div", id, optsExpected))
 
-	def testSetDivApply(self, uiState, id, optsInput, uiStateExpected):
-		applyUIChange(uiState,  ("set_div", id, optsInput))
-		self.assertEqual(uiState, uiStateExpected)
+	def testSetDivApply(self, uiStateOriginal, id, optsInput, uiStateExpected):
+		uiState = deepcopy(uiStateOriginal)
+		modifiedUIState = applyUIChange(uiState,  ("set_div", id, optsInput))
+		self.assertEqual(modifiedUIState, uiStateExpected) # test expected changes
+		self.assertEqual(uiState, uiStateOriginal) # test original not modified
+		self.assertTrue((modifiedUIState is not uiState) or (uiStateOriginal == uiStateExpected)) # modifiedState should be a new object unless...
 	
 	def testCombine(self):
 		uic = ("set_div", "homer", {"left":"45px", "top":"10px"})

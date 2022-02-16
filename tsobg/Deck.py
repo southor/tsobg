@@ -4,6 +4,7 @@ import random
 class Deck():
 	
 	def __init__(self, cards, autoShuffle = True):
+		random.seed(42) # using fixed seed for now (required for game revert to produce the same deck shuffle)
 		self.cards = cards.copy()
 		self.discardedCards = []
 		self.autoShuffle = autoShuffle

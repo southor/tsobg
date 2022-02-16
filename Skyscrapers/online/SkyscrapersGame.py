@@ -111,6 +111,14 @@ class SkyscrapersGame(BaseGame):
 		selfVars = vars(self)
 		for k,v in gameState.items():
 			selfVars[k] = v
+
+	def resetGameState(self):
+		""" reset game state to the same as after __init__"""
+		selfVars = vars(self)
+		for k in self.gameStateVars:
+			if k in selfVars:
+				selfVars.pop(k)
+		self.cardMarket = CardMarket(self)
 		
 	# --------------- Action Methods ---------------
 

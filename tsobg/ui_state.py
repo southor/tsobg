@@ -69,7 +69,7 @@ def deAliasUIChange(uiChange):
 def combineUIChanges(uiChangeA, uiChangeB):
 	""" Combines the uiChanges if possible and returns the result
 	If the uiChanges cannot be combined then None is returned
-	uiChanges must be free of property alias
+	uiChanges must be free of property aliases
 	"""
 	commandA = uiChangeA[0]
 	commandB = uiChangeB[0]
@@ -93,7 +93,7 @@ def combineUIChanges(uiChangeA, uiChangeB):
 
 def pruneUIChange(uiState, uiChange):
 	""" Creates a new uiChange with removed properties in uiChange that will have no effect
-	uiChange must be free of property alias
+	uiChange must be free of property aliases
 	"""
 	stateDivs = uiState["divs"]
 	command = uiChange[0]
@@ -117,7 +117,7 @@ def pruneUIChange(uiState, uiChange):
 
 def uiChangeReverse(uiState, uiChange):
 	""" returns reversed version of uiChange
-	uiChange must be free of property alias
+	uiChange must be free of property aliases
 	"""
 	stateDivs = uiState["divs"]
 	command = uiChange[0]
@@ -141,19 +141,20 @@ def uiChangeReverse(uiState, uiChange):
 		raise RuntimeException("Unknown command: " + command)
 
 def applyUIChange(uiState, uiChange):
-	""" modifies uiState with uiChange 
-	uiChange must be free of property alias
+	""" modifies uiState with uiChange and returns the result 
+	uiChange must be free of property aliases
 	"""
-	stateDivs = uiState["divs"]
 	command = uiChange[0]
 	if command == "set_div":
+		stateDivs = uiState["divs"].copy()
 		id = uiChange[1]
 		opts = uiChange[2]
 		if id in stateDivs:
-			stateDivs[id].update(opts)
+			stateDivs[id] = {**stateDivs[id], **opts}
 		else:
 			stateDivs[id] = opts.copy()
+		return {"divs": stateDivs}
 	elif command == "nop":
-		return
+		return uiState
 	else:
 		raise RuntimeException("Unknown command: " + command)

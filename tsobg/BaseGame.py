@@ -16,7 +16,7 @@ class BaseGame(UIInterface):
 		self.actionHistory = [] # A list of tuples (playerId, actionObj)
 		#self.gameStateHistory = []
 		self.gameStateAtStart = {} # Will contain a deep copy of the game state at stateN=1 (just after "start game")
-		self.playerUIHistories = {}
+		self.playerUIHistories = {} # map from playerId to UIHistory object
 		self.currentRevertN = 0
 		self.currentStateN = 0
 		self.gameLog = GameLog() # game log entries shared by players
@@ -104,22 +104,16 @@ class BaseGame(UIInterface):
 		toStateN = BaseGame.__clampNumber(stateN, 1, self.currentStateN)
 		if toStateN < self.currentStateN:
 			# revert game state
-			# set state back to stateN=1 (just after "start_game") then replay all actions up to "toStateN"
+			# go back to game state zero, and rebuild everything from there
 			fromStateN = self.currentStateN
-			#self.gameLog.clearLogEntries(toStateN)
-			self.gameLog.clearLogEntries(1)
-			#self.actionHistory = self.actionHistory[0:toStateN]
-			actionsToReplay = self.actionHistory[1:toStateN]
-			self.actionHistory = self.actionHistory[0:1]
-			#self.loadGameState(self.gameStateHistory[toStateN])
-			#self.gameStateHistory = self.gameStateHistory[0:toStateN]
-			self.loadGameState(self.gameStateAtStart)
+			self.gameLog.clearLogEntries(0)
+			actionsToReplay = self.actionHistory[0:stateN]
+			self.actionHistory = []
+			self.resetGameState()
 			self.currentRevertN += 1
-			#self.currentStateN = toStateN
-			self.currentStateN = 1
+			self.currentStateN = 0
 			for uiHistory in self.playerUIHistories.values():
-				#uiHistory.revertTo(toStateN)
-				uiHistory.revertTo(1)
+				uiHistory.revertTo(0)
 			for playerId,actionObj in actionsToReplay:
 				self.clientAction(self.currentRevertN, self.currentStateN, actionObj, playerId = playerId)
 			msg = "Reverted from game state {} to {}".format(fromStateN, toStateN)
