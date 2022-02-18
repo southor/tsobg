@@ -289,10 +289,17 @@
     <Compile Include="Skyscrapers\online\PlayerArea.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="tsobg\GameInterface.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="tsobg\GameLog.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tsobg\GameLog_test.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="tsobg\GameManager.py" />
+    <Compile Include="tsobg\ManagerInterface.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tsobg\UIHistory.py">
@@ -314,7 +321,6 @@
     <Compile Include="Skyscrapers\online\CardMarket.py" />
     <Compile Include="Skyscrapers\online\main.py" />
     <Compile Include="Skyscrapers\online\SkyscrapersGame.py" />
-    <Compile Include="tsobg\BaseGame.py" />
     <Compile Include="tsobg\Deck.py" />
     <Compile Include="tsobg\ui_state_test.py">
       <SubType>Code</SubType>

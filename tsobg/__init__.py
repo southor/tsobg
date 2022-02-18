@@ -3,6 +3,6 @@
 from .server import newGame
 from .server import runServer
 from .UIInterface import UIInterface
-from .BaseGame import BaseGame
+from .GameInterface import GameInterface
 from .Deck import Deck
 from .UIGrid import UIGrid

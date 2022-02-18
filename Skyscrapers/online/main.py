@@ -25,6 +25,6 @@ if __name__ == '__main__':
 	except AttributeError:
 		pass # let kwargs be empty
 	
-	tsobg.newGame(SkyscrapersGame(), int(nPlayers), **kwargs)
+	tsobg.newGame(SkyscrapersGame, int(nPlayers), **kwargs)
 	tsobg.runServer(False)
 	

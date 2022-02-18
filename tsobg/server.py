@@ -7,6 +7,9 @@ werkzeugLogger.setLevel(logging.ERROR)
 
 from pathlib import PurePath
 
+from .GameManager import GameManager
+
+
 app.config['SECRET_KEY'] = '121504121e437d2905d3fe067bfa8e29'
 
 admin_key = '905d3fe067bf'
@@ -17,9 +20,12 @@ admin_key = '905d3fe067bf'
 
 #user_states = {}
 
-game = None
+gameManager = None
 players = {} # playerName to playerIDs dict
 nPlayers = 0
+
+def _getGameName():
+	return gameManager.getGame().getName()
 
 def _getPlayerNames():
 	return list(globals()['players'].keys())
@@ -38,7 +44,7 @@ def _createPlayer(playerName):
 		players[playerName] = playerId
 		print("created player:", playerId, playerName)
 		if enoughPlayers():
-			game.startGame(list(players.values()), list(players.keys())) # relying on order being the same for keys() and values()
+			gameManager.startGame(list(players.values()), list(players.keys())) # relying on order being the same for keys() and values()
 		return playerId
 
 def enoughPlayers():
@@ -51,7 +57,7 @@ def startPage():
 	if enoughPlayers():
 		return renderError("Player count already filled up!")
 	else:
-		return render_template('start.html', gameName=game.name, nPlayers=nPlayers, done=False)
+		return render_template('start.html', gameName=_getGameName(), nPlayers=nPlayers, done=False)
 
 @app.route("/new_player/<playerName>", methods=['GET', 'POST'])
 def createPlayer(playerName):
@@ -71,11 +77,11 @@ def checkPlayerID(playerId, playerName):
 		return None
 
 def renderMsg(msg):
-	return render_template('msg.html', gameName=game.name, msg=msg)
+	return render_template('msg.html', gameName=_getGameName(), msg=msg)
 
 def renderError(msg):
 	print("Error:", msg)
-	return render_template('error.html', gameName=game.name, msg=msg)
+	return render_template('error.html', gameName=_getGameName(), msg=msg)
 
 @app.route("/game/<playerId>/<playerName>/view", methods=['GET'])
 def gamePage(playerId, playerName):
@@ -86,21 +92,21 @@ def gamePage(playerId, playerName):
 	if msg:
 		return renderError(msg)
 	else:
-		pageTitle = game.name + " ({} players)".format(str(nPlayers))
+		pageTitle = _getGameName() + " ({} players)".format(str(nPlayers))
 		info = "" if enoughPlayers() else "waiting for other players..."
 		return render_template('game.html', pageTitle=pageTitle, playerId=playerId, playerName=playerName, info=info)
 
 @app.route("/game/<playerId>/<playerName>/update_client/<revertN>/<fromStateN>", methods=['GET'])
 def updateClient(playerId, playerName, revertN, fromStateN):
 	global game
-	return updateClientTo(playerId, playerName, int(revertN), int(fromStateN), game.currentStateN)
+	return updateClientTo(playerId, playerName, int(revertN), int(fromStateN), gameManager.currentStateN)
 
 @app.route("/game/<playerId>/<playerName>/update_client/<revertN>/<fromStateN>/<toStateN>", methods=['GET'])
 def updateClientTo(playerId, playerName, revertN, fromStateN, toStateN):
 	global game
 	if checkPlayerID(playerId, playerName) != None:
 		flask.abort(409)
-	data = game.getClientUpdates(playerId, int(revertN), int(fromStateN), int(toStateN))
+	data = gameManager.getClientUpdates(playerId, int(revertN), int(fromStateN), int(toStateN))
 	return jsonify(data)
 
 @app.route("/game/<playerId>/<playerName>/client_action/<revertN>/<stateN>", methods=['POST'])
@@ -113,21 +119,21 @@ def clientAction(playerId, playerName, revertN, stateN):
 		flask.abort(400)
 	actionObj = flask.request.get_json()
 	print("client action:", actionObj)
-	if game.clientAction(int(revertN), int(stateN), actionObj, playerId=playerId):
+	if gameManager.clientAction(int(revertN), int(stateN), actionObj, playerId=playerId):
 		return updateClient(playerId, playerName, revertN, stateN)
 	else:
 		return Response("action not allowed", status=403, mimetype='application/json')
 
 @app.route("/game/<playerId>/<playerName>/game_file/<path:gameFilePath>", methods=['GET'])
 def gameFile(playerId, playerName, gameFilePath):
-	global game
+	global gameManager
 	if checkPlayerID(playerId, playerName) != None:
 		flask.abort(409)
 	gameFilePath = PurePath(gameFilePath)
 	#print("wants to get file:", gameFilePath)
 	if "." in str(gameFilePath.parent):
 		flask.abort(403)
-	filePath = game.getFullPath(gameFilePath)
+	filePath = gameManager.getFullPath(gameFilePath)
 	if filePath:
 		if filePath.is_file():
 			#print("sending file: ", filePath)
@@ -141,22 +147,24 @@ def gameFile(playerId, playerName, gameFilePath):
 def revertGameTo(toStateN):
 	global game
 	toStateN = int(toStateN)
-	msg = game.revertToStateN(toStateN)
+	msg = gameManager.revertToStateN(toStateN)
 	return renderMsg(msg)
 
-def newGame(game, nPlayers, **kwargs):
-	assert(not game.hasStarted())
-	globals()['game'] = game
+
+def newGame(gameClass, nPlayers, players={}, extraGameArgs = [], extraGameKWArgs = {}):
+	gameManager = GameManager()
+	game = gameClass(gameManager, *extraGameArgs, **extraGameKWArgs)
+	gameManager.setGame(game)
+	globals()['gameManager'] = gameManager
 	globals()['nPlayers'] = nPlayers
-	if 'players' in kwargs:
-		players = kwargs['players']
+	if 'players':
 		assert(isinstance(players, dict))
 		assert(len(players) <= nPlayers)
 		globals()['players'] = players
 	else:
 		players = globals()['players']
 	if enoughPlayers():
-		game.startGame(list(players.values()), list(players.keys())) # relying on order being the same for keys() and values()
+		gameManager.startGame(list(players.values()), list(players.keys())) # relying on order being the same for keys() and values()
 
 def runServer(debug):
 	global players
@@ -167,7 +175,3 @@ def runServer(debug):
 		print("Each new player, start at this URL: http://127.0.0.1:5000/")
 	print()
 	app.run(debug=debug, threaded=False, processes=1)
-
-if __name__ == '__main__':
-	#app.run(debug=True)
-	runServer(True)

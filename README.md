@@ -47,10 +47,10 @@ python3 tsobg_test.py
 ## How it works
 
 The project is divided into "tsobg" (the platform), and the board game "Skyscrapers".
-The board game extends a class called "BaseGame" and implements some methods, in this case the class is called "SkyscrapersGame".
+The board game extends an interface called "GameInterface" and implements some methods, in this case the class is called "SkyscrapersGame".
 tsobg contains the web server, and the client files as well.
 Once the game has started, the client game page acts as a single-page application.
-The board game project (Skyscrapers) sends client updates to the platform, these updates are sent via the "UIInterface" class.
+The board game project (Skyscrapers) sends client updates to the platform (by a reference to GameManager), these updates are sent via the "UIInterface" class.
 The game project both creates and alternates the UI for the game as it goes on sending "uiChanges".
 These uiChanges uses div element id's and can position divs, set size, set parent div, set background colors, add a text and/or image to div etc...
 The uiChanges is then picked up by the client when it asks the server platform for the latest uiChanges.

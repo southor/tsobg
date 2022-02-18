@@ -5,9 +5,9 @@ from copy import deepcopy
 
 pathHere = Path(__file__).absolute().parent
 
-# import tsobg BaseGame
+# import tsobg GameInterface
 sys.path.append(str(pathHere.parent.parent))
-from tsobg import BaseGame
+from tsobg import GameInterface
 
 # import SkyScrapers cards
 #sys.path.append(str(pathHere.parent))
@@ -17,19 +17,20 @@ from PlayerArea import PlayerArea
 from CardMarket import CardMarket
 
 
-class SkyscrapersGame(BaseGame):
+class SkyscrapersGame(GameInterface):
 
 	playerStartSupply = {"money":12}
 
 	gameStateVars = ["playerIDs", "playersSupply", "currentPlayer", "playerAreas", "cardMarket"]
 
-	def __init__(self):
-		gameRootPath = pathHere.parent
-		super().__init__("Skyscrapers", gameRootPath)
+	def __init__(self, gameManager):
+		self.gameManager = gameManager
+		#gameRootPath = pathHere.parent
+		#super().__init__("Skyscrapers", gameRootPath)
 		msg = checkCardImageFiles()
 		if msg:
 			print(msg)
-		self.cardMarket = CardMarket(self)
+		self.cardMarket = CardMarket(gameManager)
 		
 	# --------------- Helper methods ---------------
 	
@@ -71,7 +72,13 @@ class SkyscrapersGame(BaseGame):
 							})
 		self.stageUIChange(uic)
 	
-	# --------------- "BaseGame" expected methods ---------------
+	# --------------- "GameInterface" expected methods ---------------
+
+	def getName(self):
+		return "Skyscrapers"
+
+	def getRootPath(self):
+		return pathHere.parent
 	
 	def actionAllowed(self, actionObj, playerId=None):
 		if actionObj[0] == "start_game":
@@ -90,9 +97,9 @@ class SkyscrapersGame(BaseGame):
 			if playerId == None:
 				raise RuntimeError("recieved actionObj without playerId: ", actionObj)
 			if self.cardMarket.removeCard(actionObj[1]):
-				self.stageLogEntry("card " + actionObj[1] + " was taken")
+				self.gameManager.stageLogEntry("card " + actionObj[1] + " was taken")
 			else:
-				self.sendMessageToPlayer(("error", "card " + actionObj[1] + " could not be taken, does not exists in the market!"), playerId)
+				self.gameManager.sendMessageToPlayer(("error", "card " + actionObj[1] + " could not be taken, does not exists in the market!"), playerId)
 		else:
 			print("Error, unknown action", actionObj)
 
@@ -102,7 +109,7 @@ class SkyscrapersGame(BaseGame):
 		for k in self.gameStateVars:
 			if k in selfVars:
 				selfVars.pop(k)
-		self.cardMarket = CardMarket(self)
+		self.cardMarket = CardMarket(self.gameManager)
 		
 	# --------------- Action Methods ---------------
 
@@ -119,32 +126,32 @@ class SkyscrapersGame(BaseGame):
 				viewedSeatN = i % nPlayers
 				appearedSeatN = i - viewingSeatN
 				divID = SkyscrapersGame.__getPlayerSurfaceDivID(viewedSeatN)
-				self.stageUIChange(("set_div", divID, {"text":playerNames[viewedSeatN]}))
+				self.gameManager.stageUIChange(("set_div", divID, {"text":playerNames[viewedSeatN]}))
 				appearedOrder_divIds[appearedSeatN] = divID # save divId in appeared order for later
 			# set div parent and rest of divopts in appearedOrder (for this player)
 			for divID in appearedOrder_divIds:
-				self.stageUIChange(("set_div", divID, divOpts), playerID=playerID)
+				self.gameManager.stageUIChange(("set_div", divID, divOpts), playerID=playerID)
 
 	def __initPlayerAreas(self):		
 		self.playersSupply = [SkyscrapersGame.playerStartSupply.copy() for p in self.playerIDs]
 		self.playerAreas = []
 		for seatN,items in enumerate(self.playersSupply):
 			playerSurfaceDivID = SkyscrapersGame.__getPlayerSurfaceDivID(seatN)
-			self.playerAreas.append(PlayerArea(self, seatN, playerSurfaceDivID, items))
+			self.playerAreas.append(PlayerArea(self.gameManager, seatN, playerSurfaceDivID, items))
 
 	def __actionStartGame(self, playerIDs: list, playerNames: list):
 		# check card image files
 		text = checkCardImageFiles()
 		if text:
-			self.sendMessageToPlayers(("error", text))
+			self.gameManager.sendMessageToPlayers(("error", text))
 		# init game
 		self.playerIDs = playerIDs
 		self.currentPlayer = 0
-		self.stageUIChange(("set_div", "center", {"parent": "game_area", "class": "common-surface", "size": (800, 500)}))
+		self.gameManager.stageUIChange(("set_div", "center", {"parent": "game_area", "class": "common-surface", "size": (800, 500)}))
 		self.__initPlayerSurfaces(playerNames)
 		self.__initPlayerAreas()
 		self.cardMarket.fillUp()
-		self.stageLogEntry("Game started, players: " + ", ".join(playerNames))
+		self.gameManager.stageLogEntry("Game started, players: " + ", ".join(playerNames))
 		
 		
 		

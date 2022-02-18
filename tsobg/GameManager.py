@@ -8,11 +8,12 @@ from .UIInterface import UIInterface
 from .UIHistory import UIHistory
 from .GameLog import GameLog
 
-class BaseGame(UIInterface):
+class GameManager(UIInterface):
 	
-	def __init__(self, name, gameRootPath: Path):
-		self.name = name
-		self.gameRootPath = gameRootPath
+	def __init__(self):
+	#def __init__(self, name, gameRootPath: Path):
+		#self.name = name
+		#self.gameRootPath = gameRootPath
 		self.actionHistory = [] # A list of tuples (playerId, actionObj)
 		self.playerUIHistories = {} # map from playerId to UIHistory object
 		self.currentRevertN = 0
@@ -36,7 +37,7 @@ class BaseGame(UIInterface):
 		return [("game_log",) + l for l in logEntries]
 
 	def __getUIChanges(self, playerId, fromStateN, toStateN):
-		if self.hasStarted():
+		if self.gameStarted():
 			if playerId in self.playerUIHistories:
 				assert(self.playerUIHistories[playerId].getCurrentStateN() == self.currentStateN)
 				return self.playerUIHistories[playerId].getUIChanges(fromStateN, toStateN)
@@ -47,10 +48,17 @@ class BaseGame(UIInterface):
 	
 	# ----------------- Server Methods -----------------
 	
+	def getGame(self):
+		return self.game
+
+	def setGame(self, game):
+		""" should only be called once """
+		assert(not hasattr(self, 'game'))
+		self.game = game
 
 	def getClientUpdates(self, playerId, revertN, fromStateN, toStateN):
-		fromStateN = BaseGame.__clampNumber(fromStateN, 0, self.currentStateN)
-		toStateN = BaseGame.__clampNumber(toStateN, 0, self.currentStateN)
+		fromStateN = GameManager.__clampNumber(fromStateN, 0, self.currentStateN)
+		toStateN = GameManager.__clampNumber(toStateN, 0, self.currentStateN)
 		data = []
 		if revertN != self.currentRevertN:
 			# we reset the client and let it recreate divs and log from stateN zero
@@ -58,7 +66,7 @@ class BaseGame(UIInterface):
 			fromStateN = 0
 		data += [("state_n", toStateN)]
 		data += self.__popClientMessages(playerId)
-		if self.hasStarted():
+		if self.gameStarted():
 			data += self.__getLogEntries(fromStateN, toStateN)
 			data += self.__getUIChanges(playerId, fromStateN, toStateN)
 		return data
@@ -66,10 +74,10 @@ class BaseGame(UIInterface):
 	def clientAction(self, currentRevertN, stateN, actionObj, playerId = None):
 		if stateN != self.currentStateN:
 			return False # TODO: respond 409 conflict?
-		if self.actionAllowed(actionObj, playerId=playerId):
+		if self.game.actionAllowed(actionObj, playerId=playerId):
 			# advance game state
 			self.actionHistory.append((playerId, actionObj))
-			self.performAction(actionObj, playerId=playerId)
+			self.game.performAction(actionObj, playerId=playerId)
 			self.currentStateN += 1
 			for uiHistory in self.playerUIHistories.values():
 				uiHistory.commitUIChanges()
@@ -78,7 +86,7 @@ class BaseGame(UIInterface):
 			return False
 			
 	def startGame(self, playerIDs: list, playerNames: list):
-		assert(not self.hasStarted())
+		assert(not self.gameStarted())
 		assert(self.currentRevertN == 0)
 		for p in playerIDs:
 			self.playerUIHistories[p] = UIHistory()
@@ -91,11 +99,11 @@ class BaseGame(UIInterface):
 			print("Error: Not allowed to start game, playerIDs:", playerIDs)
 		return res
 		
-	def hasStarted(self):
+	def gameStarted(self):
 		return self.currentStateN > 0
 
 	def revertToStateN(self, stateN):
-		toStateN = BaseGame.__clampNumber(stateN, 1, self.currentStateN)
+		toStateN = GameManager.__clampNumber(stateN, 1, self.currentStateN)
 		if toStateN < self.currentStateN:
 			# revert game state
 			# go back to game state zero, and rebuild everything from there
@@ -103,7 +111,7 @@ class BaseGame(UIInterface):
 			self.gameLog.clearLogEntries(0)
 			actionsToReplay = self.actionHistory[0:stateN]
 			self.actionHistory = []
-			self.resetGameState()
+			self.game.resetGameState()
 			self.currentRevertN += 1
 			self.currentStateN = 0
 			for uiHistory in self.playerUIHistories.values():
@@ -119,8 +127,8 @@ class BaseGame(UIInterface):
 	
 	# returns 'None' if path is forbidden
 	def getFullPath(self, gameFile: PurePath):
-		resPath = Path(self.gameRootPath, gameFile)
-		if self.gameRootPath in resPath.parents:
+		resPath = Path(self.game.getRootPath(), gameFile)
+		if self.game.getRootPath() in resPath.parents:
 			return resPath
 		else:
 			return None
