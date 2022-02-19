@@ -8,11 +8,12 @@ werkzeugLogger.setLevel(logging.ERROR)
 from pathlib import PurePath
 
 from .GameManager import GameManager
+from . import settings
 
 
 app.config['SECRET_KEY'] = '121504121e437d2905d3fe067bfa8e29'
 
-admin_key = '905d3fe067bf'
+
 # http://127.0.0.1:5000/get_state/905d3fe067bf
 # http://127.0.0.1:5000/modify_turn/905d3fe067bf/1/0
 
@@ -53,9 +54,13 @@ def enoughPlayers():
 	return len(players) >= nPlayers
 
 @app.route("/", methods=['GET'])
+def rootPage():
+	return flask.redirect("/start")
+
+@app.route("/start", methods=['GET'])
 def startPage():
 	if enoughPlayers():
-		return renderError("Player count already filled up!")
+		return renderMsgPage("Player count already filled up!")
 	else:
 		return render_template('start.html', gameName=_getGameName(), nPlayers=nPlayers, done=False)
 
@@ -76,12 +81,12 @@ def checkPlayerID(playerId, playerName):
 	else:
 		return None
 
-def renderMsg(msg):
-	return render_template('msg.html', gameName=_getGameName(), msg=msg)
+def renderMsgPage(msg, link="", linkText=""):
+	return render_template('msg.html', gameName=_getGameName(), msg=msg, link=link, linkText=linkText)
 
-def renderError(msg):
+def renderErrorPage(msg, link="", linkText=""):
 	print("Error:", msg)
-	return render_template('error.html', gameName=_getGameName(), msg=msg)
+	return render_template('error.html', gameName=_getGameName(), msg=msg, link=link, linkText=linkText)
 
 @app.route("/game/<playerId>/<playerName>/view", methods=['GET'])
 def gamePage(playerId, playerName):
@@ -90,7 +95,7 @@ def gamePage(playerId, playerName):
 	global nPlayers
 	msg = checkPlayerID(playerId, playerName)
 	if msg:
-		return renderError(msg)
+		return renderErrorPage(msg, "/start", "to start page")
 	else:
 		pageTitle = _getGameName() + " ({} players)".format(str(nPlayers))
 		info = "" if enoughPlayers() else "waiting for other players..."
@@ -143,12 +148,27 @@ def gameFile(playerId, playerName, gameFilePath):
 	else:
 		flask.abort(403)
 
+@app.route("/msg", methods=['GET'])
+def msgPage():
+	msg = flask.request.args.get('msg')
+	link = flask.request.args.get('link')
+	linkText = flask.request.args.get('linkText')
+	return renderMsgPage(msg, link, linkText)
+
+@app.route("/admin", methods=['GET'])
+def adminPage():
+	token = flask.request.args.get('token')
+	if token == settings.adminToken:
+		return render_template('admin.html', gameName=_getGameName(), nPlayers=nPlayers)
+	else:
+		return render_template('admin.html', gameName=_getGameName(), nPlayers=nPlayers)
+
 @app.route("/game/revert_to/<toStateN>", methods=['GET'])
 def revertGameTo(toStateN):
 	global game
 	toStateN = int(toStateN)
 	msg = gameManager.revertToStateN(toStateN)
-	return renderMsg(msg)
+	return renderMsgPage(msg, "/admin", "return to Admin")
 
 
 def newGame(gameClass, nPlayers, players={}, extraGameArgs = [], extraGameKWArgs = {}):
@@ -169,8 +189,11 @@ def newGame(gameClass, nPlayers, players={}, extraGameArgs = [], extraGameKWArgs
 def runServer(debug):
 	global players
 	print()
+	print("Url for admin: http://127.0.0.1:5000/admin?token=" + settings.adminToken);
+	print("Note: admin token can be set in settings.py")
+	print()
 	for seatN,playerName in enumerate(players.keys()):
-		print("Url for player " + str(seatN) + ": http://127.0.0.1:5000/" + "game/" + players[playerName] + "/" + playerName + "/view")
+		print("Url for player " + str(seatN) + ": http://127.0.0.1:5000/game/" + players[playerName] + "/" + playerName + "/view")
 	if len(players.keys()) < nPlayers:
 		print("Each new player, start at this URL: http://127.0.0.1:5000/")
 	print()

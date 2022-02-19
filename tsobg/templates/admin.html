@@ -1,0 +1,24 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>{{gameName}} Admin</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<script type="text/JavaScript">
+
+	function revert() {
+		toStateN = document.getElementById("input_state_n").value;
+		document.location.href = "/game/revert_to/" + toStateN;
+	}
+
+</script>
+<body>
+	<h1>{{gameName}} Admin</h1>
+	<p>{{nPlayers}} player game</p>
+	<form onsubmit="ready()">
+		<label for="input_state_n">Revert to stateN:</label><br>
+		<input type="number" id="input_state_n"><br>
+	</form>
+	<button id="revert_button" onclick="revert()">Revert</button>
+</body>
+</html>

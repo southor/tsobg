@@ -7,6 +7,7 @@ from pathlib import PurePath
 from .UIInterface import UIInterface
 from .UIHistory import UIHistory
 from .GameLog import GameLog
+from . import ui_state
 
 class GameManager(UIInterface):
 	
@@ -174,5 +175,6 @@ class GameManager(UIInterface):
 			playerIDs = self.playerUIHistories.keys()
 		assert(playerIDs)
 		for uiChange in uiChanges:
+			uiChange = ui_state.deAliasUIChange(uiChange);
 			for p in playerIDs:
 				self.playerUIHistories[p].stageUIChange(uiChange)

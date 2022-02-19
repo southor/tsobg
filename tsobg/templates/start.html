@@ -5,39 +5,47 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <script type = "text/JavaScript">
-
-	/*
-	function autoRefresh(timeout) {
-		setTimeout("location.reload(true);", timeout);
-	}
-	*/
 	
-	function ready() {
-		$.ajaxSetup( { cache: false } )
-		
-		document.getElementById("f_playerName").disabled = true;
-		document.getElementById("f_button").disabled = true;
-		
-		playerName = document.getElementById("f_playerName").value
-		
-		var createPlayerURL = '/new_player/' + f_playerName.value
+	/**
+	 * returns first character in str that belongs to one of the characters in the string "chars"
+	 * returns the found character or the empty string
+	 */
+	function findCharacter(str, chars) {
+		for (var i=0; i<chars.length; i++) {
+			if (str.includes(chars[i])) {
+				return chars[i];
+			}
+		}
+		return "";
+	}
 
-		// TODO: use ajax post
-		$.getJSON(createPlayerURL, function(playerId) {
-			window.location.href = encodeURI('/game/' + playerId + '/' + playerName + '/view');
-		});
+	function ready() {
+		playerName = document.getElementById("input_playerName").value;
+		document.getElementById("input_playerName").disabled = true;
+		document.getElementById("button_enter").disabled = true;
+		// check playerName
+		char = findCharacter(playerName, "\\/?&%@\"");
+		if (char) {
+			msg = "You used forbidden character " + char;
+			window.location.href = encodeURI("/msg?msg=" + msg + "&link=/start&linkText=back to start")
+		} else {
+			var createPlayerURL = '/new_player/' + playerName;
+			$.ajaxSetup({ cache: false });
+			// TODO: use ajax post
+			$.getJSON(createPlayerURL, function (playerId) {
+				window.location.href = encodeURI('/game/' + playerId + '/' + playerName + '/view');
+			});
+		}
 	}
 	
 </script>
-<!--<body {% if done %} onload = "JavaScript:autoRefresh(5000);" {% endif %} >-->
 <body>
 	<h1>{{gameName}}</h1>
 	<p>{{nPlayers}} player game</p>
 	<form onsubmit="ready()">
-		<label for="f_playerName">Name:</label><br>
-		<input type="text" id="f_playerName"><br>
+		<label for="input_playerName">Name:</label><br>
+		<input type="text" id="input_playerName"><br>
 	</form>
-	<!--<button id="f_button" {% if done %} disabled {% else %} onclick="start()" {% endif %} >Enter</button>-->
-	<button id="f_button" onclick="ready()">Enter</button>
+	<button id="button_enter" onclick="ready()">Enter</button>
 </body>
 </html>

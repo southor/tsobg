@@ -46,7 +46,7 @@ class UIHistory():
 		self.stagedUIChanges = []
 
 	def stageUIChange(self, uiChange):
-		uiChange = ui_state.deAliasUIChange(uiChange);
+		""" uiChange must be free of aliases """
 		if len(self.stagedUIChanges) > 0:
 			# try to combine with previous uiChange that was staged
 			combUIChanges = ui_state.combineUIChanges(self.stagedUIChanges[-1], uiChange)
