@@ -272,6 +272,7 @@
     <Content Include="tsobg\static\game.css" />
     <Content Include="tsobg\static\game_log.js" />
     <Content Include="tsobg\templates\admin.html" />
+    <Content Include="tsobg\templates\debug.html" />
     <Content Include="tsobg\templates\error.html" />
     <Content Include="tsobg\templates\game.html" />
     <Content Include="tsobg\templates\msg.html" />
@@ -288,6 +289,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Skyscrapers\online\PlayerArea.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="tsobg\debug.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tsobg\GameInterface.py">

@@ -1,1 +1,1 @@
-adminToken = "rr734gzmd349r9+fuhq23r"
+adminToken = "rr734gzmd349r9yfuhq23r"

@@ -7,6 +7,7 @@ werkzeugLogger.setLevel(logging.ERROR)
 
 from pathlib import PurePath
 
+from .debug import createDebugPageHTML
 from .GameManager import GameManager
 from . import settings
 
@@ -159,16 +160,28 @@ def msgPage():
 def adminPage():
 	token = flask.request.args.get('token')
 	if token == settings.adminToken:
-		return render_template('admin.html', gameName=_getGameName(), nPlayers=nPlayers)
+		return render_template('admin.html', gameName=_getGameName(), nPlayers=nPlayers, adminToken=token)
 	else:
-		return render_template('admin.html', gameName=_getGameName(), nPlayers=nPlayers)
+		return renderErrorPage("Invalid admin token!")
+
+@app.route("/debug", methods=['GET'])
+def debugPage():
+	token = flask.request.args.get('token')
+	if token == settings.adminToken:
+		contentHTML = createDebugPageHTML(globals(), flask.request.args.get('var'), token)
+		return render_template('debug.html', gameName=_getGameName(), adminToken=token, contentHTML=contentHTML) 
+	else:
+		return renderErrorPage("Invalid admin token!")
 
 @app.route("/game/revert_to/<toStateN>", methods=['GET'])
 def revertGameTo(toStateN):
-	global game
-	toStateN = int(toStateN)
-	msg = gameManager.revertToStateN(toStateN)
-	return renderMsgPage(msg, "/admin", "return to Admin")
+	token = flask.request.args.get('token')
+	if token == settings.adminToken:
+		toStateN = int(toStateN)
+		msg = gameManager.revertToStateN(toStateN)
+		return renderMsgPage(msg, "/admin", "return to Admin")
+	else:
+		return renderErrorPage("Invalid admin token!")
 
 
 def newGame(gameClass, nPlayers, players={}, extraGameArgs = [], extraGameKWArgs = {}):
