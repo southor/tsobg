@@ -1,11 +1,17 @@
 import unittest
 from copy import deepcopy
 
-from .ui_state import sizeToCSSpxComponents, deAliasUIChange, combineUIChanges, pruneUIChange, uiChangeReverse, applyUIChange
+#from .ui_state import sizeToCSSpxComponents, deAliasUIChange, combineUIChanges, pruneUIChange, uiChangeReverse, applyUIChange
+from .UIState import UIState
 
 
 class UIState_test(unittest.TestCase):
 
+	#sizeToCSSpxComponents = UIState.sizeToCSSpxComponents
+	#deAliasUIChange = UIState.deAliasUIChange
+	#combineUIChanges = UIState.combineUIChanges
+
+	
 	def createDivs():
 		divs = {}
 		divs["factory_space"] = {"parent":"center", "img":"factory.png"}
@@ -13,22 +19,22 @@ class UIState_test(unittest.TestCase):
 		return divs
 
 	def testSizeToCSSpxComponents(self):
-		self.assertEqual(sizeToCSSpxComponents("auto"), ("auto", "auto"))
-		self.assertEqual(sizeToCSSpxComponents(("auto", "auto")), ("auto", "auto"))
-		self.assertEqual(sizeToCSSpxComponents((5, "auto")), ("5px", "auto"))
-		self.assertEqual(sizeToCSSpxComponents(("auto", 10)), ("auto", "10px"))
-		self.assertEqual(sizeToCSSpxComponents((5, 10)), ("5px", "10px"))
-		self.assertEqual(sizeToCSSpxComponents([5, "auto"]), ("5px", "10px")) # list should also work
+		self.assertEqual(UIState.sizeToCSSpxComponents("auto"), ("auto", "auto"))
+		self.assertEqual(UIState.sizeToCSSpxComponents(("auto", "auto")), ("auto", "auto"))
+		self.assertEqual(UIState.sizeToCSSpxComponents((5, "auto")), ("5px", "auto"))
+		self.assertEqual(UIState.sizeToCSSpxComponents(("auto", 10)), ("auto", "10px"))
+		self.assertEqual(UIState.sizeToCSSpxComponents((5, 10)), ("5px", "10px"))
+		self.assertEqual(UIState.sizeToCSSpxComponents([5, "auto"]), ("5px", "10px")) # list should also work
 
 	def testDeAliasUIChange(self):
 		uiChange1 = ("set_div", "foo_div", {"parent":"bar_div", "pos":(10, 20)})
 		uiChange2 = ("set_div", "foo_div", {"color":"red", "size":(30, 40)})
 		uiChange3 = ("set_div", "foo_div", {"parent":"bar_div", "color":"blue"})
-		combUIChange = combineUIChanges(uiChange1, uiChange2)
-		daUIChange1 = deAliasUIChange(uiChange1)
-		daUIChange2 = deAliasUIChange(uiChange2)
-		daUIChange3 = deAliasUIChange(uiChange3)
-		daUIChangeComb = deAliasUIChange(combUIChange)
+		combUIChange = UIState.combineUIChanges(uiChange1, uiChange2)
+		daUIChange1 = UIState.deAliasUIChange(uiChange1)
+		daUIChange2 = UIState.deAliasUIChange(uiChange2)
+		daUIChange3 = UIState.deAliasUIChange(uiChange3)
+		daUIChangeComb = UIState.deAliasUIChange(combUIChange)
 		self.assertFalse(uiChange1 is daUIChange1) # should not be the same object
 		self.assertFalse(uiChange2 is daUIChange2) # should not be the same object
 		self.assertFalse(uiChange3 is daUIChange3) # should be the same object (since no alias exists)
@@ -39,14 +45,14 @@ class UIState_test(unittest.TestCase):
 
 
 	def testSetDivPrune(self, uiState, id, optsInput, optsExpected = None):
-		prunedUIChange = pruneUIChange(uiState, ("set_div", id, optsInput))
+		prunedUIChange = uiState.pruneUIChange(("set_div", id, optsInput))
 		if optsExpected == None:
 			self.assertEqual(prunedUIChange, ("nop"))
 		else:
 			self.assertEqual(prunedUIChange, ("set_div", id, optsExpected))
 
 	def testSetDivReverse(self, uiState, id, optsInput, optsExpected = None):
-		uicReverse = uiChangeReverse(uiState, ("set_div", id, optsInput))
+		uicReverse = uiState.uiChangeReverse(("set_div", id, optsInput))
 		if optsExpected == None:
 			self.assertEqual(uicReverse, ("nop"))
 		else:
@@ -54,7 +60,7 @@ class UIState_test(unittest.TestCase):
 
 	def testSetDivApply(self, uiStateOriginal, id, optsInput, uiStateExpected):
 		uiState = deepcopy(uiStateOriginal)
-		modifiedUIState = applyUIChange(uiState,  ("set_div", id, optsInput))
+		modifiedUIState = uiState.applyUIChange(("set_div", id, optsInput))
 		self.assertEqual(modifiedUIState, uiStateExpected) # test expected changes
 		self.assertEqual(uiState, uiStateOriginal) # test original not modified
 		self.assertTrue((modifiedUIState is not uiState) or (uiStateOriginal == uiStateExpected)) # modifiedState should be a new object unless...
@@ -75,14 +81,14 @@ class UIState_test(unittest.TestCase):
 		self.assertEqual(uic, uicOriginal)
 		
 	def testPrune(self):
-		uiState = {"divs": UIState_test.createDivs()}
+		uiState = UIState(divs=UIState_test.createDivs())
 		self.testSetDivPrune(uiState, "restaurant_space",	{"img":"restaurant.png"}) # expecting nop
 		self.testSetDivPrune(uiState, "restaurant_space",	{"left":"auto"}) # expecting nop
 		self.testSetDivPrune(uiState, "restaurant_space",	{"img":"food.png"},			{"img":"food.png"})
 		self.testSetDivPrune(uiState, "plaza_space",		{"left":"auto"}) # expecting nop
 		
 	def testReverse(self):
-		uiState = {"divs": UIState_test.createDivs()}
+		uiState = UIState(divs=UIState_test.createDivs())
 		self.testSetDivReverse(uiState, "factory_space",	{}) # expecting nop
 		self.testSetDivReverse(uiState, "factory_space",	{"parent":"street"},					{"parent":"center"})
 		self.testSetDivReverse(uiState, "restaurant_space",	{"img":"restaurant.png"},				{"img":"restaurant.png"})
@@ -97,10 +103,10 @@ class UIState_test(unittest.TestCase):
 					}
 		divs2 = {
 					"factory_space":  {"parent":"center", "img":"factory.png"},
-					"workshop_space":  {"parent":"center", "img":"factory.png", "left":10, "top":10}
+					"workshop_space":  {"parent":"center", "img":"factory.png", "left":"10px", "top":"10px"}
 					}
-		self.testSetDivApply({"divs": divs1}, "workshop_space", {"parent":"center", "img":"workshop.png"}, {"divs":divs1}) # no actual changes
-		self.testSetDivApply({"divs": divs1}, "workshop_space", {"parent":"center", "img":"factory.png", "left":10, "top":10}, {"divs":divs2}) # two actual changes
+		self.testSetDivApply(UIState(divs=divs1), "workshop_space", {"parent":"center", "img":"workshop.png"}, UIState(divs=divs1)) # no actual changes
+		self.testSetDivApply(UIState(divs=divs1), "workshop_space", {"parent":"center", "img":"factory.png", "left":"10px", "top":"10px"}, UIState(divs=divs2)) # three actual changes
 		
 	def runTest(self):
 		self.testPrune()

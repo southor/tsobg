@@ -4,7 +4,7 @@
 
 import unittest
 
-from tsobg.ui_state_test import UIState_test
+from tsobg.UIState_test import UIState_test
 from tsobg.Deck_test import Deck_test
 from tsobg.UIGrid_test import UIGrid_test
 from tsobg.UIHistory_test import UIHistory_test

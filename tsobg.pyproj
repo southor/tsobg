@@ -314,9 +314,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tsobg\UIInterface.py" />
-    <Compile Include="tsobg\ui_state.py">
+    <Compile Include="tsobg\UIState.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="tsobg\UIState_test.py" />
     <Compile Include="tsobg_test.py">
       <SubType>Code</SubType>
     </Compile>
@@ -327,9 +328,6 @@
     <Compile Include="Skyscrapers\online\main.py" />
     <Compile Include="Skyscrapers\online\SkyscrapersGame.py" />
     <Compile Include="tsobg\Deck.py" />
-    <Compile Include="tsobg\ui_state_test.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="tsobg\UIGrid_test.py">
       <SubType>Code</SubType>
     </Compile>

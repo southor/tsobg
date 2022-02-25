@@ -7,7 +7,7 @@
 
 	function revert() {
 		toStateN = document.getElementById("input_state_n").value;
-		document.location.href = "/game/revert_to/" + toStateN;
+		document.location.href = "/game/revert_to/" + toStateN + "?token={{adminToken}}";
 	}
 
 </script>

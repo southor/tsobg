@@ -2,7 +2,7 @@
 import unittest
 
 from .UIHistory import UIHistory
-from .ui_state import deAliasUIChange
+from .UIState import deAliasUIChange
 
 class UIHistory_test(unittest.TestCase):
 

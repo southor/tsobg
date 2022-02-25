@@ -63,4 +63,4 @@ If the action is valid the board game object will progress the game by updating 
 Finally, the platform includes a uiHistory and player action history. The uiHistory makes it possible for the clients to step backwards to see what happened in the past.
 The actionHistory makes it possible to revert one or more moves if all players agrees that this is ok to do so.
 This is an expermintal feature, can be tested by first taking some actions to progress the game a couple of states,
-then use the admin page to trigger a revert: http://127.0.0.1:5000/admin/<token>. Token is set in settings.py.
+then use the admin page to trigger a revert: http://127.0.0.1:5000/admin/<token>. Token value is set in settings.py.

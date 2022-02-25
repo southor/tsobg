@@ -156,13 +156,19 @@ def msgPage():
 	linkText = flask.request.args.get('linkText')
 	return renderMsgPage(msg, link, linkText)
 
+def renderTokenError(token):
+	if token == None:
+		return renderErrorPage("Missing admin token!")
+	else:
+		return renderErrorPage("Invalid admin token!")
+
 @app.route("/admin", methods=['GET'])
 def adminPage():
 	token = flask.request.args.get('token')
 	if token == settings.adminToken:
 		return render_template('admin.html', gameName=_getGameName(), nPlayers=nPlayers, adminToken=token)
 	else:
-		return renderErrorPage("Invalid admin token!")
+		return renderTokenError(token)
 
 @app.route("/debug", methods=['GET'])
 def debugPage():
@@ -171,7 +177,7 @@ def debugPage():
 		contentHTML = createDebugPageHTML(globals(), flask.request.args.get('var'), token)
 		return render_template('debug.html', gameName=_getGameName(), adminToken=token, contentHTML=contentHTML) 
 	else:
-		return renderErrorPage("Invalid admin token!")
+		return renderTokenError(token)
 
 @app.route("/game/revert_to/<toStateN>", methods=['GET'])
 def revertGameTo(toStateN):
@@ -179,9 +185,9 @@ def revertGameTo(toStateN):
 	if token == settings.adminToken:
 		toStateN = int(toStateN)
 		msg = gameManager.revertToStateN(toStateN)
-		return renderMsgPage(msg, "/admin", "return to Admin")
+		return renderMsgPage(msg, "/admin?token=" + token, "return to Admin")
 	else:
-		return renderErrorPage("Invalid admin token!")
+		return renderTokenError(token)
 
 
 def newGame(gameClass, nPlayers, players={}, extraGameArgs = [], extraGameKWArgs = {}):

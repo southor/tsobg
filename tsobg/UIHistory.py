@@ -1,5 +1,5 @@
-from . import ui_state
-from .ui_state import combineUIChanges, uiChangeReverse, applyUIChange
+from .UIState import UIState
+from .UIState import combineUIChanges
 
 def flatten1(listOfLists):
 	return [item for sublist in listOfLists for item in sublist]
@@ -8,7 +8,7 @@ def flatten1(listOfLists):
 class UIHistory():
 
 	def __init__(self):
-		self.uiStateHistory = [ui_state.getUIStartState()]
+		self.uiStateHistory = [UIState()]
 		self.uiProgressionHistory = [] # member [0] tells how to go from stateN=0 to stateN=1
 		self.uiRegressionHistory = [[]] # member [1] tells how to go from stateN=1 to stateN=0
 		self.stagedUIChanges = []
@@ -49,7 +49,7 @@ class UIHistory():
 		""" uiChange must be free of aliases """
 		if len(self.stagedUIChanges) > 0:
 			# try to combine with previous uiChange that was staged
-			combUIChanges = ui_state.combineUIChanges(self.stagedUIChanges[-1], uiChange)
+			combUIChanges = combineUIChanges(self.stagedUIChanges[-1], uiChange)
 		else:
 			combUIChanges = None
 		if combUIChanges:
@@ -60,14 +60,14 @@ class UIHistory():
 	def __applyUIChange(uiState, progUIChanges, regUIChanges, uiChange):
 		""" returns the modified uiState """
 		# prune uiChange
-		uiChange = ui_state.pruneUIChange(uiState, uiChange)
+		uiChange = uiState.pruneUIChange(uiChange)
 		if uiChange == ("nop"):
 			return uiState
 		# record the uiChange (prog and reg)
 		progUIChanges.append(uiChange)
-		regUIChanges.insert(0, uiChangeReverse(uiState, uiChange))
+		regUIChanges.insert(0, uiState.uiChangeReverse(uiChange))
 		# apply uiChange
-		return applyUIChange(uiState, uiChange)
+		return uiState.applyUIChange(uiChange)
 
 	def revertTo(self, stateN):
 		assert(stateN >= 0)
