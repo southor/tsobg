@@ -17,9 +17,9 @@ pip3 install --user flask
 ```
 
 Run the prototype board game "Skyscrapers".
-First, generate the card image files:
+First, generate the graphics image files:
 ```
-python3 Skyscrapers/card_graphics.py
+python3 Skyscrapers/generate_graphics.py
 ```
 
 This should create new folders with image files in the Skyscrapers project folder.

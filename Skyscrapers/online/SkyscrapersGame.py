@@ -15,6 +15,7 @@ from tsobg import GameInterface
 from Card import checkCardImageFiles
 from PlayerArea import PlayerArea
 from CardMarket import CardMarket
+from MainBoard import MainBoard
 
 
 class SkyscrapersGame(GameInterface):
@@ -31,6 +32,7 @@ class SkyscrapersGame(GameInterface):
 		if msg:
 			print(msg)
 		self.cardMarket = CardMarket(gameManager)
+		self.mainBoard = MainBoard(gameManager)
 		
 	# --------------- Helper methods ---------------
 	
@@ -119,7 +121,7 @@ class SkyscrapersGame(GameInterface):
 	def __initPlayerSurfaces(self, playerNames: list):
 		nPlayers = len(self.playerIDs)
 		# create divs but add to parent in viewed order (unique for each player)
-		divOpts = {"parent":"game_area", "class":"player-surface",  "size":(800, 280)}
+		divOpts = {"parent":"game_area", "class":"game-surface", "size":(1000, 280)}
 		for viewingSeatN,playerID in enumerate(self.playerIDs):
 			appearedOrder_divIds = [0] * nPlayers
 			for i in range(viewingSeatN, viewingSeatN + nPlayers):
@@ -147,10 +149,13 @@ class SkyscrapersGame(GameInterface):
 		# init game
 		self.playerIDs = playerIDs
 		self.currentPlayer = 0
-		self.gameManager.stageUIChange(("set_div", "center", {"parent": "game_area", "class": "common-surface", "size": (800, 500)}))
+		self.gameManager.stageUIChange(("set_div", "center", {"parent": "game_area", "class": "game-surface", "width":1000}))
+		self.gameManager.stageUIChange(("set_div", "card_market", {"parent": "center", "size": (1000, 600)}))
+		self.gameManager.stageUIChange(("set_div", "main_board", {"parent": "center", "size": (1000, 700), "img":"game_file/generated_graphics/map.png"}))
 		self.__initPlayerSurfaces(playerNames)
 		self.__initPlayerAreas()
 		self.cardMarket.fillUp()
+		self.mainBoard.setFloors(3,1, ["shop", "office", "office"])
 		self.gameManager.stageLogEntry("Game started, players: " + ", ".join(playerNames))
 		
 		

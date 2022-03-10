@@ -99,9 +99,12 @@ class GameManager(UIInterface):
 		else:
 			print("Error: Not allowed to start game, playerIDs:", playerIDs)
 		return res
-		
+
 	def gameStarted(self):
 		return self.currentStateN > 0
+
+	def gameStartingUp(self):
+		return self.playerUIHistories and not self.gameStarted()
 
 	def revertToStateN(self, stateN):
 		toStateN = GameManager.__clampNumber(stateN, 1, self.currentStateN)
@@ -167,6 +170,8 @@ class GameManager(UIInterface):
 
 	def stageUIChanges(self, uiChanges: list, playerID = None, playerIDs = None):
 		"""playerID and playerIDs are optional, but don't pass more than one of them. If none are passed then it applies to all players."""
+		if not (self.gameStarted() or self.gameStartingUp()):
+			raise RuntimeError("Called stageUIChange/stageUIChanges at an incorrect state, game must be started or starting up!")
 		if playerID:
 			if playerIDs:
 				raise ValueError("Received both arguments playerID and playerIDs")

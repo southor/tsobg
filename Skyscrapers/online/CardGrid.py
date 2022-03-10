@@ -27,6 +27,9 @@ class CardGrid():
 					cardSize[1] + CardGrid.cellPadding)
 		self.grid = UIGrid(gridSpaces[0], gridSpaces[1], cellSize, uiOffsetPos=uiOffsetPos)
 
+	def getNSpaces(self):
+		return self.grid.getNSpaces()
+
 	def nCards(self):
 		return self.grid.getNOccupied()
 

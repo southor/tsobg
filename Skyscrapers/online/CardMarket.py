@@ -13,8 +13,6 @@ from CardGrid import CardGrid
 
 
 class CardMarket(CardGrid):
-
-	nSpaces = 8
 	
 	def __initCardDict(self, allCards):
 		self.cardDict = {}
@@ -25,13 +23,13 @@ class CardMarket(CardGrid):
 		return self.cardDict[cardId]
 	
 	def __init__(self, uiInterface:UIInterface):
-		super().__init__(uiInterface, "center", (2, 4))
+		super().__init__(uiInterface, "card_market", (3, 5))
 		allCards = createAllCards()
 		self.__initCardDict(allCards)
 		self.deck = Deck(allCards)
 	
 	def fillUp(self):
-		nMissingCards = CardMarket.nSpaces - self.nCards()
+		nMissingCards = self.getNSpaces() - self.nCards()
 		newCards = self.deck.draw(nMissingCards)
 		for card in newCards:
 			self.addCard(card, {"actions":[("take_card", card.id)]})

@@ -38,7 +38,6 @@ def deAliasUIChange(uiChange):
 		newOpts["height"] = height
 	return ("set_div", uiChange[1], newOpts)
 
-
 def combineUIChanges(uiChangeA, uiChangeB):
 	""" Combines the uiChanges if possible and returns the result
 	If the uiChanges cannot be combined then None is returned

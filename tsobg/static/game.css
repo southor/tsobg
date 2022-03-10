@@ -21,13 +21,7 @@
     height: 800px;
 }
 
-.common-surface {
-    margin: 6px 0px;
-    padding: 4px;
-    background-color: #506550;
-}
-
-.player-surface {
+.game-surface {
     margin: 6px 0px;
     padding: 4px;
     background-color: #D0D0D0;

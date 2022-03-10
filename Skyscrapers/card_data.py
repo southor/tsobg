@@ -78,7 +78,7 @@ def __tenantCardDatas():
 				("Catz Mobile Games", 4, "office", 8, [("entitySum>=", ["beauty","free_view"], 4), ("proximityBuildings", 3, "office", "location_nearby")]),
 				("No Fluke Insurances ", 2, "office", 4, [("proximityBuildings", 3, "office", "location_nearby")]),
 				("\"Grounded\" Music Studio ", 1, "office", 2, [("groundFloor",)]),
-				("Dedication Apartment Gym ", 1, "service", 3, [("nTenants", 3, "apartment")]),
+				("Dedication Apartment Gym ", 1, "service", 3, [("nFloorsType", 4, "apartment")]),
 				("Doctors Office ", 1, "service", 4, [("belowFloor", 5), ("proximityBuildings", 5, ["office", "apartment"], "location_nearby")]),
 				("Bernie Burgers ", 1, "service", 3, [("belowFloor", 3), ("proximityBuildings", 3, ["office", "apartment"], "location_nearby")]),
 				("Corner Groceries ", 1, "shop", 2, [("groundFloor",), ("proximityBuildings", 3, "apartment", "location_next_to_including")]),

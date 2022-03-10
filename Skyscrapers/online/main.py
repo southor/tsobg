@@ -5,6 +5,7 @@ from pathlib import Path
 
 pathHere = Path(__file__).absolute().parent
 sys.path.append(str(pathHere.parent.parent))
+
 import tsobg
 
 from SkyscrapersGame import SkyscrapersGame

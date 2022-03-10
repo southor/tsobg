@@ -4,7 +4,7 @@ At start of the game lots can be:
 	park, water, parking, building, abandoned
 Lots can be for sale (randomized throughout game).
 Some lots are never for sale (indicated).
-Lots adjecent to each other are considered neighbors (will be max 4 neighbors).
+Lots adjecent to each other are considered neighbors (so can be up to 4 neighbors).
 
 BUILDING:
 Each building resides on a lot.

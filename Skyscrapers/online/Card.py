@@ -11,7 +11,8 @@ from tsobg import UIInterface
 sys.path.append(str(pathHere.parent))
 import card_data
 
-cardsFolder = "generated_cards_online"
+
+cardsFolder = "generated_graphics/cards_online"
 
 
 def checkCardImageFiles():
@@ -20,7 +21,7 @@ def checkCardImageFiles():
 	if cardsFolderPath.exists() and cardsFolderPath.is_dir():
 		return ""
 	else:
-		return "Card image files not generated! Please run card_graphics.py and restart server."
+		return "Card image files not generated! Please run generate_graphics.py and restart server."
 
 def createAllCards():
 	res = []

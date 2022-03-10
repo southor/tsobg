@@ -26,7 +26,7 @@ class UIState_test(unittest.TestCase):
 		self.assertEqual(UIState.sizeToCSSpxComponents((5, 10)), ("5px", "10px"))
 		self.assertEqual(UIState.sizeToCSSpxComponents([5, "auto"]), ("5px", "10px")) # list should also work
 
-	def testDeAliasUIChange(self):
+	def testDeAliasUIChange1(self):
 		uiChange1 = ("set_div", "foo_div", {"parent":"bar_div", "pos":(10, 20)})
 		uiChange2 = ("set_div", "foo_div", {"color":"red", "size":(30, 40)})
 		uiChange3 = ("set_div", "foo_div", {"parent":"bar_div", "color":"blue"})
@@ -42,7 +42,6 @@ class UIState_test(unittest.TestCase):
 		self.assertEqual(daUIChange2, ("set_div", "foo_div", {"color":"red", "width":"30px", "height":"40px"}))
 		self.assertEqual(daUIChange3, ("set_div", "foo_div", {"parent":"bar_div", "color":"blue"}))
 		self.assertEqual(combUIChange, ("set_div", "foo_div", {"parent":"bar_div", "color":"red", "left":"10px", "top":"20px", "width":"30px", "height":"40px"}))
-
 
 	def testSetDivPrune(self, uiState, id, optsInput, optsExpected = None):
 		prunedUIChange = uiState.pruneUIChange(("set_div", id, optsInput))

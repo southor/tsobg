@@ -9,6 +9,7 @@ pathHere = Path(__file__).absolute().parent
 
 import card_data
 import graphics
+from graphics import graphicsOutputFolder
 
 
 fonts = {
@@ -23,9 +24,10 @@ fontHeights = {
 	"textFontS" : 11 + 3
 }
 
-cardOutputFolder = pathHere / "generated_cards"
-cardDebugOutputFolder = pathHere / "generated_cards_debug"
-cardOnlineOutputFolder = pathHere / "generated_cards_online"
+
+cardOutputFolder = graphicsOutputFolder / "cards"
+cardDebugOutputFolder = graphicsOutputFolder / "cards_debug"
+cardOnlineOutputFolder = graphicsOutputFolder / "cards_online"
 
 cardWidth = 180
 cardHeight = 180
@@ -38,7 +40,6 @@ costSection = (15, 150, 165, 175)
 cardSize = (cardWidth, cardHeight)
 
 cardColor = (255, 255, 255, 255)
-raiseColor = (180, 180, 180, 255)
 
 icons = graphics.getIconImages()
 
@@ -58,19 +59,6 @@ credibilityColors = [(56, 94, 15), (110, 139, 61), (150, 185, 72), (255, 193, 37
 def gridToPos(gridPos):
 	return (gridPos[0] * gridSize, gridPos[1] * gridSize)	
 '''
-
-	
-def rectTopLeft(rect):
-	return (rect[0], rect[1])
-	
-def rectTopRight(rect):
-	return (rect[2], rect[1])
-
-def rectBottomLeft(rect):
-	return (rect[0], rect[3])
-	
-def rectBottomRight(rect):
-	return (rect[2], rect[3])
 	
 def parseHexColor(hexColor):
 	if len(hexColor) == 0:
@@ -293,6 +281,7 @@ def tenantCriteriaText(tenantCriteria):
 		"proximityBuildings" : lambda n,types,location: str(n) + " " + floorTypeText(types, "/") + " buildings " + "@icon:" + location + ";",
 		"proximityLots" : lambda n,lotType,location: str(n) + " " + iconList([lotType, location], " "),
 		"nTenants" : lambda n,type: str(n) + " " + colorTextByType(type, type) + " tenants " + "@icon:location_same_building;",
+		"nFloorsType" : lambda n,type: str(n) + " " + colorTextByType(type, type) + " floors " + "@icon:location_same_building;",
 		"entitySum>=" : lambda termEntities,value: iconList(termEntities, " + ") + " >= " + str(value)
 	}
 	criteriaType,criteriaArgs = card_data.unpackCriteria(tenantCriteria)
@@ -308,43 +297,12 @@ def upgradeEffectText(effect):
 		"materialDiscount" : discountTextMulti,
 		"increaseMaxHeight" : lambda nFloors: "+" + str(nFloors) + " max building height",
 		"ignoreTenantCriteria" : lambda n: "Ignore " + writtenNumber(n) + " criteria when\npicking a tenant",
-		"cardDiscount" : lambda n: "card discound:\n " + str(n) + " @icon:money; for every hire/buy cost",
+		"cardDiscount" : lambda n: "card discount:\n " + str(n) + " @icon:money; for every hire/buy cost",
 		"takeCards" : lambda n: "Take extra cards:\n" + "Discard this card to take up to\n" + str(n) + " cards instead of one during\ncard phase."
 	}
 	effectType,effectArgs = card_data.unpackEffect(effect)
 	return textLambdas[effectType](*effectArgs)
 
-def drawBorder(draw, color, w, h, border):
-	d = border/2 # draw in center of border
-	shape = [(d, d), (w-d-1, d), (w-d-1, h-d-1), (d, h-d-1), (d, d)]
-	draw.line(shape, fill=color, width=0)
-	
-def drawRaise(draw, x, y, w, h, **kwargs):
-	color = kwargs.get("color", raiseColor)
-	if "fill" in kwargs:
-		fillColor = kwargs["fill"]
-		draw.rectangle([x, y, x+w, y+h], fill=fillColor)
-	shape = [(x, y), (x, y+h-1), (x+w-1, y+h-1)]
-	draw.line(shape, fill=color, width=1)
-
-def drawSectionBarrier(draw, color, section, sides="all"):
-	if sides == "all":
-		#drawRect(draw, color, section)
-		draw.rectangle(section, outline=color, width=1)
-	else:
-		# define the 4 possible barriers as shapes
-		borderShapes = {
-			"top": 	  [rectTopLeft(section), 	rectTopRight(section)],
-			"bottom": [rectBottomLeft(section), rectBottomRight(section)],
-			"left":   [rectTopLeft(section), 	rectBottomLeft(section)],
-			"right":  [rectTopRight(section), 	rectBottomRight(section)]
-		}
-		# convert to list if needed
-		if isinstance(sides, str):
-			sides = [sides]
-		# draw all the requested barriers
-		for side in sides:
-			draw.line(borderShapes[side], fill=color, width=0)
 	
 def supplyGainText(rDict, forceTwoLines = False):
 	if rDict:
@@ -375,19 +333,19 @@ def makeTextCard(title, text, textAlign, fontName, **kwargs):
 		for section in [titleSection, textSection, costSection]:
 			#draw.line(rectToShape(section), fill=(200, 200, 200, 255), width=0)
 			draw.rectangle(section, outline=(200, 200, 200, 255), width=1)
-	drawBorder(draw, "grey", cardWidth, cardHeight, cardBorder)
+	graphics.drawBorder(draw, "grey", cardWidth, cardHeight, cardBorder)
 	if doDrawRaise:
-		drawRaise(draw, 0, 0, cardWidth, cardHeight)
+		graphics.drawRaise(draw, 0, 0, cardWidth, cardHeight)
 	if picture:
 		# TODO: replace by using textSection
 		card.paste(picture, (90 - picture.size[0]/2, 90 - picture.size[1]/2))
 	if title:
 		drawText(card, titleSection, title, "titleFont")
-		drawSectionBarrier(draw, "grey", titleSection, "bottom")
+		graphics.drawSectionBarrier(draw, "grey", titleSection, "bottom")
 	if text:
 		drawText(card, textAlign + textSection, text, fontName)
 	if moneyPerTurn or buyPrice:
-		drawSectionBarrier(draw, "grey", costSection, "top")
+		graphics.drawSectionBarrier(draw, "grey", costSection, "top")
 	if moneyPerTurn:
 		drawText(card, ("left",) + costSection, moneyPerTurnTitle + resourcesText({"money":moneyPerTurn}), "textFontS")
 	if buyPrice:
@@ -403,9 +361,9 @@ def makeImageCard(imgPath, **kwargs):
 	offset = (int(offsetX), int(offsetY))
 	card.paste(img, offset)
 	draw = ImageDraw.Draw(card)
-	drawBorder(draw, "grey", cardWidth, cardHeight, cardBorder)
+	graphics.drawBorder(draw, "grey", cardWidth, cardHeight, cardBorder)
 	if doDrawRaise:
-		drawRaise(draw, 0, 0, cardWidth, cardHeight)
+		graphics.drawRaise(draw, 0, 0, cardWidth, cardHeight)
 	return card
 	
 def makeDeckImage(topCardImg, nOutlines):
@@ -417,7 +375,7 @@ def makeDeckImage(topCardImg, nOutlines):
 	offsetX = 0
 	offsetY = expand
 	for i in range(0, nOutlines):
-		drawRaise(draw, offsetX, offsetY, cardWidth, cardHeight, fill=cardColor)
+		graphics.drawRaise(draw, offsetX, offsetY, cardWidth, cardHeight, fill=cardColor)
 		offsetX += spacing
 		offsetY -= spacing
 	img.paste(topCardImg, (offsetX, offsetY))
@@ -528,7 +486,7 @@ def makeUpgradeCard(**kwargs):
 	return makeTextCard(title, text, ("top",), "textFontS", **kwargs)
 
 def makeCardBack(**kwargs):
-	graphicsFilePath = graphics.getGrapchisFilepath("cardBackIllustration.png")
+	graphicsFilePath = graphics.getGraphicsFilepath("cardBackIllustration.png")
 	return makeImageCard(graphicsFilePath, **kwargs)
 	
 # ----------------------------------------
@@ -575,10 +533,5 @@ def makeAllCardImages():
 	cardDatas = card_data.cardDatas
 	makeAndSaveCards(cardDatas) # card fronts
 	makeAndSaveCard(makeCardBack, "cardBack", nDeckImages=6) # card back (with deck images)
-
-if __name__ == "__main__":
-	print("generating cards...")
-	makeAllCardImages()
-	print("done")
 	
 	

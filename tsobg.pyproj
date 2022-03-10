@@ -279,6 +279,12 @@
     <Content Include="tsobg\templates\start.html" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Skyscrapers\board_data.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Skyscrapers\generate_graphics.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Skyscrapers\graphics.py">
       <SubType>Code</SubType>
     </Compile>
@@ -288,7 +294,16 @@
     <Compile Include="Skyscrapers\online\game_settings.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Skyscrapers\online\MainBoard.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Skyscrapers\online\MainBoard_test.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Skyscrapers\online\PlayerArea.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Skyscrapers\Skyscrapers_test.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tsobg\debug.py">
