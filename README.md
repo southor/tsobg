@@ -39,9 +39,10 @@ It is possible to hardcode number of players and some or all player names (also 
 
 ### Unit Tests
 
-Threre are some unit tests for tsobg, run like this:
+Threre are some unit tests for tsobg and Skyscrapers, run like this:
 ```
 python3 tsobg_test.py
+python3 Skyscrapers/Skyscrapers_test.py
 ```
 
 ## How it works

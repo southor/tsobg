@@ -4,7 +4,7 @@ import unittest
 import sys
 from pathlib import Path
 pathHere = Path(__file__).absolute().parent
-sys.path.append(str(pathHere / "Skyscrapers"))
+sys.path.append(str(pathHere / "online"))
 
 from MainBoard_test import MainBoard_test
 
