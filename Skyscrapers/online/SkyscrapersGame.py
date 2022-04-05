@@ -22,7 +22,7 @@ class SkyscrapersGame(GameInterface):
 
 	playerStartSupply = {"money":12}
 
-	gameStateVars = ["playerIDs", "playersSupply", "currentPlayer", "playerAreas", "cardMarket"]
+	gameStateVars = ["playerIDs", "playersSupply", "currentPlayer", "playerAreas", "cardMarket", "mainBoard"]
 
 	def __init__(self, gameManager):
 		self.gameManager = gameManager
@@ -31,8 +31,6 @@ class SkyscrapersGame(GameInterface):
 		msg = checkCardImageFiles()
 		if msg:
 			print(msg)
-		self.cardMarket = CardMarket(gameManager)
-		self.mainBoard = MainBoard(gameManager)
 		
 	# --------------- Helper methods ---------------
 	
@@ -111,7 +109,6 @@ class SkyscrapersGame(GameInterface):
 		for k in self.gameStateVars:
 			if k in selfVars:
 				selfVars.pop(k)
-		self.cardMarket = CardMarket(self.gameManager)
 		
 	# --------------- Action Methods ---------------
 
@@ -150,8 +147,8 @@ class SkyscrapersGame(GameInterface):
 		self.playerIDs = playerIDs
 		self.currentPlayer = 0
 		self.gameManager.stageUIChange(("set_div", "center", {"parent": "game_area", "class": "game-surface", "width":1000}))
-		self.gameManager.stageUIChange(("set_div", "card_market", {"parent": "center", "size": (1000, 600)}))
-		self.gameManager.stageUIChange(("set_div", "main_board", {"parent": "center", "size": (1000, 700), "img":"game_file/generated_graphics/map.png"}))
+		self.cardMarket = CardMarket(self.gameManager)
+		self.mainBoard = MainBoard(self.gameManager)
 		self.__initPlayerSurfaces(playerNames)
 		self.__initPlayerAreas()
 		self.cardMarket.fillUp()

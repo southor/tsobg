@@ -24,8 +24,8 @@ class UIGrid():
 		return None
 	
 	def __init__(self,
-					nRows: int,
 					nColumns: int,
+					nRows: int,
 					uiCellSize: tuple,
 					**kwargs):
 		self.nColumns = nColumns

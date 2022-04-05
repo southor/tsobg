@@ -44,6 +44,7 @@ class MainBoard():
     def __init__(self, uiInterface: UIInterface):
         self.uiInterface = uiInterface
         self.__initGrid(board_data.map)
+        uiInterface.stageUIChange(("set_div", "main_board", {"parent": "center", "size": (1000, 700), "img":"game_file/generated_graphics/map.png"}))
 
     def getNRows(self):
         return len(self.grid)

@@ -23,7 +23,8 @@ class CardMarket(CardGrid):
 		return self.cardDict[cardId]
 	
 	def __init__(self, uiInterface:UIInterface):
-		super().__init__(uiInterface, "card_market", (3, 5))
+		super().__init__(uiInterface, "card_market", (5, 3))
+		uiInterface.stageUIChange(("set_div", "card_market", {"parent": "center"}))
 		allCards = createAllCards()
 		self.__initCardDict(allCards)
 		self.deck = Deck(allCards)

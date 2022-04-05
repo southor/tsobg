@@ -26,6 +26,9 @@ class CardGrid():
 		cellSize = (cardSize[0] + CardGrid.cellPadding,
 					cardSize[1] + CardGrid.cellPadding)
 		self.grid = UIGrid(gridSpaces[0], gridSpaces[1], cellSize, uiOffsetPos=uiOffsetPos)
+		surfaceSize = (gridSpaces[0] * cellSize[0] + CardGrid.cellPadding, # width
+						gridSpaces[1] * cellSize[1] + CardGrid.cellPadding) # height
+		uiInterface.stageUIChange(("set_div", surfaceDivID, {"size": surfaceSize}))
 
 	def getNSpaces(self):
 		return self.grid.getNSpaces()

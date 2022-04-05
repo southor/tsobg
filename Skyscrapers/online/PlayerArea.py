@@ -21,7 +21,7 @@ class PlayerArea(CardGrid):
 	itemsYInterval = 30
 
 	def __init__(self, uiInterface: UIInterface, seatN, surfaceDivId, items):
-		super().__init__(uiInterface, surfaceDivId, (1, 3), uiOffsetPos=(60,10))
+		super().__init__(uiInterface, surfaceDivId, (3, 1), uiOffsetPos=(60,10))
 		self.seatN = seatN
 		self.surfaceDivId = surfaceDivId
 		# init player supply items divs

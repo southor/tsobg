@@ -30,10 +30,14 @@ def deAliasUIChange(uiChange):
 	newOpts = opts.copy()
 	if hasPos:
 		left,top = posToCSSpxComponents(newOpts.pop("pos"))
+		assert(type(left) in [int, float, str])
+		assert(type(top) in [int, float, str])
 		newOpts["left"] = left
 		newOpts["top"] = top
 	if hasSize:
 		width,height = sizeToCSSpxComponents(newOpts.pop("size"))
+		assert(type(width) in [int, float, str])
+		assert(type(height) in [int, float, str])
 		newOpts["width"] = width
 		newOpts["height"] = height
 	return ("set_div", uiChange[1], newOpts)

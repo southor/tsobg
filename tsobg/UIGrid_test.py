@@ -10,7 +10,7 @@ class UIGrid_test(unittest.TestCase):
 	
 	def runTest(self):
 		cellSize = (10, 10)
-		grid = UIGrid(2, 3, cellSize)
+		grid = UIGrid(3, 2, cellSize)
 		self.assertEqual(grid.getNSpaces(), 6)
 		self.assertEqual(grid.getNOccupied(), 0)
 		self.assertEqual(grid.getNUnoccupied(), 6)
