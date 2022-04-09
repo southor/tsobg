@@ -80,6 +80,7 @@ class SkyscrapersGame(GameInterface):
 	def getRootPath(self):
 		return pathHere.parent
 	
+	"""
 	def actionAllowed(self, actionObj, playerId=None):
 		if actionObj[0] == "start_game":
 			return not hasattr(self, "playerIDs")
@@ -88,11 +89,16 @@ class SkyscrapersGame(GameInterface):
 		else:
 			print("Error, unknown action", actionObj)
 			return False
+	"""
 	
-	def performAction(self, actionObj, playerId=None):
-		assert(self.actionAllowed(actionObj))
+	def tryAction(self, actionObj, playerId=None):
+		#assert(self.actionAllowed(actionObj))
 		if actionObj[0] == "start_game":
+			if hasattr(self, "playerIDs"):
+				# game has already been started?
+				return False
 			self.__actionStartGame(actionObj[1], actionObj[2]) # pass playerIDs and playerNames
+			return True
 		elif actionObj[0] == "take_card":
 			if playerId == None:
 				raise RuntimeError("recieved actionObj without playerId: ", actionObj)
@@ -100,8 +106,10 @@ class SkyscrapersGame(GameInterface):
 				self.gameManager.stageLogEntry("card " + actionObj[1] + " was taken")
 			else:
 				self.gameManager.sendMessageToPlayer(("error", "card " + actionObj[1] + " could not be taken, does not exists in the market!"), playerId)
+			return True
 		else:
 			print("Error, unknown action", actionObj)
+			return False
 
 	def resetGameState(self):
 		""" reset game state to the same as after __init__"""

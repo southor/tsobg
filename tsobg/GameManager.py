@@ -77,10 +77,11 @@ class GameManager(UIInterface):
 	def clientAction(self, currentRevertN, stateN, actionObj, playerId = None):
 		if stateN != self.currentStateN:
 			return False # TODO: respond 409 conflict?
-		if self.game.actionAllowed(actionObj, playerId=playerId):
+		if self.game.tryAction(actionObj, playerId=playerId):
+		#if self.game.actionAllowed(actionObj, playerId=playerId):
 			# advance game state
 			self.actionHistory.append((playerId, actionObj))
-			self.game.performAction(actionObj, playerId=playerId)
+			#self.game.performAction(actionObj, playerId=playerId)
 			self.currentStateN += 1
 			for uiHistory in self.playerUIHistories.values():
 				uiHistory.commitUIChanges()
@@ -127,7 +128,10 @@ class GameManager(UIInterface):
 				uiHistory.revertTo(0)
 			for playerId,actionObj in actionsToReplay:
 				self.clientAction(self.currentRevertN, self.currentStateN, actionObj, playerId = playerId)
-			msg = "Reverted from game state {} to {}".format(fromStateN, toStateN)
+			if stateN <= 0:
+				msg = "Current game was cleared. A new game has been setup.".format(fromStateN, toStateN)
+			else:
+				msg = "Reverted from game state {} to {}".format(fromStateN, toStateN)
 			print(msg)
 			self.sendMessageToPlayers(msg)
 			return msg

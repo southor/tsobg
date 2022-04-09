@@ -7,10 +7,13 @@ class GameInterface:
 	def getRootPath(self):
 		pass
 
-	def actionAllowed(self, actionObj, playerId=None):
-		pass
+	#def actionAllowed(self, actionObj, playerId=None):
+	#	pass
 	
-	def performAction(self, actionObj, playerId=None):
+	#def performAction(self, actionObj, playerId=None):
+	#	pass
+
+	def tryAction(self, actionObj, playerId=None):
 		pass
 	
 	def resetGameState(self):
