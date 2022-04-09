@@ -8,6 +8,7 @@ from .UIInterface import UIInterface
 from .UIHistory import UIHistory
 from .GameLog import GameLog
 from .UIState import deAliasUIChange
+from . import random
 
 class GameManager(UIInterface):
 	
@@ -15,6 +16,7 @@ class GameManager(UIInterface):
 	#def __init__(self, name, gameRootPath: Path):
 		#self.name = name
 		#self.gameRootPath = gameRootPath
+		random.seed()
 		self.actionHistory = [] # A list of tuples (playerId, actionObj)
 		self.playerUIHistories = {} # map from playerId to UIHistory object
 		self.currentRevertN = 0
@@ -107,13 +109,16 @@ class GameManager(UIInterface):
 		return self.playerUIHistories and not self.gameStarted()
 
 	def revertToStateN(self, stateN):
+		if stateN <= 0:
+			random.seed()
 		toStateN = GameManager.__clampNumber(stateN, 1, self.currentStateN)
 		if toStateN < self.currentStateN:
 			# revert game state
 			# go back to game state zero, and rebuild everything from there
+			random.reset()
 			fromStateN = self.currentStateN
 			self.gameLog.clearLogEntries(0)
-			actionsToReplay = self.actionHistory[0:stateN]
+			actionsToReplay = self.actionHistory[0:toStateN]
 			self.actionHistory = []
 			self.game.resetGameState()
 			self.currentRevertN += 1

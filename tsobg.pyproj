@@ -319,6 +319,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tsobg\GameManager.py" />
+    <Compile Include="tsobg\random.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="tsobg\settings.py">
       <SubType>Code</SubType>
     </Compile>

@@ -166,7 +166,7 @@ def renderTokenError(token):
 def adminPage():
 	token = flask.request.args.get('token')
 	if token == settings.adminToken:
-		return render_template('admin.html', gameName=_getGameName(), nPlayers=nPlayers, adminToken=token)
+		return render_template('admin.html', gameName=_getGameName(), nPlayers=nPlayers, currentStateN=gameManager.currentStateN, adminToken=token)
 	else:
 		return renderTokenError(token)
 

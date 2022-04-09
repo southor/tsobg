@@ -14,12 +14,14 @@
 <body>
 	<h1>{{gameName}} Admin</h1>
 	<p>{{nPlayers}} player game</p>
+	<p>current stateN: {{currentStateN}}</p>
 	<form onsubmit="ready()">
 		<label for="input_state_n">Revert to stateN:</label><br>
 		<input type="number" id="input_state_n"><br>
 	</form>
-	<button id="revert_button" onclick="revert()">Revert</button>
-	<br />
+	<button id="revert_button" onclick="revert()">Revert</button><br />
+	Revert to 1 will reset to the beginning just after setup<br />
+	Revert to 0 will reshuffle everything and re-setup the game<br />
 	<br />
 	<a href="/debug?token={{adminToken}}">Debug vars</a>
 </body>

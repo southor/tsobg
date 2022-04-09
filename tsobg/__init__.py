@@ -6,3 +6,4 @@ from .UIInterface import UIInterface
 from .GameInterface import GameInterface
 from .Deck import Deck
 from .UIGrid import UIGrid
+from . import random
