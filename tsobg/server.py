@@ -125,10 +125,12 @@ def clientAction(playerId, playerName, revertN, stateN):
 		flask.abort(400)
 	actionObj = flask.request.get_json()
 	print("client action:", actionObj)
-	if gameManager.clientAction(int(revertN), int(stateN), actionObj, playerId=playerId):
-		return updateClient(playerId, playerName, revertN, stateN)
-	else:
-		return Response("action not allowed", status=403, mimetype='application/json')
+	#if gameManager.clientAction(int(revertN), int(stateN), actionObj, playerId=playerId):
+	#	return updateClient(playerId, playerName, revertN, stateN)
+	#else:
+	#	return Response("action not allowed", status=403, mimetype='application/json')
+	gameManager.clientAction(int(revertN), int(stateN), actionObj, playerId=playerId)
+	return updateClient(playerId, playerName, revertN, stateN)
 
 @app.route("/game/<playerId>/<playerName>/game_file/<path:gameFilePath>", methods=['GET'])
 def gameFile(playerId, playerName, gameFilePath):

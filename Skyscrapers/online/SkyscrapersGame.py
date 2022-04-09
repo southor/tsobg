@@ -22,7 +22,7 @@ class SkyscrapersGame(GameInterface):
 
 	playerStartSupply = {"money":12}
 
-	gameStateVars = ["playerIDs", "playersSupply", "currentPlayer", "playerAreas", "cardMarket", "mainBoard"]
+	gameStateVars = ["playerIDs", "playersSupply", "playerAreas", "cardMarket", "mainBoard", "gamePhase", "currentPlayer"]
 
 	def __init__(self, gameManager):
 		self.gameManager = gameManager
@@ -79,6 +79,19 @@ class SkyscrapersGame(GameInterface):
 
 	def getRootPath(self):
 		return pathHere.parent
+
+	def getCurrentPlayerID(self):
+		if not self.playerIDs:
+			return None
+		return self.playerIDs[self.currentPlayer]
+
+	def getCurrentPlayerName(self):
+		if not self.playerNames:
+			return None
+		return self.playerNames[self.currentPlayer]
+
+	def nextPlayer(self):
+		self.currentPlayer = (self.currentPlayer + 1) % len(self.playerIDs)
 	
 	"""
 	def actionAllowed(self, actionObj, playerId=None):
@@ -92,24 +105,37 @@ class SkyscrapersGame(GameInterface):
 	"""
 	
 	def tryAction(self, actionObj, playerId=None):
+		#
+		#""" Returns None if action succedded, returns a string with message if action failed """
 		#assert(self.actionAllowed(actionObj))
-		if actionObj[0] == "start_game":
+		action = actionObj[0]
+		if action == "start_game":
 			if hasattr(self, "playerIDs"):
 				# game has already been started?
-				return False
+				raise RuntimeError("Tried to start game but playerIDs is already set in SkyscrapersGame object")
 			self.__actionStartGame(actionObj[1], actionObj[2]) # pass playerIDs and playerNames
 			return True
-		elif actionObj[0] == "take_card":
+		if playerId != self.getCurrentPlayerID():
 			if playerId == None:
 				raise RuntimeError("recieved actionObj without playerId: ", actionObj)
+			else:
+				#return "It is not your turn!"
+				self.gameManager.sendMessageToPlayer(("info", "It is not your turn!"), playerId)
+				return False
+		if action not in ["take_card"]:
+			self.gameManager.sendMessageToPlayer(("error", "Unknown action: " + str(actionObj)), playerId)
+			return False
+		if self.gamePhase == "cards_phase" and action == "take_card":
 			if self.cardMarket.removeCard(actionObj[1]):
-				self.gameManager.stageLogEntry("card " + actionObj[1] + " was taken")
+				self.gameManager.stageLogEntry(self.getCurrentPlayerName() + " took " + actionObj[1])
+				self.nextPlayer()
+				return True
 			else:
 				self.gameManager.sendMessageToPlayer(("error", "card " + actionObj[1] + " could not be taken, does not exists in the market!"), playerId)
-			return True
+				return False
 		else:
-			print("Error, unknown action", actionObj)
-			return False
+			self.gameManager.sendMessageToPlayer(("info", "Action {} not allowed in the {} phase.".format(action, self.gamePhase)), playerId)
+			
 
 	def resetGameState(self):
 		""" reset game state to the same as after __init__"""
@@ -153,6 +179,8 @@ class SkyscrapersGame(GameInterface):
 			self.gameManager.sendMessageToPlayers(("error", text))
 		# init game
 		self.playerIDs = playerIDs
+		self.playerNames = playerNames
+		self.gamePhase = "cards_phase"
 		self.currentPlayer = 0
 		self.gameManager.stageUIChange(("set_div", "center", {"parent": "game_area", "class": "game-surface", "width":1000}))
 		self.cardMarket = CardMarket(self.gameManager)
