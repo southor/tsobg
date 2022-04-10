@@ -32,16 +32,23 @@ class UIGrid():
 		self.nRows = nRows
 		self.uiCellSize = uiCellSize
 		self.uiOffsetPos = kwargs.get("uiOffsetPos", (0, 0))
+		self.nSpaces = kwargs.get("nSpaces", nColumns * nRows)
+		if self.nSpaces > nColumns * nRows:
+			raise RuntimeError("nSpaces={} is too many for grid {}x{}.".format(self.nSpaces, nColumns, nRows))
 		self.__initCells()
 		
 	def getNSpaces(self):
-		return self.nRows * self.nColumns
+		return self.nSpaces
 
 	def getNOccupied(self):
 		return self.nOccupied
 
 	def getNUnoccupied(self):
-		return self.getNSpaces() - self.nOccupied
+		return self.nSpaces - self.nOccupied
+
+	def isFull(self):
+		assert(self.nOccupied <= self.nSpaces)
+		return self.nOccupied >= self.nSpaces
 	
 	def addItem(self, item):
 		""" 
@@ -49,13 +56,15 @@ class UIGrid():
 		returns ui position of cell that was taken
 		return None if no free cell exists
 		"""
+		if self.isFull():
+			return None
 		for rowN,row in enumerate(self.rows):
 			for colN,cell in enumerate(row):
 				if cell == None:
 					row[colN] = item
 					self.nOccupied += 1
 					return self.__getCellUIPos(rowN, colN)
-		return None
+		raise RuntimeError("failed to add item even though there should be space!")
 	
 	def removeItem(self, item):
 		gridPos = self.__findItem(item)
