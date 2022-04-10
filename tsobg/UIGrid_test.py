@@ -23,6 +23,11 @@ class UIGrid_test(unittest.TestCase):
 		self.assertEqual(grid.addItem("horse"), (0, 10))
 		self.assertEqual(grid.addItem("chicken"), (10, 10))
 		self.assertEqual(grid.addItem("dog"), (20, 10))
+		self.assertEqual(grid.getNOccupied(), 6)
+		self.assertEqual(grid.getNSpaces(), 6)
+		self.assertEqual(grid.addItem("donkey"), None) # grid should be full
+		self.assertEqual(grid.getNOccupied(), 6)
+		self.assertEqual(grid.getNSpaces(), 6)
 		self.assertEqual(grid.removeItem("cat"), False)
 		self.assertEqual(grid.removeItem("cow"), True)
 		self.assertEqual(grid.getNOccupied(), 5)

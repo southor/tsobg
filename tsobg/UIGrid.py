@@ -43,9 +43,12 @@ class UIGrid():
 	def getNUnoccupied(self):
 		return self.getNSpaces() - self.nOccupied
 	
-	# puts the item in the first free cell
-	# returns ui position of cell that was taken
 	def addItem(self, item):
+		""" 
+		puts the item in the first free cell
+		returns ui position of cell that was taken
+		return None if no free cell exists
+		"""
 		for rowN,row in enumerate(self.rows):
 			for colN,cell in enumerate(row):
 				if cell == None:
@@ -60,9 +63,7 @@ class UIGrid():
 			rowN,colN = gridPos
 			self.rows[rowN][colN] = None
 			self.nOccupied -= 1
-			return True
-		else:
-			return False
+		return bool(gridPos)
 		
 		
 	"""

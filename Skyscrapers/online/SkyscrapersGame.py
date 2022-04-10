@@ -80,15 +80,20 @@ class SkyscrapersGame(GameInterface):
 	def getRootPath(self):
 		return pathHere.parent
 
-	def getCurrentPlayerID(self):
+	def getCurrentPlayerID(self) -> str:
 		if not self.playerIDs:
 			return None
 		return self.playerIDs[self.currentPlayer]
 
-	def getCurrentPlayerName(self):
+	def getCurrentPlayerName(self) -> str:
 		if not self.playerNames:
 			return None
 		return self.playerNames[self.currentPlayer]
+
+	def getCurrentPlayerArea(self) -> PlayerArea:
+		if not self.playerAreas:
+			return None
+		return self.playerAreas[self.currentPlayer]
 
 	def nextPlayer(self):
 		self.currentPlayer = (self.currentPlayer + 1) % len(self.playerIDs)
@@ -105,16 +110,25 @@ class SkyscrapersGame(GameInterface):
 	"""
 	
 	def tryAction(self, actionObj, playerId=None):
-		#
-		#""" Returns None if action succedded, returns a string with message if action failed """
 		#assert(self.actionAllowed(actionObj))
+		gameHasStarted = hasattr(self, "playerIDs")
 		action = actionObj[0]
+		if action not in ["start_game", "take_card"]:
+			self.gameManager.sendMessageToPlayer(("error", "Unknown action: " + str(actionObj)), playerId)
+			return False
 		if action == "start_game":
-			if hasattr(self, "playerIDs"):
-				# game has already been started?
+			if gameHasStarted:
+				# game has already been started
 				raise RuntimeError("Tried to start game but playerIDs is already set in SkyscrapersGame object")
 			self.__actionStartGame(actionObj[1], actionObj[2]) # pass playerIDs and playerNames
 			return True
+		if not gameHasStarted:
+			# game has not been started yet
+			if playerId == None:
+				raise RuntimeError("Received invalid actionObj (game not started yet): " + str(actionObj))
+			else:
+				self.gameManager.sendMessageToPlayer(("error", "Cannot perform action {}, game has not started yet!".format(action)), playerId)
+				return False
 		if playerId != self.getCurrentPlayerID():
 			if playerId == None:
 				raise RuntimeError("recieved actionObj without playerId: ", actionObj)
@@ -122,17 +136,8 @@ class SkyscrapersGame(GameInterface):
 				#return "It is not your turn!"
 				self.gameManager.sendMessageToPlayer(("info", "It is not your turn!"), playerId)
 				return False
-		if action not in ["take_card"]:
-			self.gameManager.sendMessageToPlayer(("error", "Unknown action: " + str(actionObj)), playerId)
-			return False
 		if self.gamePhase == "cards_phase" and action == "take_card":
-			if self.cardMarket.removeCard(actionObj[1]):
-				self.gameManager.stageLogEntry(self.getCurrentPlayerName() + " took " + actionObj[1])
-				self.nextPlayer()
-				return True
-			else:
-				self.gameManager.sendMessageToPlayer(("error", "card " + actionObj[1] + " could not be taken, does not exists in the market!"), playerId)
-				return False
+			return self.__actionTakeCard(actionObj[1])
 		else:
 			self.gameManager.sendMessageToPlayer(("info", "Action {} not allowed in the {} phase.".format(action, self.gamePhase)), playerId)
 			
@@ -190,6 +195,21 @@ class SkyscrapersGame(GameInterface):
 		self.cardMarket.fillUp()
 		self.mainBoard.setFloors(3,1, ["shop", "office", "office"])
 		self.gameManager.stageLogEntry("Game started, players: " + ", ".join(playerNames))
+
+	def __actionTakeCard(self, cardId):
+		playerArea = self.getCurrentPlayerArea()
+		if playerArea.nFreeSpaces() == 0:
+			self.gameManager.sendMessageToPlayer(("info", "Cannot take card, player area is full!"), self.getCurrentPlayerID())
+			return False
+		card = self.cardMarket.removeCard(cardId)
+		if card:
+			playerArea.addCard(card)
+			self.gameManager.stageLogEntry(self.getCurrentPlayerName() + " took " + cardId)
+			self.nextPlayer()
+			return True
+		else:
+			self.gameManager.sendMessageToPlayer(("error", "card " + cardId + " could not be taken, does not exist in the market!"), self.getCurrentPlayerID())
+			return False
 		
 		
 		

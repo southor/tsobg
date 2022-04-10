@@ -35,8 +35,12 @@ class CardMarket(CardGrid):
 		for card in newCards:
 			self.addCard(card, {"actions":[("take_card", card.id)]})
 
-	def removeCard(self, cardId):
+	def removeCard(self, cardId) -> Card:
+		""" If card exists it is removed and returned. otherwise None is returned. """
 		card = self.__lookupCardId(cardId)
-		return super().removeCard(card, {"actions":[]})
+		if super().removeCard(card, {"actions":[]}):
+			return card
+		else:
+			return None
 	
 	

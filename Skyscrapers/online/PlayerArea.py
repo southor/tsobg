@@ -21,7 +21,7 @@ class PlayerArea(CardGrid):
 	itemsYInterval = 30
 
 	def __init__(self, uiInterface: UIInterface, seatN, surfaceDivId, items):
-		super().__init__(uiInterface, surfaceDivId, (3, 1), uiOffsetPos=(60,10))
+		super().__init__(uiInterface, surfaceDivId, (2, 1), uiOffsetPos=(50,0))
 		self.seatN = seatN
 		self.surfaceDivId = surfaceDivId
 		# init player supply items divs
@@ -42,5 +42,7 @@ class PlayerArea(CardGrid):
 		textDivID = self.__getPlayerSupplyItemDivID(itemName, "text")
 		self.uiInterface.stageUIChange(("set_div", textDivID, {"text":str(amount)}))
 
+	def addCard(self, card:Card):
+		return super().addCard(card, {"actions":[("select_card", card.id)]})
 
 
