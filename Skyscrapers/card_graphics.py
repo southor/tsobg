@@ -51,6 +51,13 @@ typeColors = {
 	"service" : (200, 0, 255)
 }
 
+
+textColor = (0, 0, 0)
+gainColor = (0, 135, 0)
+costColor = (210, 0, 0)
+
+
+
 credibilityNames = ["AAA", "AA", "A", "BBB", "BB", "B", "CCC"]
 credibilityColors = [(56, 94, 15), (110, 139, 61), (150, 185, 72), (255, 193, 37), (255, 134, 0), (224, 64, 6), (128, 42, 42)]
 
@@ -69,6 +76,9 @@ def parseHexColor(hexColor):
 
 def colorToHexStr(color):
 	return "".join(["{:02x}".format(val) for val in color])
+
+def colorToColorDef(color):
+	return "@color:" + colorToHexStr(color) + ";"
 	
 # can only deal with positive numbers
 def writtenNumber(n: int):
@@ -246,18 +256,23 @@ def drawText(img, posInfo, text, fontName):
 		#print(part[1] + " w: ", w)
 		x += w
 
-def resourcesText(rDict):
+def resourcesText(rDict, numberColor=None, endColor=None):
 	resourceList = []
 	for entity in rDict:
 		resourceStr = str(rDict[entity]) + " @icon:" + entity + ";"
 		resourceList.append(resourceStr)
-	return "  ".join(resourceList)
+	resourceText = ""
+	if numberColor:
+		resourceText += colorToColorDef(numberColor)
+	resourceText += "  ".join(resourceList)
+	resourceText += colorToColorDef(endColor if endColor else textColor)
+	return resourceText
 	
 def colorTextByType(text, type):
-	return "@color:" + colorToHexStr(typeColors[type]) + ";" + text + "@color:previous;"
+	return colorToColorDef(typeColors[type]) + text + "@color:previous;"
 	
 def colorTextByCredibility(text, credibility):
-	return "@color:" + colorToHexStr(credibilityColors[credibility]) + ";" + text + "@color:previous;"
+	return colorToColorDef(credibilityColors[credibility]) + text + "@color:previous;"
 
 def iconList(entities, delimiter):
 	if isinstance(entities, str):
@@ -307,7 +322,7 @@ def upgradeEffectText(effect):
 def supplyGainText(rDict, forceTwoLines = False):
 	if rDict:
 		useSecondLine = forceTwoLines or len(rDict.keys()) > 1
-		return "Add to supply:" + ("\n" if useSecondLine else " ") + resourcesText(rDict)
+		return "Add to supply:" + ("\n" if useSecondLine else " ") + resourcesText(rDict, gainColor)
 	else:
 		return ""
 
@@ -317,15 +332,19 @@ def makeTextCard(title, text, textAlign, fontName, **kwargs):
 	buyPrice = kwargs.get("buyPrice", None)
 	moneyPerTurn = None
 	moneyPerTurnTitle = None
+	perTurnNumberColor = None
 	if "hirePrice" in kwargs:
 		moneyPerTurn = kwargs["hirePrice"]
 		moneyPerTurnTitle = "Hire: "
+		perTurnNumberColor = costColor
 	if "rent" in kwargs:
 		moneyPerTurn = kwargs["rent"]
 		moneyPerTurnTitle = "Rent: "
+		perTurnNumberColor = gainColor
 	if "interest" in kwargs:
 		moneyPerTurn = kwargs["interest"]
 		moneyPerTurnTitle = "Interest: "
+		perTurnNumberColor = costColor
 	debugSections = kwargs.get("debugSections", False)
 	card = Image.new('RGBA', (cardWidth, cardHeight), cardColor)
 	draw = ImageDraw.Draw(card)
@@ -347,9 +366,9 @@ def makeTextCard(title, text, textAlign, fontName, **kwargs):
 	if moneyPerTurn or buyPrice:
 		graphics.drawSectionBarrier(draw, "grey", costSection, "top")
 	if moneyPerTurn:
-		drawText(card, ("left",) + costSection, moneyPerTurnTitle + resourcesText({"money":moneyPerTurn}), "textFontS")
+		drawText(card, ("left",) + costSection, moneyPerTurnTitle + resourcesText({"money":moneyPerTurn}, perTurnNumberColor), "textFontS")
 	if buyPrice:
-		drawText(card, ("right",) + costSection, "Buy: " + resourcesText({"money":buyPrice}), "textFontS")
+		drawText(card, ("right",) + costSection, "Buy: " +  resourcesText({"money":buyPrice}, costColor), "textFontS")
 	return card
 
 def makeImageCard(imgPath, **kwargs):
@@ -444,7 +463,7 @@ def makeTenantCard(**kwargs):
 def makeLoanCard(**kwargs):
 	amount = kwargs.pop("amount")
 	interests = kwargs.pop("interests")
-	text = resourcesText({"money": amount}) + "\n"
+	text = resourcesText({"money": amount}, gainColor) + "\n"
 	if interests:
 		text += "Interest:\n"
 		idxRange = range(0, len(credibilityNames))
@@ -471,7 +490,7 @@ def makeProductionCard(**kwargs):
 	if gain:
 		text += supplyGainText(gain) + "@newline:1.5;"
 	if production:
-		text += "Production: " + resourcesText(production)
+		text += "Production: " + resourcesText(production, gainColor)
 	return makeTextCard(title, text, ("top",), "textFontL", **kwargs)
 	
 # buyPrice: the purchase cost in money
