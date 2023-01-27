@@ -162,6 +162,15 @@
     <Content Include="tsobg\templates\start.html" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="RepelloLab\game_settings.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="RepelloLab\main.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="RepelloLab\RepelloLab.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Skyscrapers\board_data.py">
       <SubType>Code</SubType>
     </Compile>
@@ -240,6 +249,7 @@
     <Compile Include="tsobg\__init__.py" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="RepelloLab\" />
     <Folder Include="Skyscrapers" />
     <Folder Include="Skyscrapers\graphics" />
     <Folder Include="Skyscrapers\icons" />

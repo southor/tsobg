@@ -1,5 +1,3 @@
 _backup/
-generated_cards/
-generated_cards_debug/
-generated_cards_online/
+generated_graphics/
 online/game_settings.py

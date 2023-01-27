@@ -19,6 +19,10 @@ class CardGrid():
 	
 	cellPadding = 10
 
+	def __updateSurfaceDivSize(self):
+		surfaceSize = self.grid.getCurrentUISize()
+		self.uiInterface.stageUIChange(("set_div", self.surfaceDivID, {"size": surfaceSize}))
+
 	def __init__(self, uiInterface:UIInterface, surfaceDivID, gridSpaces:tuple, **kwargs):
 		uiOffsetPos = kwargs.get("uiOffsetPos", (0, 0))
 		uiOffsetPos = (uiOffsetPos[0] + CardGrid.cellPadding,
@@ -27,19 +31,22 @@ class CardGrid():
 		self.surfaceDivID = surfaceDivID
 		cellSize = (cardSize[0] + CardGrid.cellPadding,
 					cardSize[1] + CardGrid.cellPadding)
-		self.grid = UIGrid(gridSpaces[0], gridSpaces[1], cellSize, uiOffsetPos=uiOffsetPos)
-		surfaceSize = (uiOffsetPos[0] + gridSpaces[0] * cellSize[0], # width
-						uiOffsetPos[1] + gridSpaces[1] * cellSize[1]) # height
-		uiInterface.stageUIChange(("set_div", surfaceDivID, {"size": surfaceSize}))
+		maxNCards = kwargs.get("maxNCards", gridSpaces[0] * gridSpaces[1])
+		self.grid = UIGrid(gridSpaces[0], gridSpaces[1], cellSize, uiOffsetPos=uiOffsetPos, maxNItems=maxNCards)
+		#surfaceSize = (uiOffsetPos[0] + gridSpaces[0] * cellSize[0], # width
+		#				uiOffsetPos[1] + gridSpaces[1] * cellSize[1]) # height
+		#surfaceSize = self.grid.getCurrentUISize()
+		#uiInterface.stageUIChange(("set_div", surfaceDivID, {"size": surfaceSize}))
+		self.__updateSurfaceDivSize()
 
 	def getNSpaces(self):
-		return self.grid.getNSpaces()
+		return self.grid.getMaxNItems()
 
 	def nCards(self):
-		return self.grid.getNOccupied()
+		return self.grid.getNItems()
 
 	def nFreeSpaces(self):
-		return self.grid.getNSpaces() - self.grid.getNOccupied()
+		return self.grid.getMaxNItems() - self.grid.getNItems()
 
 	def addCard(self, card:Card, extraDivOpts:dict = {}):
 		""" 
@@ -48,6 +55,8 @@ class CardGrid():
 		"""
 		uiPos = self.grid.addItem(card)
 		if uiPos:
+			if self.grid.growthHappened(clearFlag=True):
+				self.__updateSurfaceDivSize()
 			divOpts = {"parent":self.surfaceDivID, "pos":uiPos}
 			divOpts.update(extraDivOpts)
 			card.setDiv(self.uiInterface, **divOpts)

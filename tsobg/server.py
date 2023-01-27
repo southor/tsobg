@@ -1,4 +1,6 @@
-import secrets, logging, flask
+import secrets
+import logging
+import flask
 from flask import Flask, render_template, jsonify, send_file, Response
 app = Flask(__name__)
 
