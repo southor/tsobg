@@ -7,12 +7,13 @@ class UIGrid():
 		for i in range(0, self.nRows):
 			row = [None]*self.nColumns
 			self.rows.append(row)
-			
-	# returns ui position (pixelX, pixelY)
-	def __getCellUIPos(self, rowN, colN):
-		x = self.uiOffsetPos[0] + colN * self.uiCellSize[0]
-		y = self.uiOffsetPos[1] + rowN * self.uiCellSize[1]
-		return x,y
+
+	def __findItem(self, item):
+		for rowN,row in enumerate(self.rows):
+			for colN,cell in enumerate(row):
+				if cell:
+					return rowN,colN
+		return None
 	
 	# returns grid position (rowN, colN)
 	def __findItem(self, item):
@@ -45,18 +46,17 @@ class UIGrid():
 		self.growFlag = True
 	
 	def __init__(self,
-					nColumns: int,
-					nRows: int,
+					nColsRows: tuple,
 					uiCellSize: tuple,
 					**kwargs):
 		self.uiCellSize = uiCellSize
 		self.uiOffsetPos = kwargs.get("uiOffsetPos", (0, 0))
-		self.nColumns = nColumns
-		self.nRows = nRows
+		self.nColumns = nColsRows[0]
+		self.nRows = nColsRows[1]
 		self.nItems = 0
-		self.minNColumns = nColumns
-		self.minNRows = nRows
-		self.maxNItems = kwargs.get("maxNItems", nColumns * nRows)
+		self.minNColumns = nColsRows[0]
+		self.minNRows = nColsRows[1]
+		self.maxNItems = kwargs.get("maxNItems", nColsRows[0] * nColsRows[1])
 		self.autoGrow = kwargs.get("autoGrow", "rows")
 		self.growFlag = kwargs.get("growFlag", False)
 		#if self.nSpaces > nColumns * nRows:
@@ -82,6 +82,12 @@ class UIGrid():
 	def getNItems(self):
 		return self.nItems
 
+	def getNRows(self):
+		return self.nRows
+
+	def getNColumns(self):
+		return self.nColumns
+
 	#def getNFreeSpaces(self):
 	#	""" Number of items that can be added before maxNItems is reached """
 	#	return self.maxNItems - self.nItems
@@ -100,6 +106,22 @@ class UIGrid():
 		if clearFlag:
 			self.growFlag = False
 		return res
+
+	# returns ui position (pixelX, pixelY)
+	def getCellUIPos(self, rowN, colN):
+		x = self.uiOffsetPos[0] + colN * self.uiCellSize[0]
+		y = self.uiOffsetPos[1] + rowN * self.uiCellSize[1]
+		return x,y
+
+	def getItemGridPos(self, item):
+		return self.__findItem(item)
+
+	def getItem(self):
+		gridPos = __findItem(self)
+		if gridPos:
+			rowN,colN = gridPos
+			return self.rows[rowN][colN]
+		return None
 	
 	def addItem(self, item):
 		""" 
@@ -119,7 +141,7 @@ class UIGrid():
 		assert(self.rows[rowN][colN] == None)
 		self.rows[rowN][colN] = item
 		self.nItems += 1
-		return self.__getCellUIPos(rowN, colN)
+		return self.getCellUIPos(rowN, colN)
 	
 	def removeItem(self, item):
 		gridPos = self.__findItem(item)
@@ -128,6 +150,27 @@ class UIGrid():
 			self.rows[rowN][colN] = None
 			self.nItems -= 1
 		return bool(gridPos)
+
+	def getItemAtCell(self, rowN, colN):
+		return self.rows[rowN][colN]
+
+	def addItemAtCell(self, item, rowN, colN):
+		"""
+		returns ui position of the cell.
+		return None if the space was not free
+		"""
+		if self.rows[rowN][colN]:
+			return None
+		self.rows[rowN][colN] = item
+		return self.getCellUIPos(rowN, colN)
+
+	def removeItemAtCell(self, rowN, colN):
+		"""
+		returns the item that was removed, None otherwise
+		"""
+		item = self.rows[rowN][colN]
+		self.rows[rowN][colN] = None
+		return item
 		
 		
 	"""	

@@ -11,7 +11,7 @@ class UIGrid_test(unittest.TestCase):
 	def runTest(self):
 		cellSize = (10, 10)
 		# test without maxNItems being set
-		grid = UIGrid(3, 2, cellSize)
+		grid = UIGrid((3,2), cellSize)
 		self.assertEqual(grid.getMaxNItems(), 6)
 		self.assertEqual(grid.getNItems(), 0)
 		self.assertEqual(grid.isFull(), False)
@@ -43,7 +43,7 @@ class UIGrid_test(unittest.TestCase):
 		self.assertEqual(grid.addItem("cat"), (10, 0))
 		self.assertEqual(grid.getNItems(), 4)
 		# test with ui offset and maxNItems smaller than grid
-		grid = UIGrid(2, 2, cellSize, uiOffsetPos=(5, 5), maxNItems=3)
+		grid = UIGrid((2,2), cellSize, uiOffsetPos=(5, 5), maxNItems=3)
 		self.assertEqual(grid.getMaxNItems(), 3)
 		self.assertEqual(grid.getNItems(), 0)
 		self.assertEqual(grid.addItem("sheep"), (5,5))
@@ -64,7 +64,7 @@ class UIGrid_test(unittest.TestCase):
 		self.assertEqual(grid.getMaxNItems(), 3)
 		self.assertEqual(grid.getNItems(), 3)
 		# test with maxNItems larger than grid (allow grow nColumns)
-		grid = UIGrid(1, 2, cellSize, maxNItems=3, autoGrow="columns")
+		grid = UIGrid((1,2), cellSize, maxNItems=3, autoGrow="columns")
 		self.assertEqual(grid.getMaxNItems(), 3)
 		self.assertEqual(grid.getNItems(), 0)
 		self.assertEqual(grid.addItem("sheep"), (0,0))
@@ -73,12 +73,12 @@ class UIGrid_test(unittest.TestCase):
 		self.assertEqual(grid.isFull(), False)
 		self.assertEqual(grid.addItem("horse"), (10,0)) # should trigger growth
 		self.assertEqual(grid.growthHappened(), True)
-		self.assertEqual(grid.growthHappened(clear = True), True)
-		self.assertEqual(grid.growthHappened(clear = True), False)
+		self.assertEqual(grid.growthHappened(clearFlag = True), True)
+		self.assertEqual(grid.growthHappened(clearFlag = True), False)
 		self.assertEqual(grid.addItem("dog"), None) # reached maxNItems
 		self.assertEqual(grid.isFull(), True)
 		# test with maxNItems larger than grid (autoGrow nRows instead)
-		grid = UIGrid(1, 2, cellSize, maxNItems=3, autoGrow="rows")
+		grid = UIGrid((1,2), cellSize, maxNItems=3, autoGrow="rows")
 		self.assertEqual(grid.addItem("sheep"), (0,0))
 		self.assertEqual(grid.addItem("cow"), (0,10))
 		self.assertEqual(grid.growthHappened(), False)

@@ -162,13 +162,28 @@
     <Content Include="tsobg\templates\start.html" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="RepelloLab\board_data.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="RepelloLab\GameBoard.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="RepelloLab\game_settings.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="RepelloLab\main.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="RepelloLab\GameBoard_Old.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="RepelloLab\PlayerArea.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="RepelloLab\RepelloLab.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="RepelloLab\Token.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Skyscrapers\board_data.py">
@@ -201,6 +216,9 @@
     <Compile Include="tsobg\debug.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="tsobg\FreeLayout.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="tsobg\GameInterface.py">
       <SubType>Code</SubType>
     </Compile>
@@ -211,6 +229,15 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tsobg\GameManager.py" />
+    <Compile Include="tsobg\GameObject.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="tsobg\GridLayout.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="tsobg\ObjectGrid_Old.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="tsobg\random.py">
       <SubType>Code</SubType>
     </Compile>

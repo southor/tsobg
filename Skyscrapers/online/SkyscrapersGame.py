@@ -7,6 +7,7 @@ pathHere = Path(__file__).absolute().parent
 
 # import tsobg GameInterface
 sys.path.append(str(pathHere.parent.parent))
+print(pathHere.parent.parent)
 from tsobg import GameInterface
 
 # import SkyScrapers cards
@@ -32,7 +33,7 @@ class SkyscrapersGame(GameInterface):
 		if msg:
 			print(msg)
 		
-	# --------------- Helper methods ---------------
+	# --------------- Game methods ---------------
 	
 	def addTestImage(self):
 		"""
@@ -71,19 +72,6 @@ class SkyscrapersGame(GameInterface):
 							#"border": "solid #A0A0A0"
 							})
 		self.stageUIChange(uic)
-	
-	# --------------- "GameInterface" expected methods ---------------
-
-	def getName(self):
-		return "Skyscrapers"
-
-	def getRootPath(self):
-		return pathHere.parent
-
-	def getCurrentPlayerID(self) -> str:
-		if not self.playerIDs:
-			return None
-		return self.playerIDs[self.currentPlayer]
 
 	def getCurrentPlayerName(self) -> str:
 		if not self.playerNames:
@@ -97,6 +85,19 @@ class SkyscrapersGame(GameInterface):
 
 	def nextPlayer(self):
 		self.currentPlayer = (self.currentPlayer + 1) % len(self.playerIDs)
+	
+	# --------------- "GameInterface" expected methods ---------------
+
+	def getName(self):
+		return "Skyscrapers"
+
+	def getRootPath(self):
+		return pathHere.parent
+
+	def getCurrentPlayerID(self) -> str:
+		if not self.playerIDs:
+			return None
+		return self.playerIDs[self.currentPlayer]
 	
 	"""
 	def actionAllowed(self, actionObj, playerId=None):
@@ -119,7 +120,7 @@ class SkyscrapersGame(GameInterface):
 		if action == "start_game":
 			if gameHasStarted:
 				# game has already been started
-				raise RuntimeError("Tried to start game but playerIDs is already set in SkyscrapersGame object")
+				raise RuntimeError("Tried to start game but playerIDs is already set in " + __class__.__name__ + " object")
 			self.__actionStartGame(actionObj[1], actionObj[2]) # pass playerIDs and playerNames
 			return True
 		if not gameHasStarted:
@@ -187,6 +188,7 @@ class SkyscrapersGame(GameInterface):
 		self.playerNames = playerNames
 		self.gamePhase = "cards_phase"
 		self.currentPlayer = 0
+		self.gameManager.stageUIChange(("set_div", "game_area", {"width":1015}))
 		self.gameManager.stageUIChange(("set_div", "center", {"parent": "game_area", "class": "game-surface", "width":1000}))
 		self.cardMarket = CardMarket(self.gameManager)
 		self.mainBoard = MainBoard(self.gameManager)

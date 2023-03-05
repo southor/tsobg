@@ -32,7 +32,7 @@ class CardGrid():
 		cellSize = (cardSize[0] + CardGrid.cellPadding,
 					cardSize[1] + CardGrid.cellPadding)
 		maxNCards = kwargs.get("maxNCards", gridSpaces[0] * gridSpaces[1])
-		self.grid = UIGrid(gridSpaces[0], gridSpaces[1], cellSize, uiOffsetPos=uiOffsetPos, maxNItems=maxNCards)
+		self.grid = UIGrid(gridSpaces, cellSize, uiOffsetPos=uiOffsetPos, maxNItems=maxNCards)
 		#surfaceSize = (uiOffsetPos[0] + gridSpaces[0] * cellSize[0], # width
 		#				uiOffsetPos[1] + gridSpaces[1] * cellSize[1]) # height
 		#surfaceSize = self.grid.getCurrentUISize()
