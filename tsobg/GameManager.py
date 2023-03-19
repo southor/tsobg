@@ -5,9 +5,11 @@ from pathlib import Path
 from pathlib import PurePath
 
 from .UIInterface import UIInterface
+from .ActionReceiver import ActionReceiver
 from .UIHistory import UIHistory
 from .GameLog import GameLog
 from .UIState import deAliasUIChange
+#from .UIState import uiChangeActions
 from . import random
 
 class GameManager(UIInterface):
@@ -23,6 +25,7 @@ class GameManager(UIInterface):
 		self.currentStateN = 0
 		self.gameLog = GameLog() # game log entries shared by players
 		self.clientMsgs = {} # instant messages waiting to be sent to players
+		self.actionReceivers = {}
 
 	# ----------------- Help Methods -----------------
 
@@ -48,7 +51,54 @@ class GameManager(UIInterface):
 				print("Call to getUIChanges with invalid playerId: {}, fromStateN={}, toStateN={}.format(playerId, fromStateN, toStateN")
 		else:
 			return []
-	
+
+	def actionObjError(text, actionObj):
+		raise ValueError(text + ", actionObj = {}".format(actionObj))
+
+	def __decodeActionReceiver(self, actionReceiverID):
+		if isinstance(actionReceiverID, ActionReceiver):
+			return actionReceiverID
+		else:
+			return self.actionReceivers.get(actionReceiverID, None)
+
+	def __encodeActionReceiversUIChange(self, uiChange, isMutable):
+		"""
+		If isMutable is True then the original uiChange will be altered if needed.
+		If isMutale is False then a new uiChnage is created if altering is needed.
+		returns uiChange,isOriginal
+		"""
+		if uiChange[0] != "set_div":
+			return uiChange, True
+		opts = uiChange[2]
+		actions = opts.get("actions", None)
+		if not actions:
+			# will both detect no actions present (None) or actions is th eempty list
+			return uiChange, True
+		newActions = []
+		for actionObj in actions:
+			if len(actionObj) == 0:
+				GameManager.actionObjError("Received an empty actionObj from game (must contain actionReceiver).", actionObj)
+			actionReceiver = actionObj[0] 
+			if not isinstance(actionReceiver, ActionReceiver):
+				GameManager.actionObjError("actionObj[0] must be an instance of ActionReceiver", actionObj)
+			idMethod = getattr(actionReceiver, "getName", None)
+			if not idMethod:
+				idMethod = getattr(actionReceiver, "getDivID", None)
+			if not idMethod:
+				GameManager.actionObjError('actionReceiver (actionObj[0]) must have method "getName" or method "getDivID"', actionObj)
+			actionReceiverID = idMethod()
+			if not isinstance(actionReceiverID, str):
+				GameManager.actionObjError('actionReceiver getName or getDivID must return a string, returned {}'.format(actionReceiverID), actionObj)
+			# store actionReceiver
+			self.actionReceivers[actionReceiverID] = actionReceiver
+			# replace actionReceiver reference with string actionReceiverID
+			actionObj = (actionReceiverID,) + actionObj[1:]
+			newActions.append(actionObj)
+		newOpts = opts if isMutable else opts.copy()
+		newOpts["actions"] = newActions
+		return ("set_div", uiChange[1], newOpts), False
+
+
 	# ----------------- Server Methods -----------------
 	
 	def getGame(self):
@@ -77,11 +127,18 @@ class GameManager(UIInterface):
 	def clientAction(self, currentRevertN, stateN, actionObj, playerId = None):
 		if stateN != self.currentStateN:
 			return False # TODO: respond 409 conflict?
-		if self.game.tryAction(actionObj, playerId=playerId):
-		#if self.game.actionAllowed(actionObj, playerId=playerId):
+		if len(actionObj) == 0:
+			raise ValueError("Received actionObj from client without an actionReceiver and no arguments!")
+		actionReceiver = self.__decodeActionReceiver(actionObj[0])
+		actionArgs = actionObj[1:]
+		if not actionReceiver:
+			raise ValueError("Received invalid actionReceiverID in actionObj, actionObj = {}".format(actionObj))
+		assert(isinstance(actionReceiver, ActionReceiver))
+		if not self.game.actionCheck(actionArgs, playerId=playerId):
+			return False
+		if actionReceiver.tryAction(actionArgs, playerId):
 			# advance game state
 			self.actionHistory.append((playerId, actionObj))
-			#self.game.performAction(actionObj, playerId=playerId)
 			self.currentStateN += 1
 			for uiHistory in self.playerUIHistories.values():
 				uiHistory.commitUIChanges()
@@ -95,7 +152,7 @@ class GameManager(UIInterface):
 		for p in playerIDs:
 			self.playerUIHistories[p] = UIHistory()
 			self.clientMsgs[p] = []
-		actionObj = ("start_game", playerIDs, playerNames)
+		actionObj = (self.game, "start_game", playerIDs, playerNames)
 		res = self.clientAction(0, 0, actionObj)
 		if res:
 			print("Game started, playerIDs:", playerIDs)
@@ -189,6 +246,7 @@ class GameManager(UIInterface):
 			playerIDs = self.playerUIHistories.keys()
 		assert(playerIDs)
 		for uiChange in uiChanges:
-			uiChange = deAliasUIChange(uiChange)
+			uiChange,isOriginal = self.__encodeActionReceiversUIChange(uiChange, False)
+			uiChange,isOriginal = deAliasUIChange(uiChange, not isOriginal)
 			for p in playerIDs:
 				self.playerUIHistories[p].stageUIChange(uiChange)

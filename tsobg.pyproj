@@ -177,6 +177,9 @@
     <Compile Include="RepelloLab\GameBoard_Old.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="RepelloLab\PlayerObject.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="RepelloLab\PlayerArea.py">
       <SubType>Code</SubType>
     </Compile>
@@ -213,6 +216,9 @@
     <Compile Include="Skyscrapers\Skyscrapers_test.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="tsobg\ActionReceiver.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="tsobg\debug.py">
       <SubType>Code</SubType>
     </Compile>
@@ -233,6 +239,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tsobg\GridLayout.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="tsobg\Layout.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tsobg\ObjectGrid_Old.py">

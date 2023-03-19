@@ -7,6 +7,7 @@ pathHere = Path(__file__).absolute().parent
 sys.path.append(str(pathHere.parent.parent))
 from tsobg import UIGrid
 from tsobg import UIInterface
+from tsobg import ActionReceiver
 
 # import SkyScraper cards
 from Card import Card
@@ -20,8 +21,9 @@ class PlayerArea(CardGrid):
 	itemsYOffset = 50
 	itemsYInterval = 30
 
-	def __init__(self, uiInterface: UIInterface, seatN, surfaceDivID, items):
+	def __init__(self, uiInterface: UIInterface, actionReceiver:ActionReceiver, seatN, surfaceDivID, items):
 		super().__init__(uiInterface, surfaceDivID, (2, 1), uiOffsetPos=(50,0), maxNCards=100)
+		self.actionReceiver = actionReceiver
 		self.seatN = seatN
 		#self.surfaceDivId = surfaceDivId
 		# init player supply items divs
@@ -43,6 +45,6 @@ class PlayerArea(CardGrid):
 		self.uiInterface.stageUIChange(("set_div", textDivID, {"text":str(amount)}))
 
 	def addCard(self, card:Card):
-		return super().addCard(card, {"actions":[("select_card", card.id)]})
+		return super().addCard(card, {"actions":[(self.actionReceiver, "select_card", card.id)]})
 
 

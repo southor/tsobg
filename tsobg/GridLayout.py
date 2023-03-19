@@ -1,6 +1,7 @@
+from .Layout import Layout
 from .UIGrid import UIGrid
 
-class GridLayout():
+class GridLayout(Layout):
 	
 	def __init__(self,
 					nColsRows: tuple,
@@ -24,10 +25,10 @@ class GridLayout():
 		return grid.getItem(self)
 
 	def getObject(self, rowN, colN):
-		return grid.getItemAtCell(self, rowN, colN)
+		return self.grid.getItemAtCell(rowN, colN)
 
 	def addObject(self, object):
-		uiPos = grid.addItem(self, object)
+		uiPos = self.grid.addItem(object)
 		if not uiPos:
 			return False
 		object.setUIPos(uiPos)
@@ -39,6 +40,7 @@ class GridLayout():
 			return False
 		object.setUIPos(uiPos)
 		return True
-	
-	def removeObject(self, object):
-		return self.grid.removeItem(object)
+
+	def hasObject(self, object, recursive=False, remove=False):
+		return self.grid.hasItem(object, recursive=recursive, remove=remove)
+		#self.grid.visitItems(visitor)

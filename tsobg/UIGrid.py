@@ -8,7 +8,7 @@ class UIGrid():
 			row = [None]*self.nColumns
 			self.rows.append(row)
 
-	def __findItem(self, item):
+	def __findItem(self):
 		for rowN,row in enumerate(self.rows):
 			for colN,cell in enumerate(row):
 				if cell:
@@ -19,7 +19,8 @@ class UIGrid():
 	def __findItem(self, item):
 		for rowN,row in enumerate(self.rows):
 			for colN,cell in enumerate(row):
-				if cell == item:
+				#if cell == item:
+				if cell is item:
 					return rowN,colN
 		return None
 
@@ -142,14 +143,26 @@ class UIGrid():
 		self.rows[rowN][colN] = item
 		self.nItems += 1
 		return self.getCellUIPos(rowN, colN)
-	
-	def removeItem(self, item):
+
+	def hasItem(self, item, recursive=False, remove=False):
 		gridPos = self.__findItem(item)
 		if gridPos:
-			rowN,colN = gridPos
-			self.rows[rowN][colN] = None
-			self.nItems -= 1
-		return bool(gridPos)
+			if remove:
+				rowN,colN = gridPos
+				self.rows[rowN][colN] = None
+				self.nItems -= 1
+			return True
+		if recursive:
+			for rowN,row in enumerate(self.rows):
+				for colN,cell in enumerate(row):
+					if cell:
+						assert(cell is not item)
+						if cell.hasObject(item, recursive=recursive, remove=remove):
+							return True
+		return False
+	
+	def removeItem(self, item, recursive=False):
+		return self.hasItem(item, recursive=recursive, remove=True)
 
 	def getItemAtCell(self, rowN, colN):
 		return self.rows[rowN][colN]

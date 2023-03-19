@@ -73,6 +73,11 @@ class SkyscrapersGame(GameInterface):
 							})
 		self.stageUIChange(uic)
 
+	def getCurrentPlayerID(self) -> str:
+		if not hasattr(self, 'playerIDs'):
+			return None
+		return self.playerIDs[self.currentPlayer]
+
 	def getCurrentPlayerName(self) -> str:
 		if not self.playerNames:
 			return None
@@ -94,51 +99,37 @@ class SkyscrapersGame(GameInterface):
 	def getRootPath(self):
 		return pathHere.parent
 
-	def getCurrentPlayerID(self) -> str:
-		if not self.playerIDs:
-			return None
-		return self.playerIDs[self.currentPlayer]
+	def actionCheck(self, actionArgs, playerId):
+		if playerId != self.getCurrentPlayerID():
+			if playerId == None:
+				raise RuntimeError("recieved actionArgs without playerId: ", actionArgs)
+			else:
+				#return "It is not your turn!"
+				self.gameManager.sendMessageToPlayer(("info", "It is not your turn!"), playerId)
+				return False
+		return True
 	
-	"""
-	def actionAllowed(self, actionObj, playerId=None):
-		if actionObj[0] == "start_game":
-			return not hasattr(self, "playerIDs")
-		elif actionObj[0] == "take_card":
-			return True
-		else:
-			print("Error, unknown action", actionObj)
-			return False
-	"""
-	
-	def tryAction(self, actionObj, playerId=None):
-		#assert(self.actionAllowed(actionObj))
+	def tryAction(self, actionArgs, playerId=None):
 		gameHasStarted = hasattr(self, "playerIDs")
-		action = actionObj[0]
+		action = actionArgs[0]
 		if action not in ["start_game", "take_card"]:
-			self.gameManager.sendMessageToPlayer(("error", "Unknown action: " + str(actionObj)), playerId)
+			self.gameManager.sendMessageToPlayer(("error", "Unknown action: " + str(actionArgs)), playerId)
 			return False
 		if action == "start_game":
 			if gameHasStarted:
 				# game has already been started
 				raise RuntimeError("Tried to start game but playerIDs is already set in " + __class__.__name__ + " object")
-			self.__actionStartGame(actionObj[1], actionObj[2]) # pass playerIDs and playerNames
+			self.__actionStartGame(actionArgs[1], actionArgs[2]) # pass playerIDs and playerNames
 			return True
 		if not gameHasStarted:
 			# game has not been started yet
 			if playerId == None:
-				raise RuntimeError("Received invalid actionObj (game not started yet): " + str(actionObj))
+				raise RuntimeError("Received invalid actionArgs (game not started yet): " + str(actionArgs))
 			else:
 				self.gameManager.sendMessageToPlayer(("error", "Cannot perform action {}, game has not started yet!".format(action)), playerId)
 				return False
-		if playerId != self.getCurrentPlayerID():
-			if playerId == None:
-				raise RuntimeError("recieved actionObj without playerId: ", actionObj)
-			else:
-				#return "It is not your turn!"
-				self.gameManager.sendMessageToPlayer(("info", "It is not your turn!"), playerId)
-				return False
 		if self.gamePhase == "cards_phase" and action == "take_card":
-			return self.__actionTakeCard(actionObj[1])
+			return self.__actionTakeCard(actionArgs[1])
 		else:
 			self.gameManager.sendMessageToPlayer(("info", "Action {} not allowed in the {} phase.".format(action, self.gamePhase)), playerId)
 			
@@ -176,7 +167,7 @@ class SkyscrapersGame(GameInterface):
 		self.playerAreas = []
 		for seatN,items in enumerate(self.playersSupply):
 			playerSurfaceDivID = SkyscrapersGame.__getPlayerSurfaceDivID(seatN)
-			self.playerAreas.append(PlayerArea(self.gameManager, seatN, playerSurfaceDivID, items))
+			self.playerAreas.append(PlayerArea(self.gameManager, self, seatN, playerSurfaceDivID, items))
 
 	def __actionStartGame(self, playerIDs: list, playerNames: list):
 		# check card image files
@@ -190,7 +181,7 @@ class SkyscrapersGame(GameInterface):
 		self.currentPlayer = 0
 		self.gameManager.stageUIChange(("set_div", "game_area", {"width":1015}))
 		self.gameManager.stageUIChange(("set_div", "center", {"parent": "game_area", "class": "game-surface", "width":1000}))
-		self.cardMarket = CardMarket(self.gameManager)
+		self.cardMarket = CardMarket(self.gameManager, self)
 		self.mainBoard = MainBoard(self.gameManager)
 		self.__initPlayerSurfaces(playerNames)
 		self.__initPlayerAreas()

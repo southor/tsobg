@@ -6,6 +6,7 @@ pathHere = Path(__file__).absolute().parent
 sys.path.append(str(pathHere.parent.parent))
 from tsobg import Deck
 from tsobg import UIInterface
+from tsobg import ActionReceiver
 
 # import SkyScraper cards
 from Card import Card, createAllCards
@@ -22,18 +23,19 @@ class CardMarket(CardGrid):
 	def __lookupCardId(self, cardId):
 		return self.cardDict[cardId]
 	
-	def __init__(self, uiInterface:UIInterface):
+	def __init__(self, uiInterface:UIInterface, actionReveiver:ActionReceiver):
 		super().__init__(uiInterface, "card_market", (5, 3))
 		uiInterface.stageUIChange(("set_div", "card_market", {"parent": "center"}))
 		allCards = createAllCards()
 		self.__initCardDict(allCards)
 		self.deck = Deck(allCards)
+		self.actionReveiver = actionReveiver
 	
 	def fillUp(self):
 		nMissingCards = self.getNSpaces() - self.nCards()
 		newCards = self.deck.draw(nMissingCards)
 		for card in newCards:
-			self.addCard(card, {"actions":[("take_card", card.id)]})
+			self.addCard(card, {"actions":[(self.actionReveiver, "take_card", card.id)]})
 
 	def removeCard(self, cardId) -> Card:
 		""" If card exists it is removed and returned. otherwise None is returned. """

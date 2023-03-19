@@ -112,7 +112,8 @@ def updateClient(playerId, playerName, revertN, fromStateN):
 @app.route("/game/<playerId>/<playerName>/update_client/<revertN>/<fromStateN>/<toStateN>", methods=['GET'])
 def updateClientTo(playerId, playerName, revertN, fromStateN, toStateN):
 	global game
-	if checkPlayerID(playerId, playerName) != None:
+	msg = checkPlayerID(playerId, playerName)
+	if msg != None:
 		flask.abort(409)
 	data = gameManager.getClientUpdates(playerId, int(revertN), int(fromStateN), int(toStateN))
 	return jsonify(data)
@@ -120,7 +121,8 @@ def updateClientTo(playerId, playerName, revertN, fromStateN, toStateN):
 @app.route("/game/<playerId>/<playerName>/client_action/<revertN>/<stateN>", methods=['POST'])
 def clientAction(playerId, playerName, revertN, stateN):
 	global game
-	if checkPlayerID(playerId, playerName) != None:
+	msg = checkPlayerID(playerId, playerName)
+	if msg != None:
 		flask.abort(409)
 	if not flask.request.is_json:
 		print("not json, instead: ", flask.request.content_type)
@@ -137,7 +139,8 @@ def clientAction(playerId, playerName, revertN, stateN):
 @app.route("/game/<playerId>/<playerName>/game_file/<path:gameFilePath>", methods=['GET'])
 def gameFile(playerId, playerName, gameFilePath):
 	global gameManager
-	if checkPlayerID(playerId, playerName) != None:
+	msg = checkPlayerID(playerId, playerName)
+	if msg != None:
 		flask.abort(409)
 	gameFilePath = PurePath(gameFilePath)
 	#print("wants to get file:", gameFilePath)

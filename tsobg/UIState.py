@@ -17,17 +17,20 @@ def sizeToCSSpxComponents(size):
 """ Function for converting "pos" attributes doing exactly the same as the other function """
 posToCSSpxComponents = sizeToCSSpxComponents
 
-def deAliasUIChange(uiChange):
+def deAliasUIChange(uiChange, isMutable=False):
 	""" Replaces uiChange alias properties like "pos" and "size" with "left","right" and "width","height".
-	Either returns the modified uiChange or the original if not modifications needed"""
+	If isMutable is True then the original uiChange will be altered if needed.
+	If isMutale is False then a new uiChange is created if altering is needed.
+	returns tuple uiChange,isOriginal where isOriginal is False if uiChange is a new object
+	"""
 	if uiChange[0] != "set_div":
-		return uiChange
+		return uiChange, True
 	opts = uiChange[2]
 	hasPos = "pos" in opts
 	hasSize = "size" in opts
 	if not (hasPos or hasSize):
-		return uiChange
-	newOpts = opts.copy()
+		return uiChange, True
+	newOpts = opts if isMutable else opts.copy()
 	if hasPos:
 		left,top = posToCSSpxComponents(newOpts.pop("pos"))
 		assert(type(left) in [int, float, str])
@@ -40,7 +43,7 @@ def deAliasUIChange(uiChange):
 		assert(type(height) in [int, float, str])
 		newOpts["width"] = width
 		newOpts["height"] = height
-	return ("set_div", uiChange[1], newOpts)
+	return ("set_div", uiChange[1], newOpts), False
 
 def combineUIChanges(uiChangeA, uiChangeB):
 	""" Combines the uiChanges if possible and returns the result
@@ -60,11 +63,11 @@ def combineUIChanges(uiChangeA, uiChangeB):
 		elif commandB == "nop":
 			return uiChangeA
 		else:
-			raise RuntimeException("Unknown command: " + commandB)
+			raise RuntimeError("Unknown command: {}".format(commandB))
 	elif commandA == "nop":
 		return uiChangeB
 	else:
-		raise RuntimeException("Unknown command: " + commandA)
+		raise RuntimeException("Unknown command: {}".format(commandA))
 
 class UIState():
     

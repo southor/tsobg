@@ -16,9 +16,8 @@ class GameObject():
 			raise Error("parent of {} must be either string, GameObject or None. parent={}".format(self.divID, str(parent)[:50]))
 		#assert(isinstance(divOpts["parent"], str) or divOpts["parent"] == None)
 		if parent != None:
-			divOpts.update({"pos":self._uiPos, "size":self._uiSize, "text":self._text, "img":self._image, "border":self._border})
+			divOpts.update({"pos":self._uiPos, "size":self._uiSize, "text":self._text, "img":self._image, "border":self._border, "actions":self._actions})
 		self._uiInterface.stageUIChange(("set_div", self._divID, divOpts))
-
 
 	def __init__(self, uiInterface:UIInterface, divID, **kwargs):
 		self._uiInterface = uiInterface
@@ -33,6 +32,7 @@ class GameObject():
 		self._text = kwargs.get("text", None)
 		self._image = kwargs.get("image", None)
 		self._border = kwargs.get("border", None)
+		self._actions = kwargs.get("actions", [])
 		self._uiUpdate()
 
 	def getDivID(self):
@@ -62,9 +62,12 @@ class GameObject():
 	def getBorder(self):
 		return self._border
 
+	def getActions(self):
+		return self._actions
+
 	def setParent(self, parent):
 		"""parent must be either a string divID or None"""
-		if self._parent == parent:
+		if self._parent is parent:
 			return
 		if not (isinstance(parent, str) or parent == None):
 			raise Error("parent of {} must be either string, or None when set directly. parent={}".format(self.divID, str(parent)[:50]))
@@ -113,14 +116,19 @@ class GameObject():
 			self._uiInterface.stageUIChange(("set_div", self._divID, {"img":filename}))
 
 	def setBorder(self, border):
-		self._border  = border
+		self._border = border
 		if self._parent and self._visible:
 			self._uiInterface.stageUIChange(("set_div", self._divID, {"border":border}))
+
+	def setActions(self, actions):
+		self._actions = actions
+		if self._parent:
+			self._uiInterface.stageUIChange(("set_div", self._divID, {"actions":actions}))
 
 	# ------------ children ------------
 
 	def getObject(self, *layoutArgs):
-		return self.layout.getObject(*layoutArgs)
+		return self._layout.getObject(*layoutArgs)
 
 	def putObject(self, object, *layoutArgs):
 		if not self._layout.addObject(object, *layoutArgs):
@@ -130,17 +138,24 @@ class GameObject():
 			object._uiUpdate()
 		return True
 
-	def removeObject(self, object):
-		if not self.layout.removeObject(object):
-			# "object" was not on top of "self"
-			assert(object._parent != self)
-			return False
-		# "object" was on top of "self"
-		assert(object._parent == self)
-		object._parent = None
-		if object._visible:
-			object.__uiUpdate()
-		return True
+	def hasObject(self, object, recursive=False, remove=False):
+		"""
+		Returns true if object is child or any child "has object"
+		"""
+		if self._layout.hasObject(object, recursive=recursive, remove=remove):
+			if remove:
+				if object._parent is self:
+					object._parent = None
+					if object._visible:
+						object.__uiUpdate()
+				else:
+					# The parent of object must be a child or descendent, so it should already have been removed by call to self._layout.hasObject
+					assert(object._parent is None)
+			return True
+		return False
+
+	def removeObject(self, object, recursive=False):
+		return self.hasObject(object, recursive=recursive, remove=True)
 
 
 		
