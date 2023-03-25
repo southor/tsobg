@@ -52,11 +52,34 @@ function getDivParagraphElement(div) {
 	return (arr.length >= 1) ? arr[0] : null;
 }
 
+function stopEventPropagation(e) {
+	if (typeof e.stopPropagation != "undefined") {
+			e.stopPropagation();
+		} else if (typeof e.cancelBubble != "undefined") {
+			e.cancelBubble = true;
+		} else {
+			errorStr = "Browser does not support stopPropagation function nor cancelBubble attribute."
+			log("error", errorStr);
+			alert("Error! " + errorStr);
+		}
+}
+
+function setDivOnClick(div, onClickFunc, actions) {
+	log("info", "setDivOnClick: ", actions);
+	div.onclick = function(e) {
+		log("info", "divOnClick");
+		onClickFunc(div.getAttribute("id"), actions);
+		stopEventPropagation(e);
+		
+	};
+}
+
 function setImgOnClick(div, imgElement, onClickFunc, actions) {
 	log("info", "setImgOnClick: ", actions);
-	imgElement.onclick = function() {
-		log("info", "setImgOnClick: ");
+	imgElement.onclick = function(e) {
+		log("info", "imgOnClick");
 		onClickFunc(div.getAttribute("id"), actions);
+		stopEventPropagation(e);
 	};
 }
 
@@ -73,9 +96,9 @@ function setDivImg(div, opts, onClickFunc) {
 				log("info", "creating div img");
 				imgElement = document.createElement("img");
 				div.appendChild(imgElement);
-				actions = div.getAttribute("data-actions");
-				if (actions) {
-					setImgOnClick(div, imgElement, onClickFunc, actions);
+				imgActions = div.getAttribute("data-imgActions");
+				if (imgActions) {
+					setImgOnClick(div, imgElement, onClickFunc, imgActions);
 				}
 			}
 			imgElement.setAttribute('src', opts.img);
@@ -87,18 +110,18 @@ function setDivImg(div, opts, onClickFunc) {
 		}
 	}
 
-	if (opts.actions || opts.actions === null || opts.actions === []) {
-		let actions = opts.actions;
+	if (opts.imgActions || opts.imgActions === null || opts.imgActions === []) {
+		let imgActions = opts.imgActions;
 		if ( ! imgElement) {
 			imgElement = getDivImgElement(div);
 		}
-		if (actions) {
-			div.setAttribute("data-actions", actions);
+		if (imgActions) {
+			div.setAttribute("data-imgActions", imgActions);
 			if (imgElement) {
-				setImgOnClick(div, imgElement, onClickFunc, actions);
+				setImgOnClick(div, imgElement, onClickFunc, imgActions);
 			}
 		} else {
-			div.removeAttribute("data-actions", actions);
+			div.removeAttribute("data-imgActions", imgActions);
 			if (imgElement) {
 				imgElement.removeAttribute("onclick");
 			}
@@ -168,6 +191,17 @@ function setDiv(id, opts, onClickFunc) {
 
 	if (opts.color) {
 		div.style.backgroundColor = opts.color;
+	}
+
+	if (opts.actions) {
+		if (opts.actions || opts.actions === null || opts.actions === []) {
+			let actions = opts.actions;
+			if (actions) {
+				setDivOnClick(div, onClickFunc, actions);
+			} else {
+				div.removeAttribute("onclick");
+			}
+		}
 	}
 
 	setDivImg(div, opts, onClickFunc);

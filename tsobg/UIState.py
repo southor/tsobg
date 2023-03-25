@@ -91,7 +91,8 @@ class UIState():
 		"img":None, # adds an img element with "img" as the img attribute
 		"text":None, # adds a text element with "text" as innerHTML
 		# other special
-		"actions":[] # does not change the style, specifies interactability
+		"actions":[], # specifies interactability for the div
+		"imgActions":[] # specifies interactability for the div image
 		}
 		
 	def __init__(self, divs = {}):

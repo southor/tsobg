@@ -61,19 +61,7 @@ class GameManager(UIInterface):
 		else:
 			return self.actionReceivers.get(actionReceiverID, None)
 
-	def __encodeActionReceiversUIChange(self, uiChange, isMutable):
-		"""
-		If isMutable is True then the original uiChange will be altered if needed.
-		If isMutale is False then a new uiChnage is created if altering is needed.
-		returns uiChange,isOriginal
-		"""
-		if uiChange[0] != "set_div":
-			return uiChange, True
-		opts = uiChange[2]
-		actions = opts.get("actions", None)
-		if not actions:
-			# will both detect no actions present (None) or actions is th eempty list
-			return uiChange, True
+	def __encodeActionReceivers(self, actions):
 		newActions = []
 		for actionObj in actions:
 			if len(actionObj) == 0:
@@ -94,10 +82,28 @@ class GameManager(UIInterface):
 			# replace actionReceiver reference with string actionReceiverID
 			actionObj = (actionReceiverID,) + actionObj[1:]
 			newActions.append(actionObj)
-		newOpts = opts if isMutable else opts.copy()
-		newOpts["actions"] = newActions
-		return ("set_div", uiChange[1], newOpts), False
+		return newActions
 
+	def __encodeActionReceiversUIChange(self, uiChange, isMutable):
+		"""
+		If isMutable is True then the original uiChange will be altered if needed.
+		If isMutale is False then a new uiChnage is created if altering is needed.
+		returns uiChange,isOriginal
+		"""
+		if uiChange[0] != "set_div":
+			return uiChange, True
+		opts = uiChange[2]
+		actions = opts.get("actions", None)
+		imgActions = opts.get("imgActions", None)
+		if not (actions or imgActions):
+			# will both detect no actions present (None) or actions is the empty list
+			return uiChange, True
+		newOpts = opts if isMutable else opts.copy()
+		if actions:
+			newOpts["actions"] = self.__encodeActionReceivers(actions)
+		if imgActions:
+			newOpts["imgActions"] = self.__encodeActionReceivers(imgActions)
+		return ("set_div", uiChange[1], newOpts), False
 
 	# ----------------- Server Methods -----------------
 	
