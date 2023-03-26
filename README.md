@@ -19,14 +19,14 @@ pip3 install --user flask
 Run the prototype board game "Skyscrapers".
 First, generate the graphics image files:
 ```
-python3 Skyscrapers/generate_graphics.py
+python Skyscrapers/generate_graphics.py
 ```
 
 This should create new folders with image files in the Skyscrapers project folder.
 
 Now start the game:
 ```
-python3 Skyscrapers/online/main.py
+python Skyscrapers/online/main.py
 ```
 
 The command terminal should ask you to enter number of players, and then the flask server will start.
@@ -41,8 +41,8 @@ It is possible to hardcode number of players and some or all player names (also 
 
 Threre are some unit tests for tsobg and Skyscrapers, run like this:
 ```
-python3 tsobg_test.py
-python3 Skyscrapers/Skyscrapers_test.py
+python tsobg_test.py
+python Skyscrapers/Skyscrapers_test.py
 ```
 
 ## How it works

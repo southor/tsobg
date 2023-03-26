@@ -2,7 +2,7 @@
 def createDebugPageHTML(globals, varPath, token):
 	currName = "globals"
 	currValue = globals
-	selfLinkTemplate = "<a href=/debug?token=" + token + "&var={path}>{linkText}</a>"
+	selfLinkTemplate = "<a href=/admin/debug?token=" + token + "&var={path}>{linkText}</a>"
 	# traverse down the var tree following varPath
 	pathElements = varPath.split("/") if varPath else []
 	backLinks = [selfLinkTemplate.format(path="", linkText=currName)]
@@ -26,7 +26,7 @@ def createDebugPageHTML(globals, varPath, token):
 	t = type(currValue)
 	if t in [bool, int, float, str]:
 		varsToShow = {"": currValue}
-	elif t in [tuple, list]:
+	elif t in [tuple, list, set]:
 		varsToShow = {str(k):v for k,v in enumerate(currValue)}
 	elif t in [dict]:
 		varsToShow = currValue
@@ -49,7 +49,7 @@ def createDebugPageHTML(globals, varPath, token):
 		elif t in [str]:
 			liHTML = liHTML.format("black")
 			liHTML += '"{}"'.format(v)
-		elif t in [tuple, list]:
+		elif t in [tuple, list, set]:
 			liHTML = liHTML.format("black")
 			collectionSizeText = " ({})".format(len(v))
 			liHTML += " " + linkTemplate.format(linkText = typeStr + collectionSizeText)

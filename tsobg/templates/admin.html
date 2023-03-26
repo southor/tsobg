@@ -7,7 +7,11 @@
 
 	function revert() {
 		toStateN = document.getElementById("input_state_n").value;
-		document.location.href = "/game/revert_to/" + toStateN + "?token={{adminToken}}";
+		document.location.href = "/admin/revert_to/" + toStateN + "?token={{adminToken}}";
+	}
+
+	function shutdown() {
+		document.location.href = "/admin/shutdown" + "?token={{adminToken}}";
 	}
 
 </script>
@@ -23,6 +27,8 @@
 	Revert to 1 will reset to the beginning just after setup<br />
 	Revert to 0 will reshuffle everything and re-setup the game<br />
 	<br />
-	<a href="/debug?token={{adminToken}}">Debug vars</a>
+	<a href="/admin/debug?token={{adminToken}}">Debug vars</a><br />
+	<br />
+	<button id="shutdown_button" onclick="shutdown()">Shutdown Server</button><br />
 </body>
 </html>

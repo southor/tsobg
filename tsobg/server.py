@@ -1,6 +1,4 @@
-import secrets
-import logging
-import flask
+import secrets, logging, flask
 from flask import Flask, render_template, jsonify, send_file, Response
 app = Flask(__name__)
 
@@ -177,7 +175,7 @@ def adminPage():
 	else:
 		return renderTokenError(token)
 
-@app.route("/debug", methods=['GET'])
+@app.route("/admin/debug", methods=['GET'])
 def debugPage():
 	token = flask.request.args.get('token')
 	if token == settings.adminToken:
@@ -186,7 +184,7 @@ def debugPage():
 	else:
 		return renderTokenError(token)
 
-@app.route("/game/revert_to/<toStateN>", methods=['GET'])
+@app.route("/admin/revert_to/<toStateN>", methods=['GET'])
 def revertGameTo(toStateN):
 	token = flask.request.args.get('token')
 	if token == settings.adminToken:
@@ -196,6 +194,17 @@ def revertGameTo(toStateN):
 	else:
 		return renderTokenError(token)
 
+@app.route("/admin/shutdown", methods=['GET'])
+def shutdownServer():
+	token = flask.request.args.get('token')
+	if token == settings.adminToken:
+		if "shutdownSignaled" in globals():
+			globals()['shutdownSignaled'] = True
+			return renderMsgPage("Server was shutdown.")
+		else:
+			return renderMsgPage("Cannot turn off server.<br/>Instead use Ctrl+C in the terminal window.", "/admin?token=" + token, "return to Admin")
+	else:
+		return renderTokenError(token)
 
 def newGame(gameClass, nPlayers, players={}, extraGameArgs = [], extraGameKWArgs = {}):
 	gameManager = GameManager()
