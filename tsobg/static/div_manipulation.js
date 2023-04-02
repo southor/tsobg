@@ -2,6 +2,7 @@
 
 // store div elements that was created by this file in a Map object, accessed by div id
 divs = null;
+selectedIds = null;
 
 function log(level, ...msgArgs) {
 	//console.log(level, msgArgs);
@@ -10,14 +11,16 @@ function log(level, ...msgArgs) {
 /**
  * Get div from DOM, create div if it doesn't exist
  * @param { String } id The div id
+ * @param { Boolean } create If div does not already exist it will be created if 'create' is true, otherwise null is returned
  * @param { String } defaultDivPositioning optional argument that sets changes default divPositioning which noramlly is "static". This argument will only have an effect if the div does not exist and has to be created
+ * @return { Element } The div element or null
  */
-function getDiv(id, defaultDivPositioning) {
+function getDiv(id, create, defaultDivPositioning) {
 	if (divs === null) {
 		divs = new Map();
 	}
 	let div = divs.get(id) ?? document.getElementById(id);
-	if ( ! div) {
+	if (create && ! div) {
 		log("info", "creating div: " + id);
 		div = document.createElement("div");
 		div.setAttribute('id', id);
@@ -28,6 +31,14 @@ function getDiv(id, defaultDivPositioning) {
 	}
 	return div;
 }
+
+function getSelectedIds() {
+	if (selectedIds === null) {
+		selectedIds = new Set();
+	}
+	return selectedIds;
+}
+
 
 function deleteAllCreatedDivs() {
 	if (divs !== null) {
@@ -54,33 +65,85 @@ function getDivParagraphElement(div) {
 
 function stopEventPropagation(e) {
 	if (typeof e.stopPropagation != "undefined") {
-			e.stopPropagation();
-		} else if (typeof e.cancelBubble != "undefined") {
-			e.cancelBubble = true;
-		} else {
-			errorStr = "Browser does not support stopPropagation function nor cancelBubble attribute."
-			log("error", errorStr);
-			alert("Error! " + errorStr);
-		}
+		e.stopPropagation();
+	} else if (typeof e.cancelBubble != "undefined") {
+		e.cancelBubble = true;
+	} else {
+		errorStr = "Browser does not support stopPropagation function nor cancelBubble attribute."
+		log("error", errorStr);
+		alert("Error! " + errorStr);
+	}
 }
 
+/**
+ * Sets the onclick property for the div
+ * @param {Element} div The div element to set
+ * @param {function(string, any[])} onClickFunc The function that should be called, the function should have the form 'function(divId, actions)'
+ * @param {any[]} actions An array of actions, these actions will be passed to the function every time the div is clicked
+ */
 function setDivOnClick(div, onClickFunc, actions) {
 	log("info", "setDivOnClick: ", actions);
-	div.onclick = function(e) {
-		log("info", "divOnClick");
-		onClickFunc(div.getAttribute("id"), actions);
-		stopEventPropagation(e);
-		
-	};
+	if (onClickFunc) {
+		div.onclick = function(e) {
+			log("info", "divOnClick");
+			onClickFunc(div.getAttribute("id"), actions);
+			stopEventPropagation(e);
+			return true;
+		};
+	} else {
+		div.onclick = function(e) {
+			return false;
+		};
+	}
 }
 
+/**
+ * Sets the onclick property for the an image located on top of a div
+ * @param {Element} div The div element of the image to set
+ * @param {function(string, any[])} onClickFunc The function that should be called, the function should have the form 'function(divId, actions)'
+ * @param {any[]} actions An array of actions, these actions will be passed to the function every time the image is clicked
+ */
 function setImgOnClick(div, imgElement, onClickFunc, actions) {
 	log("info", "setImgOnClick: ", actions);
-	imgElement.onclick = function(e) {
-		log("info", "imgOnClick");
-		onClickFunc(div.getAttribute("id"), actions);
-		stopEventPropagation(e);
-	};
+	if (onClickFunc) {
+		imgElement.onclick = function(e) {
+			log("info", "imgOnClick");
+			onClickFunc(div.getAttribute("id"), actions);
+			stopEventPropagation(e);
+		};
+	} else {
+		div.onclick = function(e) {
+			return false;
+		};
+	}
+}
+
+function toggleDivSelected(divId, _) {
+	highlightDivId = divId + "_highlight";
+	selectedIds = getSelectedIds();
+	if (selectedIds.has(divId)) {
+		// deselect it
+		selectedIds.delete(divId);
+		if (getDiv(highlightDivId)) {
+			setDiv(highlightDivId, {parent: null});
+			console.log("highlight off");
+		} else {
+			console.log("highlight was never created in the first place");
+		}
+	} else {
+		// select it
+		if ( ! getDiv(highlightDivId)) {
+			// highlight div needs setup
+			div = getDiv(divId, false);
+			highlightOpts = {parent: divId, divPositioning: "absolute", left: "0px", top: "0px", width: div.style.width, height: div.style.height, border: "solid", borderColor: "red"};
+		} else {
+			// highlight div already setup
+			highlightOpts = {parent: divId};
+		}
+		setDiv(highlightDivId, highlightOpts);
+		selectedIds.add(divId);
+		console.log("highlight on");
+	}
 }
 
 // updates div image and/or img actions according to opts
@@ -139,7 +202,7 @@ function addPXIfNeeded(val) {
 // If div does not exists it is created
 function setDiv(id, opts, onClickFunc) {
 	log("info", "set div called with:", id, opts);
-	let div = getDiv(id, "relative");
+	let div = getDiv(id, true, "relative");
 
 	if (opts.parent || opts.parent === null) {
 		if (div.parentNode) {
@@ -148,7 +211,7 @@ function setDiv(id, opts, onClickFunc) {
 		}
 		if (opts.parent) {
 			log("info", "setting div parent");
-			getDiv(opts.parent, "relative").appendChild(div);
+			getDiv(opts.parent, true, "relative").appendChild(div);
 		}
 	}
 
@@ -184,16 +247,28 @@ function setDiv(id, opts, onClickFunc) {
 		div.style.height = addPXIfNeeded(opts.height);
 	}
 
+	if (opts.color) {
+		div.style.backgroundColor = opts.color;
+	}
+
 	if (opts.border) {
 		div.style.border = opts.border;
 		div.style.borderWidth = "thin";
 	}
 
-	if (opts.color) {
-		div.style.backgroundColor = opts.color;
+	if (opts.borderColor) {
+		div.style.borderColor = opts.borderColor;
 	}
 
-	if (opts.actions) {
+	if ("selectable" in opts) {
+		if (opts.selectable) {
+			setDivOnClick(div, toggleDivSelected);
+		} else {
+			setDivOnClick(div, null);
+		}
+	}
+	
+	if ("actions" in opts) {
 		if (opts.actions || opts.actions === null || opts.actions === []) {
 			let actions = opts.actions;
 			if (actions) {

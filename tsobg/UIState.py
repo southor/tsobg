@@ -85,12 +85,14 @@ class UIState():
 		"height":"auto",
 	
 		"color":"transparent", # style.backgroundColor
-		"border":None, # style.border
+		"border":"none", # style.border
+		"borderColor":"black", # style.borderColor
 		# element configurations
 		"parent":None, # sets parent by adding as child
 		"img":None, # adds an img element with "img" as the img attribute
 		"text":None, # adds a text element with "text" as innerHTML
 		# other special
+		"selectable":False,
 		"actions":[], # specifies interactability for the div
 		"imgActions":[] # specifies interactability for the div image
 		}
@@ -114,7 +116,8 @@ class UIState():
 			divState = self.divs.get(id, {})
 			prunedOpts = {}
 			for key,value in opts.items():
-				valueState = divState.get(key, UIState.divOptsDefaults[key])
+				defaultValue = UIState.divOptsDefaults[key]
+				valueState = divState.get(key, defaultValue)
 				if value != valueState:
 					prunedOpts[key] = value
 			if prunedOpts == {}:
