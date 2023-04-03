@@ -269,13 +269,11 @@ function setDiv(id, opts, onClickFunc) {
 	}
 	
 	if ("actions" in opts) {
-		if (opts.actions || opts.actions === null || opts.actions === []) {
-			let actions = opts.actions;
-			if (actions) {
-				setDivOnClick(div, onClickFunc, actions);
-			} else {
-				div.removeAttribute("onclick");
-			}
+		let actions = opts.actions;
+		if (actions) {
+			setDivOnClick(div, onClickFunc, actions);
+		} else {
+			div.removeAttribute("onclick");
 		}
 	}
 

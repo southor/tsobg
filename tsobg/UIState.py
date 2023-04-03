@@ -93,8 +93,7 @@ class UIState():
 		"text":None, # adds a text element with "text" as innerHTML
 		# other special
 		"selectable":False,
-		"actions":[], # specifies interactability for the div
-		"imgActions":[] # specifies interactability for the div image
+		"actions":[]
 		}
 		
 	def __init__(self, divs = {}):

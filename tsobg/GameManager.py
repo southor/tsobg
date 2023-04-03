@@ -94,15 +94,12 @@ class GameManager(UIInterface):
 			return uiChange, True
 		opts = uiChange[2]
 		actions = opts.get("actions", None)
-		imgActions = opts.get("imgActions", None)
-		if not (actions or imgActions):
+		if not actions:
 			# will both detect no actions present (None) or actions is the empty list
 			return uiChange, True
 		newOpts = opts if isMutable else opts.copy()
 		if actions:
 			newOpts["actions"] = self.__encodeActionReceivers(actions)
-		if imgActions:
-			newOpts["imgActions"] = self.__encodeActionReceivers(imgActions)
 		return ("set_div", uiChange[1], newOpts), False
 
 	# ----------------- Server Methods -----------------
