@@ -8,8 +8,7 @@ from .UIInterface import UIInterface
 from .ActionReceiver import ActionReceiver
 from .UIHistory import UIHistory
 from .GameLog import GameLog
-from .UIState import deAliasUIChange
-#from .UIState import uiChangeActions
+from .UIState import deAliasUIChange, encodeActionReceiversUIChange, decodeActionReceiver
 from . import random
 
 class GameManager(UIInterface):
@@ -25,7 +24,7 @@ class GameManager(UIInterface):
 		self.currentStateN = 0
 		self.gameLog = GameLog() # game log entries shared by players
 		self.clientMsgs = {} # instant messages waiting to be sent to players
-		self.actionReceivers = {}
+		self.arMap = {} # stores actionReciever objects by id
 
 	# ----------------- Help Methods -----------------
 
@@ -51,63 +50,6 @@ class GameManager(UIInterface):
 				print("Call to getUIChanges with invalid playerId: {}, fromStateN={}, toStateN={}.format(playerId, fromStateN, toStateN")
 		else:
 			return []
-
-	def actionObjError(text, actionObj):
-		raise ValueError(text + ", actionObj = {}".format(actionObj))
-
-	def __decodeActionReceiver(self, actionReceiverID):
-		if isinstance(actionReceiverID, ActionReceiver):
-			return actionReceiverID
-		else:
-			return self.actionReceivers.get(actionReceiverID, None)
-
-	def __encodeActionReceiver(self, actionObj):
-		if len(actionObj) == 0:
-			GameManager.actionObjError("Received an empty actionObj from game (must contain actionReceiver).", actionObj)
-		actionReceiver = actionObj[0] 
-		if not isinstance(actionReceiver, ActionReceiver):
-			GameManager.actionObjError("actionObj[0] must be an instance of ActionReceiver", actionObj)
-		idMethod = getattr(actionReceiver, "getName", None)
-		if not idMethod:
-			idMethod = getattr(actionReceiver, "getDivID", None)
-		if not idMethod:
-			GameManager.actionObjError('actionReceiver (actionObj[0]) must have method "getName" or method "getDivID"', actionObj)
-		actionReceiverID = idMethod()
-		if not isinstance(actionReceiverID, str):
-			GameManager.actionObjError('actionReceiver getName or getDivID must return a string, returned {}'.format(actionReceiverID), actionObj)
-		# store actionReceiver
-		self.actionReceivers[actionReceiverID] = actionReceiver
-		# replace actionReceiver reference with string actionReceiverID
-		actionObj = (actionReceiverID,) + actionObj[1:]
-		return actionObj
-
-	def __encodeActionReceivers(self, actions):
-		newActions = []
-		for actionObj in actions:
-			newActions.append(self.__encodeActionReceiver(actionObj))
-		return newActions
-
-	def __encodeActionReceiversUIChange(self, uiChange, isMutable):
-		"""
-		If isMutable is True then the original uiChange will be altered if needed.
-		If isMutale is False then a new uiChnage is created if altering is needed.
-		returns uiChange,isOriginal
-		"""
-		if uiChange[0] != "set_div":
-			return uiChange, True
-		opts = uiChange[2]
-		onClick = opts.get("onClick", None)
-		onClickActionObj = None if isinstance(onClick, str) else onClick
-		actions = opts.get("actions", None)
-		if not (actions or onClickActionObj):
-			# For actions it will both detect no actions present (None) or actions is the empty list
-			return uiChange, True
-		newOpts = opts if isMutable else opts.copy()
-		if onClickActionObj:
-			newOpts["onClick"] = self.__encodeActionReceiver(onClickActionObj)
-		if actions:
-			newOpts["actions"] = self.__encodeActionReceivers(actions)
-		return ("set_div", uiChange[1], newOpts), False
 
 	# ----------------- Server Methods -----------------
 	
@@ -139,7 +81,7 @@ class GameManager(UIInterface):
 			return False # TODO: respond 409 conflict?
 		if len(actionObj) == 0:
 			raise ValueError("Received actionObj from client without an actionReceiver and no arguments!")
-		actionReceiver = self.__decodeActionReceiver(actionObj[0])
+		actionReceiver = decodeActionReceiver(self.arMap, actionObj[0])
 		actionArgs = actionObj[1:]
 		if not actionReceiver:
 			raise ValueError("Received invalid actionReceiverID in actionObj, actionObj = {}".format(actionObj))
@@ -256,7 +198,7 @@ class GameManager(UIInterface):
 			playerIDs = self.playerUIHistories.keys()
 		assert(playerIDs)
 		for uiChange in uiChanges:
-			uiChange,isOriginal = self.__encodeActionReceiversUIChange(uiChange, False)
+			uiChange,isOriginal = encodeActionReceiversUIChange(self.arMap, uiChange, False)
 			uiChange,isOriginal = deAliasUIChange(uiChange, not isOriginal)
 			for p in playerIDs:
 				self.playerUIHistories[p].stageUIChange(uiChange)
