@@ -1,56 +1,6 @@
 
-from .ActionReceiver import ActionReceiver
+from .actions import encodeActionObj, encodeActionObjs
 
-def _actionObjError(text, actionObj):
-	raise ValueError(text + ", actionObj = {}".format(actionObj))
-
-def _encodeActionReceiver(arMap, actionObj):
-	if len(actionObj) == 0:
-		_actionObjError("Received an empty actionObj from game (must contain actionReceiver).", actionObj)
-	actionReceiver = actionObj[0] 
-	if not isinstance(actionReceiver, ActionReceiver):
-		_actionObjError("actionObj[0] must be an instance of ActionReceiver", actionObj)
-	idMethod = getattr(actionReceiver, "getName", None)
-	if not idMethod:
-		idMethod = getattr(actionReceiver, "getDivID", None)
-	if not idMethod:
-		_actionObjError('actionReceiver (actionObj[0]) must have method "getName" or method "getDivID"', actionObj)
-	actionReceiverID = idMethod()
-	if not isinstance(actionReceiverID, str):
-		_actionObjError('actionReceiver getName or getDivID must return a string, returned {}'.format(actionReceiverID), actionObj)
-	# store actionReceiver
-	arMap[actionReceiverID] = actionReceiver
-	# replace actionReceiver reference with string actionReceiverID
-	actionObj = (actionReceiverID,) + actionObj[1:]
-	return actionObj
-
-def _encodeActionReceivers(arMap, actions):
-	newActions = []
-	for actionObj in actions:
-		newActions.append(_encodeActionReceiver(arMap, actionObj))
-	return newActions
-
-def _encodeActionReceiversUIChange(arMap, uiChange, isMutable):
-	"""
-	If isMutable is True then the original uiChange will be altered if needed.
-	If isMutale is False then a new uiChnage is created if altering is needed.
-	returns uiChange,isOriginal
-	"""
-	if uiChange[0] != "set_div":
-		return uiChange, True
-	opts = uiChange[2]
-	onClick = opts.get("onClick", None)
-	onClickActionObj = None if isinstance(onClick, str) else onClick
-	actions = opts.get("actions", None)
-	if not (actions or onClickActionObj):
-		# For actions it will both detect no actions present (None) or actions is the empty list
-		return uiChange, True
-	newOpts = opts if isMutable else opts.copy()
-	if onClickActionObj:
-		newOpts["onClick"] = _encodeActionReceiver(arMap, onClickActionObj)
-	if actions:
-		newOpts["actions"] = _encodeActionReceivers(arMap, actions)
-	return ("set_div", uiChange[1], newOpts), False
 
 def _sizeToCSSpxComponents(size):
 	""" Converts size object containing width/height numbers representing number of pixels or "auto".
@@ -97,16 +47,32 @@ def _deAliasUIChange(uiChange, isMutable=False):
 		newOpts["height"] = height
 	return ("set_div", uiChange[1], newOpts), False
 
+def _encodeActionObjsUIChange(arMap, uiChange, isMutable):
+	"""
+	If isMutable is True then the original uiChange will be altered if needed.
+	If isMutale is False then a new uiChnage is created if altering is needed.
+	returns uiChange,isOriginal
+	"""
+	if uiChange[0] != "set_div":
+		return uiChange, True
+	opts = uiChange[2]
+	onClick = opts.get("onClick", None)
+	onClickActionObj = None if isinstance(onClick, str) else onClick
+	actions = opts.get("actions", None)
+	if not (actions or onClickActionObj):
+		# For actions it will both detect no actions present (None) or actions is the empty list
+		return uiChange, True
+	newOpts = opts if isMutable else opts.copy()
+	if onClickActionObj:
+		newOpts["onClick"] = encodeActionObj(arMap, onClickActionObj)
+	if actions:
+		newOpts["actions"] = encodeActionObjs(arMap, actions)
+	return ("set_div", uiChange[1], newOpts), False
+
 def encodeUIChange(arMap, uiChange, isMutable=False):
-	uiChange,isOriginal = _encodeActionReceiversUIChange(arMap, uiChange, isMutable)
+	uiChange,isOriginal = _encodeActionObjsUIChange(arMap, uiChange, isMutable)
 	uiChange,isOriginal = _deAliasUIChange(uiChange, isMutable or not isOriginal)
 	return uiChange,isOriginal
-
-def decodeActionReceiver(arMap, actionReceiverID):
-	if isinstance(actionReceiverID, ActionReceiver):
-		return actionReceiverID
-	else:
-		return arMap.get(actionReceiverID, None)
 
 def combineUIChanges(uiChangeA, uiChangeB):
 	""" Combines the uiChanges if possible and returns the result

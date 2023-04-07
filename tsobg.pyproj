@@ -216,9 +216,7 @@
     <Compile Include="Skyscrapers\Skyscrapers_test.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="tsobg\ActionReceiver.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="tsobg\actions.py" />
     <Compile Include="tsobg\debug.py">
       <SubType>Code</SubType>
     </Compile>

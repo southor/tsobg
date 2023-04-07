@@ -1,4 +1,4 @@
-from .ActionReceiver import ActionReceiver
+from .actions import ActionReceiver
 
 class GameInterface(ActionReceiver):
 	

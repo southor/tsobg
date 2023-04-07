@@ -5,11 +5,13 @@ from pathlib import Path
 from pathlib import PurePath
 
 from .UIInterface import UIInterface
-from .ActionReceiver import ActionReceiver
+from .actions import decodeActionObj, ActionReceiver
 from .UIHistory import UIHistory
 from .GameLog import GameLog
-from .UIState import encodeUIChange, decodeActionReceiver
+from .UIState import encodeUIChange
 from . import random
+
+
 
 class GameManager(UIInterface):
 	
@@ -79,12 +81,18 @@ class GameManager(UIInterface):
 	def clientAction(self, currentRevertN, stateN, actionObj, playerId = None):
 		if stateN != self.currentStateN:
 			return False # TODO: respond 409 conflict?
-		if len(actionObj) == 0:
-			raise ValueError("Received actionObj from client without an actionReceiver and no arguments!")
-		actionReceiver = decodeActionReceiver(self.arMap, actionObj[0])
+
+		actionObj = decodeActionObj(self.arMap, actionObj)
+
+		#if len(actionObj) == 0:
+		#	raise ValueError("Received actionObj from client without an actionReceiver and no arguments!")
+		#actionReceiver = decodeActionReceiver(self.arMap, actionObj[0])
+		#actionArgs = actionObj[1:]
+		#if not actionReceiver:
+		#	raise ValueError("Received invalid actionReceiverID in actionObj, actionObj = {}".format(actionObj))
+		
+		actionReceiver = actionObj[0]
 		actionArgs = actionObj[1:]
-		if not actionReceiver:
-			raise ValueError("Received invalid actionReceiverID in actionObj, actionObj = {}".format(actionObj))
 		assert(isinstance(actionReceiver, ActionReceiver))
 		if not self.game.actionCheck(actionArgs, playerId=playerId):
 			return False
