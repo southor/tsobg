@@ -79,14 +79,14 @@ function stopEventPropagation(e) {
  * Sets the onclick property for the div
  * @param {Element} div The div element to set
  * @param {function(string, any[])} onClickFunc The function that should be called, the function should have the form 'function(divId, actions)'
- * @param {any[]} actions An array of actions, these actions will be passed to the function every time the div is clicked
+ * @param {any[]} actionObj
  */
-function setDivOnClick(div, onClickFunc, actions) {
-	log("info", "setDivOnClick: ", actions);
+function setDivOnClick(div, onClickFunc, actionObj) {
+	log("info", "setDivOnClick with actionObj: ", actionObj);
 	if (onClickFunc) {
 		div.onclick = function(e) {
 			log("info", "divOnClick");
-			onClickFunc(div.getAttribute("id"), actions);
+			onClickFunc(div.getAttribute("id"), actionObj);
 			stopEventPropagation(e);
 			return true;
 		};
@@ -108,7 +108,7 @@ function setImgOnClick(div, imgElement, onClickFunc, actions) {
 	if (onClickFunc) {
 		imgElement.onclick = function(e) {
 			log("info", "imgOnClick");
-			onClickFunc(div.getAttribute("id"), actions);
+			onClickFunc(div.getAttribute("id"), actions[0]);
 			stopEventPropagation(e);
 		};
 	} else {
@@ -200,7 +200,7 @@ function addPXIfNeeded(val) {
 }
 
 // If div does not exists it is created
-function setDiv(id, opts, onClickFunc) {
+function setDiv(id, opts, sendActionFunc) {
 	log("info", "set div called with:", id, opts);
 	let div = getDiv(id, true, "relative");
 
@@ -260,24 +260,28 @@ function setDiv(id, opts, onClickFunc) {
 		div.style.borderColor = opts.borderColor;
 	}
 
-	if ("selectable" in opts) {
-		if (opts.selectable) {
-			setDivOnClick(div, toggleDivSelected);
-		} else {
-			setDivOnClick(div, null);
+	if ("onClick" in opts) {
+		oldOnClick = div.getAttribute("tsobg-onClick");
+		newOnClick = opts.onClick
+		if (newOnClick !== oldOnClick) {
+			if (newOnClick === "select") {
+				setDivOnClick(div, toggleDivSelected);
+			} else if (newOnClick === "actions") {
+				// TODO Trigger popup of actions to choose from (use "actions" property)
+				setDivOnClick(div, null);
+			} else if (Array.isArray(newOnClick)) {
+				actionObj = newOnClick
+				setDivOnClick(div, sendActionFunc, actionObj);
+			} else if (newOnClick === null) {
+				setDivOnClick(div, null);
+			} else {
+				log("error", "Received onClick property with invalid value: ", newOnClick);
+			}
 		}
-	}
-	
-	if ("actions" in opts) {
-		let actions = opts.actions;
-		if (actions) {
-			setDivOnClick(div, onClickFunc, actions);
-		} else {
-			div.removeAttribute("onclick");
-		}
+		div.setAttribute("tsobg-onClick", newOnClick);
 	}
 
-	setDivImg(div, opts, onClickFunc);
+	setDivImg(div, opts, sendActionFunc);
 
 	if (opts.text || opts.text === null) {
 		let pElement = getDivParagraphElement(div);

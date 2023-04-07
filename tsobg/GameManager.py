@@ -61,27 +61,30 @@ class GameManager(UIInterface):
 		else:
 			return self.actionReceivers.get(actionReceiverID, None)
 
+	def __encodeActionReceiver(self, actionObj):
+		if len(actionObj) == 0:
+			GameManager.actionObjError("Received an empty actionObj from game (must contain actionReceiver).", actionObj)
+		actionReceiver = actionObj[0] 
+		if not isinstance(actionReceiver, ActionReceiver):
+			GameManager.actionObjError("actionObj[0] must be an instance of ActionReceiver", actionObj)
+		idMethod = getattr(actionReceiver, "getName", None)
+		if not idMethod:
+			idMethod = getattr(actionReceiver, "getDivID", None)
+		if not idMethod:
+			GameManager.actionObjError('actionReceiver (actionObj[0]) must have method "getName" or method "getDivID"', actionObj)
+		actionReceiverID = idMethod()
+		if not isinstance(actionReceiverID, str):
+			GameManager.actionObjError('actionReceiver getName or getDivID must return a string, returned {}'.format(actionReceiverID), actionObj)
+		# store actionReceiver
+		self.actionReceivers[actionReceiverID] = actionReceiver
+		# replace actionReceiver reference with string actionReceiverID
+		actionObj = (actionReceiverID,) + actionObj[1:]
+		return actionObj
+
 	def __encodeActionReceivers(self, actions):
 		newActions = []
 		for actionObj in actions:
-			if len(actionObj) == 0:
-				GameManager.actionObjError("Received an empty actionObj from game (must contain actionReceiver).", actionObj)
-			actionReceiver = actionObj[0] 
-			if not isinstance(actionReceiver, ActionReceiver):
-				GameManager.actionObjError("actionObj[0] must be an instance of ActionReceiver", actionObj)
-			idMethod = getattr(actionReceiver, "getName", None)
-			if not idMethod:
-				idMethod = getattr(actionReceiver, "getDivID", None)
-			if not idMethod:
-				GameManager.actionObjError('actionReceiver (actionObj[0]) must have method "getName" or method "getDivID"', actionObj)
-			actionReceiverID = idMethod()
-			if not isinstance(actionReceiverID, str):
-				GameManager.actionObjError('actionReceiver getName or getDivID must return a string, returned {}'.format(actionReceiverID), actionObj)
-			# store actionReceiver
-			self.actionReceivers[actionReceiverID] = actionReceiver
-			# replace actionReceiver reference with string actionReceiverID
-			actionObj = (actionReceiverID,) + actionObj[1:]
-			newActions.append(actionObj)
+			newActions.append(self.__encodeActionReceiver(actionObj))
 		return newActions
 
 	def __encodeActionReceiversUIChange(self, uiChange, isMutable):
@@ -93,11 +96,15 @@ class GameManager(UIInterface):
 		if uiChange[0] != "set_div":
 			return uiChange, True
 		opts = uiChange[2]
+		onClick = opts.get("onClick", None)
+		onClickActionObj = None if isinstance(onClick, str) else onClick
 		actions = opts.get("actions", None)
-		if not actions:
-			# will both detect no actions present (None) or actions is the empty list
+		if not (actions or onClickActionObj):
+			# For actions it will both detect no actions present (None) or actions is the empty list
 			return uiChange, True
 		newOpts = opts if isMutable else opts.copy()
+		if onClickActionObj:
+			newOpts["onClick"] = self.__encodeActionReceiver(onClickActionObj)
 		if actions:
 			newOpts["actions"] = self.__encodeActionReceivers(actions)
 		return ("set_div", uiChange[1], newOpts), False

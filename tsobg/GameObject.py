@@ -18,8 +18,7 @@ class GameObject():
 		else:
 			raise Error("parent of {} must be either string, GameObject or None. parent={}".format(self.divID, str(parent)[:50]))
 		if parent != None:
-			selectable = ("selectable" in self._flags)
-			divOpts.update({"pos":self._uiPos, "size":self._uiSize, "text":self._text, "img":self._image, "border":self._border, "actions":self._actions, "selectable":selectable, "interactWithImage":interactWithImage})
+			divOpts.update({"pos":self._uiPos, "size":self._uiSize, "text":self._text, "img":self._image, "border":self._border, "onClick":self._onClick, "actions":self._actions})
 		self._uiInterface.stageUIChange(("set_div", self._divID, divOpts))
 
 	def __init__(self, uiInterface:UIInterface, divID, **kwargs):
@@ -38,6 +37,7 @@ class GameObject():
 		self._text = kwargs.get("text", None)
 		self._image = kwargs.get("image", None)
 		self._border = kwargs.get("border", None)
+		self._onClick = kwargs.get("onClick", None)
 		self._actions = kwargs.get("actions", [])
 		self._uiUpdate()
 
@@ -67,6 +67,9 @@ class GameObject():
 	
 	def getBorder(self):
 		return self._border
+
+	def getOnClick(self):
+		return self._onClick
 
 	def getActions(self):
 		return self._actions
@@ -151,6 +154,11 @@ class GameObject():
 		self._border = border
 		if self._isVisible():
 			self._uiInterface.stageUIChange(("set_div", self._divID, {"border":border}))
+
+	def setOnClick(self, onClick):
+		self._onClick = onClick
+		if self._parent:
+			self._uiInterface.stageUIChange(("set_div", self._divID, {"onClick":onClick}))
 
 	def setActions(self, actions):
 		self._actions = actions

@@ -92,7 +92,7 @@ class UIState():
 		"img":None, # adds an img element with "img" as the img attribute
 		"text":None, # adds a text element with "text" as innerHTML
 		# other special
-		"selectable":False,
+		"onClick":None,
 		"actions":[]
 		}
 		

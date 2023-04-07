@@ -35,13 +35,13 @@ class CardMarket(CardGrid):
 		nMissingCards = self.getNSpaces() - self.nCards()
 		newCards = self.deck.draw(nMissingCards)
 		for card in newCards:
-			actions = [(self.actionReveiver, "take_card", card.id, "ia")]
-			self.addCard(card, {"actions":actions})
+			actionObj = (self.actionReveiver, "take_card", card.id, "ia")
+			self.addCard(card, {"onClick":actionObj})
 
 	def removeCard(self, cardId) -> Card:
 		""" If card exists it is removed and returned. otherwise None is returned. """
 		card = self.__lookupCardId(cardId)
-		if super().removeCard(card, {"actions":[]}):
+		if super().removeCard(card, {"onClick":None}):
 			return card
 		else:
 			return None

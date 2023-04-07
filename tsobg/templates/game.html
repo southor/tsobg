@@ -70,8 +70,8 @@
 		ajaxPost(["client_action", currentRevertN, currentStateN], actionObj, receiveUpdate, failedSendAction);
 	}
 
-	function divUserAction(divId, actions) {
-		sendAction(actions[0]);
+	function sendActionFunc(divId, actionObj) {
+		sendAction(actionObj)
 	}
 	
 	// ------------------ response callback functions ------------------
@@ -98,7 +98,7 @@
 						}
 						//console.log("state_n", stateN);
 					} else if (uData[0] === "set_div") {
-						setDiv(uData[1], uData[2], divUserAction);
+						setDiv(uData[1], uData[2], sendActionFunc);
 						//console.log("set_div", uData);
 					} else if (uData[0] === "msg") {
 						level = uData[1];
