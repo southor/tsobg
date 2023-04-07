@@ -1,42 +1,36 @@
 
 from .ActionReceiver import ActionReceiver
 
-def actionObjError(text, actionObj):
+def _actionObjError(text, actionObj):
 	raise ValueError(text + ", actionObj = {}".format(actionObj))
 
-def decodeActionReceiver(arMap, actionReceiverID):
-	if isinstance(actionReceiverID, ActionReceiver):
-		return actionReceiverID
-	else:
-		return arMap.get(actionReceiverID, None)
-
-def encodeActionReceiver(arMap, actionObj):
+def _encodeActionReceiver(arMap, actionObj):
 	if len(actionObj) == 0:
-		GameManager.actionObjError("Received an empty actionObj from game (must contain actionReceiver).", actionObj)
+		_actionObjError("Received an empty actionObj from game (must contain actionReceiver).", actionObj)
 	actionReceiver = actionObj[0] 
 	if not isinstance(actionReceiver, ActionReceiver):
-		GameManager.actionObjError("actionObj[0] must be an instance of ActionReceiver", actionObj)
+		_actionObjError("actionObj[0] must be an instance of ActionReceiver", actionObj)
 	idMethod = getattr(actionReceiver, "getName", None)
 	if not idMethod:
 		idMethod = getattr(actionReceiver, "getDivID", None)
 	if not idMethod:
-		GameManager.actionObjError('actionReceiver (actionObj[0]) must have method "getName" or method "getDivID"', actionObj)
+		_actionObjError('actionReceiver (actionObj[0]) must have method "getName" or method "getDivID"', actionObj)
 	actionReceiverID = idMethod()
 	if not isinstance(actionReceiverID, str):
-		GameManager.actionObjError('actionReceiver getName or getDivID must return a string, returned {}'.format(actionReceiverID), actionObj)
+		_actionObjError('actionReceiver getName or getDivID must return a string, returned {}'.format(actionReceiverID), actionObj)
 	# store actionReceiver
 	arMap[actionReceiverID] = actionReceiver
 	# replace actionReceiver reference with string actionReceiverID
 	actionObj = (actionReceiverID,) + actionObj[1:]
 	return actionObj
 
-def encodeActionReceivers(arMap, actions):
+def _encodeActionReceivers(arMap, actions):
 	newActions = []
 	for actionObj in actions:
-		newActions.append(encodeActionReceiver(arMap, actionObj))
+		newActions.append(_encodeActionReceiver(arMap, actionObj))
 	return newActions
 
-def encodeActionReceiversUIChange(arMap, uiChange, isMutable):
+def _encodeActionReceiversUIChange(arMap, uiChange, isMutable):
 	"""
 	If isMutable is True then the original uiChange will be altered if needed.
 	If isMutale is False then a new uiChnage is created if altering is needed.
@@ -53,12 +47,12 @@ def encodeActionReceiversUIChange(arMap, uiChange, isMutable):
 		return uiChange, True
 	newOpts = opts if isMutable else opts.copy()
 	if onClickActionObj:
-		newOpts["onClick"] = encodeActionReceiver(arMap, onClickActionObj)
+		newOpts["onClick"] = _encodeActionReceiver(arMap, onClickActionObj)
 	if actions:
-		newOpts["actions"] = encodeActionReceivers(arMap, actions)
+		newOpts["actions"] = _encodeActionReceivers(arMap, actions)
 	return ("set_div", uiChange[1], newOpts), False
 
-def sizeToCSSpxComponents(size):
+def _sizeToCSSpxComponents(size):
 	""" Converts size object containing width/height numbers representing number of pixels or "auto".
 	returns tuple with the two strings containing either "auto" or a number with a "px" postfix """
 	x = "auto"
@@ -73,9 +67,9 @@ def sizeToCSSpxComponents(size):
 	return (x, y)
 
 """ Function for converting "pos" attributes doing exactly the same as the other function """
-posToCSSpxComponents = sizeToCSSpxComponents
+_posToCSSpxComponents = _sizeToCSSpxComponents
 
-def deAliasUIChange(uiChange, isMutable=False):
+def _deAliasUIChange(uiChange, isMutable=False):
 	""" Replaces uiChange alias properties like "pos" and "size" with "left","right" and "width","height".
 	If isMutable is True then the original uiChange will be altered if needed.
 	If isMutale is False then a new uiChange is created if altering is needed.
@@ -90,18 +84,29 @@ def deAliasUIChange(uiChange, isMutable=False):
 		return uiChange, True
 	newOpts = opts if isMutable else opts.copy()
 	if hasPos:
-		left,top = posToCSSpxComponents(newOpts.pop("pos"))
+		left,top = _posToCSSpxComponents(newOpts.pop("pos"))
 		assert(type(left) in [int, float, str])
 		assert(type(top) in [int, float, str])
 		newOpts["left"] = left
 		newOpts["top"] = top
 	if hasSize:
-		width,height = sizeToCSSpxComponents(newOpts.pop("size"))
+		width,height = _sizeToCSSpxComponents(newOpts.pop("size"))
 		assert(type(width) in [int, float, str])
 		assert(type(height) in [int, float, str])
 		newOpts["width"] = width
 		newOpts["height"] = height
 	return ("set_div", uiChange[1], newOpts), False
+
+def encodeUIChange(arMap, uiChange, isMutable=False):
+	uiChange,isOriginal = _encodeActionReceiversUIChange(arMap, uiChange, isMutable)
+	uiChange,isOriginal = _deAliasUIChange(uiChange, isMutable or not isOriginal)
+	return uiChange,isOriginal
+
+def decodeActionReceiver(arMap, actionReceiverID):
+	if isinstance(actionReceiverID, ActionReceiver):
+		return actionReceiverID
+	else:
+		return arMap.get(actionReceiverID, None)
 
 def combineUIChanges(uiChangeA, uiChangeB):
 	""" Combines the uiChanges if possible and returns the result

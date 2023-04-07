@@ -8,7 +8,7 @@ from .UIInterface import UIInterface
 from .ActionReceiver import ActionReceiver
 from .UIHistory import UIHistory
 from .GameLog import GameLog
-from .UIState import deAliasUIChange, encodeActionReceiversUIChange, decodeActionReceiver
+from .UIState import encodeUIChange, decodeActionReceiver
 from . import random
 
 class GameManager(UIInterface):
@@ -198,7 +198,6 @@ class GameManager(UIInterface):
 			playerIDs = self.playerUIHistories.keys()
 		assert(playerIDs)
 		for uiChange in uiChanges:
-			uiChange,isOriginal = encodeActionReceiversUIChange(self.arMap, uiChange, False)
-			uiChange,isOriginal = deAliasUIChange(uiChange, not isOriginal)
+			uiChange,isOriginal = encodeUIChange(self.arMap, uiChange, False)
 			for p in playerIDs:
 				self.playerUIHistories[p].stageUIChange(uiChange)

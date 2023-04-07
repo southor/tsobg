@@ -2,7 +2,7 @@
 import unittest
 
 from .UIHistory import UIHistory
-from .UIState import deAliasUIChange
+from .UIState import _deAliasUIChange
 
 class UIHistory_test(unittest.TestCase):
 
@@ -24,8 +24,8 @@ class UIHistory_test(unittest.TestCase):
 		uiHistory.commitUIChanges()
 		# more changes
 		uiHistory.stageUIChange(("set_div", "harbor", {"img":"harbor.png"}))
-		uiHistory.stageUIChange(deAliasUIChange(("set_div", "harbor", {"pos":(10,10)}))[0])
-		uiHistory.stageUIChange(deAliasUIChange(("set_div", "factory", {"pos":"auto"}))[0]) # change should be ignored
+		uiHistory.stageUIChange(_deAliasUIChange(("set_div", "harbor", {"pos":(10,10)}))[0])
+		uiHistory.stageUIChange(_deAliasUIChange(("set_div", "factory", {"pos":"auto"}))[0]) # change should be ignored
 		uiHistory.stageUIChange(("set_div", "factory", {"img":"pink_factory.png"})) # change should be ignored
 		# commit uiState3
 		uiHistory.commitUIChanges()
