@@ -147,11 +147,9 @@ function toggleDivSelected(divId, _) {
 }
 
 // updates div image and/or img actions according to opts
-function setDivImg(div, opts, onClickFunc) {
-	let imgElement = null;
-	
-	if (opts.img || opts.img === null) {
-		imgElement = getDivImgElement(div);
+function setDivImg(div, opts) {
+	if ("img" in opts) {
+		let imgElement = getDivImgElement(div);
 		if (opts.img) {
 			if (imgElement) {
 				imgElement.style.visibility = "visible";
@@ -159,10 +157,6 @@ function setDivImg(div, opts, onClickFunc) {
 				log("info", "creating div img");
 				imgElement = document.createElement("img");
 				div.appendChild(imgElement);
-				imgActions = div.getAttribute("data-imgActions");
-				if (imgActions) {
-					setImgOnClick(div, imgElement, onClickFunc, imgActions);
-				}
 			}
 			imgElement.setAttribute('src', opts.img);
 		} else {
@@ -172,26 +166,6 @@ function setDivImg(div, opts, onClickFunc) {
 			}
 		}
 	}
-
-	if (opts.imgActions || opts.imgActions === null || opts.imgActions === []) {
-		let imgActions = opts.imgActions;
-		if ( ! imgElement) {
-			imgElement = getDivImgElement(div);
-		}
-		if (imgActions) {
-			div.setAttribute("data-imgActions", imgActions);
-			if (imgElement) {
-				setImgOnClick(div, imgElement, onClickFunc, imgActions);
-			}
-		} else {
-			div.removeAttribute("data-imgActions", imgActions);
-			if (imgElement) {
-				imgElement.removeAttribute("onclick");
-			}
-		}
-	}
-
-	return imgElement;
 }
 
 // If val is Number it returns it as string and adds "px", else returns val as is
@@ -281,7 +255,7 @@ function setDiv(id, opts, sendActionFunc) {
 		div.setAttribute("tsobg-onClick", newOnClick);
 	}
 
-	setDivImg(div, opts, sendActionFunc);
+	setDivImg(div, opts);
 
 	if (opts.text || opts.text === null) {
 		let pElement = getDivParagraphElement(div);

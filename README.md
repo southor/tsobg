@@ -4,7 +4,7 @@
 ## Description
 
 Project under development, it is a platform for testing new boardgame prototypes in the browser online with multiple players.
-This project is currently inluding one board game prototype called "Skyscrapers". It is being developed alongside the platform it runs on.
+This project is currently including one board game prototype called "Skyscrapers". It is being developed alongside the platform it runs on.
 The project name "tsobg" is a working project name based on my initials.
 
 ## How to Run

@@ -12,27 +12,27 @@ def unpackCriteria(criteria: tuple):
 def unpackEffect(effect: tuple):
 	return (effect[0], effect[1:])
 
-__categoryCounters = {} # contains cumber of each category
+_categoryCounters = {} # contains cumber of each category
 	
-def __generateCardName(category):
+def _generateCardName(category):
 	def getPostfixNum(category):
-		if category in __categoryCounters:
-			__categoryCounters[category] += 1
+		if category in _categoryCounters:
+			_categoryCounters[category] += 1
 		else:
-			__categoryCounters[category] = 1
-		return __categoryCounters[category]
+			_categoryCounters[category] = 1
+		return _categoryCounters[category]
 	n = getPostfixNum(category)
 	return "card_" + category + "{:02d}".format(n)
 
 # convert from (category, header, rows) to (category, nDuplicates, kwargs)
 # where header strigns are used as key when filling kwargs
-def __addCardDatas(category, header, rows):
+def _addCardDatas(category, header, rows):
 	try:
 		nDuplicatesIdx = header.index("nDuplicates")
 	except ValueError:
 		nDuplicatesIdx = None
 	for row in rows:
-		name = __generateCardName(category)
+		name = _generateCardName(category)
 		nDuplicates = 1
 		kwargs = {}
 		for i,x in enumerate(row):
@@ -44,20 +44,20 @@ def __addCardDatas(category, header, rows):
 		cardData = {"category":category, "name":name, "nDuplicates":nDuplicates, "cardKWArgs":kwargs}
 		cardDatas.append(cardData)
 
-__addCardDatas("materials", # matrials to supply
+_addCardDatas("materials", # matrials to supply
 	("nDuplicates", "buyPrice", "gain"), [
 		(1, 3, {"steel": 3, "concrete": 3}),
 		(1, 3, {"steel": 8}),
 		(1, 4, {"concrete": 10})
 	])
 
-__addCardDatas("materials", # matrials as contract
+_addCardDatas("materials", # matrials as contract
 	("nDuplicates", "buyPrice", "contractSupply"), [
 		(1, 0, {"steel": 2}),
 		(1, 0, {"concrete": 2})
 	])
 
-__addCardDatas("architect",	
+_addCardDatas("architect",	
 	("hirePrice", "beauty", "types", "maxHeightSteel", "maxHeightConcrete"), [
 		(2, 0, ["shop","service"], 10, 4),
 		(2, 0, ["office","apartment"], 10, 5),
@@ -66,14 +66,14 @@ __addCardDatas("architect",
 		(2, 1, ["shop"], 8, 5)
 		])
 		
-__addCardDatas("construction",
+_addCardDatas("construction",
 	("nDuplicates", "hirePrice", "nFloors"), [
 		(1, 4, 6),
 		(1, 3, 4),
 		(1, 2, 2)
 		])
 
-def __tenantCardDatas():
+def _tenantCardDatas():
 	return ("tenant", ("name", "nFloors", "type", "rent", "criterias"), [
 				("Catz Mobile Games", 4, "office", 8, [("entitySum>=", ["beauty","free_view"], 4), ("proximityBuildings", 3, "office", "location_nearby")]),
 				("No Fluke Insurances ", 2, "office", 4, [("proximityBuildings", 3, "office", "location_nearby")]),
@@ -86,10 +86,10 @@ def __tenantCardDatas():
 				("Great View Hotel ", 2, "service", 5, [("aboveFloor", 7), ("entitySum>=", ["free_view"], 4)])
 			])
 
-__addCardDatas(*__tenantCardDatas())
+_addCardDatas(*_tenantCardDatas())
 
 
-__addCardDatas("loan",
+_addCardDatas("loan",
 	("nDuplicates", "amount", "interests"), [
 		(1, 10, [0, 1, 1, 2, 3, 5, 7]),
 		(1, 10, [0, 0, 1, 2, 2, 4, 6]),
@@ -97,13 +97,13 @@ __addCardDatas("loan",
 		(1, 8,  [0, 0, 1, 2, 2, 4, 7])
 		])
 
-__addCardDatas("lot",
+_addCardDatas("lot",
 	("district", "lotNum"), [
 		("A", 1),
 		("B", 3)
 		])
 
-__addCardDatas("production",
+_addCardDatas("production",
 	("title", "buyPrice", "gain", "production"), [
 		("steel mill", 9, {"steel": 2}, {"steel": 2}),
 		("concrete factory", 8, {}, {"concrete": 4})
@@ -113,7 +113,7 @@ __addCardDatas("production",
 # add material trader card (sell material at any time) ?
 # add logistics card (save overflow from material contracts + something else?)
 		
-__addCardDatas("upgrade",	
+_addCardDatas("upgrade",	
 	("title", "buyPrice", "effects"), [
 		("Material Engineer", 3, [("materialDiscount", "steel", [(3, -1), (5, -2)])]), 
 		("Material Engineer", 3, [("materialDiscount", "steel", [(4, -1), (6, -2)])]),

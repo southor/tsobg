@@ -20,10 +20,10 @@ class GameLog_test(unittest.TestCase):
 
 		gameLog.addLogEntries(2, ["hello4", "hello5"])
 
-		self.assertEqual(gameLog._GameLog__findStateBeginIdx(1), 3)
-		self.assertEqual(gameLog._GameLog__findStateEndIdx(1), 4)
-		self.assertEqual(gameLog._GameLog__findStateBeginIdx(0), 0)
-		self.assertEqual(gameLog._GameLog__findStateEndIdx(2), 6)
+		self.assertEqual(gameLog._findStateBeginIdx(1), 3)
+		self.assertEqual(gameLog._findStateEndIdx(1), 4)
+		self.assertEqual(gameLog._findStateBeginIdx(0), 0)
+		self.assertEqual(gameLog._findStateEndIdx(2), 6)
 
 		self.assertEqual(gameLog.getLogEntries(0,1), [(0, 0, "hello0"), (1, 0, "hello1"), (2, 0, "hello2")])
 		self.assertEqual(gameLog.getLogEntries(0,4), [(0, 0, "hello0"), (1, 0, "hello1"), (2, 0, "hello2"), (3, 1, "hello3"), (4, 2, "hello4"), (5, 2, "hello5")])

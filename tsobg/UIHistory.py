@@ -39,7 +39,7 @@ class UIHistory():
 		progUIChanges = []
 		regUIChanges = []
 		for uiChange in self.stagedUIChanges:
-			uiState = UIHistory.__applyUIChange(uiState, progUIChanges, regUIChanges, uiChange)
+			uiState = UIHistory._applyUIChange(uiState, progUIChanges, regUIChanges, uiChange)
 		self.uiStateHistory.append(uiState)
 		self.uiProgressionHistory.append(progUIChanges)
 		self.uiRegressionHistory.append(regUIChanges)
@@ -57,7 +57,7 @@ class UIHistory():
 		else:
 			self.stagedUIChanges.append(uiChange)
 
-	def __applyUIChange(uiState, progUIChanges, regUIChanges, uiChange):
+	def _applyUIChange(uiState, progUIChanges, regUIChanges, uiChange):
 		""" returns the modified uiState """
 		# prune uiChange
 		uiChange = uiState.pruneUIChange(uiChange)

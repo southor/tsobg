@@ -27,8 +27,6 @@ class SkyscrapersGame(GameInterface, ActionReceiver):
 
 	def __init__(self, gameManager):
 		self.gameManager = gameManager
-		#gameRootPath = pathHere.parent
-		#super().__init__("Skyscrapers", gameRootPath)
 		msg = checkCardImageFiles()
 		if msg:
 			print(msg)
@@ -124,8 +122,8 @@ class SkyscrapersGame(GameInterface, ActionReceiver):
 		#self.cardMarket = CardMarket(self.gameManager, self)
 		self.cardMarket = CardMarket(self.gameManager)
 		self.mainBoard = MainBoard(self.gameManager)
-		self.__initPlayerSurfaces(playerNames)
-		self.__initPlayerAreas()
+		self._initPlayerSurfaces(playerNames)
+		self._initPlayerAreas()
 		self.cardMarket.fillUp()
 		self.mainBoard.setFloors(3,1, ["shop", "office", "office"])
 		self.gameManager.stageLogEntry("Game started, players: " + ", ".join(playerNames))
@@ -156,17 +154,17 @@ class SkyscrapersGame(GameInterface, ActionReceiver):
 				self.gameManager.sendMessageToPlayer(("error", "Cannot perform action {}, game has not started yet!".format(action)), playerId)
 				return False
 		if self.gamePhase == "cards_phase" and action == "take_card":
-			return self.__actionTakeCard(actionArgs[1])
+			return self._actionTakeCard(actionArgs[1])
 		else:
 			self.gameManager.sendMessageToPlayer(("info", "Action {} not allowed in the {} phase.".format(action, self.gamePhase)), playerId)
 			
 
 	# --------------- Setup / Action Methods ---------------
 
-	def __getPlayerSurfaceDivID(seatN):
+	def _getPlayerSurfaceDivID(seatN):
 		return "player_space_" + str(seatN)
 
-	def __initPlayerSurfaces(self, playerNames: list):
+	def _initPlayerSurfaces(self, playerNames: list):
 		nPlayers = len(self.playerIDs)
 		# create divs but add to parent in viewed order (unique for each player)
 		divOpts = {"parent":"game_area", "class":"game-surface", "size":(1000, 280)}
@@ -175,21 +173,21 @@ class SkyscrapersGame(GameInterface, ActionReceiver):
 			for i in range(viewingSeatN, viewingSeatN + nPlayers):
 				viewedSeatN = i % nPlayers
 				appearedSeatN = i - viewingSeatN
-				divID = SkyscrapersGame.__getPlayerSurfaceDivID(viewedSeatN)
+				divID = SkyscrapersGame._getPlayerSurfaceDivID(viewedSeatN)
 				self.gameManager.stageUIChange(("set_div", divID, {"text":playerNames[viewedSeatN]}))
 				appearedOrder_divIds[appearedSeatN] = divID # save divId in appeared order for later
 			# set div parent and rest of divopts in appearedOrder (for this player)
 			for divID in appearedOrder_divIds:
 				self.gameManager.stageUIChange(("set_div", divID, divOpts), playerID=playerID)
 
-	def __initPlayerAreas(self):		
+	def _initPlayerAreas(self):		
 		self.playersSupply = [SkyscrapersGame.playerStartSupply.copy() for p in self.playerIDs]
 		self.playerAreas = []
 		for seatN,items in enumerate(self.playersSupply):
-			playerSurfaceDivID = SkyscrapersGame.__getPlayerSurfaceDivID(seatN)
+			playerSurfaceDivID = SkyscrapersGame._getPlayerSurfaceDivID(seatN)
 			self.playerAreas.append(PlayerArea(self.gameManager, self, seatN, playerSurfaceDivID, items))
 
-	def __actionTakeCard(self, cardId):
+	def _actionTakeCard(self, cardId):
 		playerArea = self.getCurrentPlayerArea()
 		if playerArea.nFreeSpaces() == 0:
 			self.gameManager.sendMessageToPlayer(("info", "Cannot take card, player area is full!"), self.getCurrentPlayerID())

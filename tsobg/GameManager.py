@@ -16,9 +16,6 @@ from . import random
 class GameManager(UIInterface, ActionReceiver):
 	
 	def __init__(self):
-	#def __init__(self, name, gameRootPath: Path):
-		#self.name = name
-		#self.gameRootPath = gameRootPath
 		random.seed()
 		self.actionHistory = [] # A list of tuples (playerId, actionObj)
 		self.playerUIHistories = {} # map from playerId to UIHistory object
@@ -30,20 +27,20 @@ class GameManager(UIInterface, ActionReceiver):
 
 	# ----------------- Help Methods -----------------
 
-	def __clampNumber(n, smallest, largest):
+	def _clampNumber(n, smallest, largest):
 		return max(smallest, min(n, largest))
 	
-	def __popClientMessages(self, playerId):
+	def _popClientMessages(self, playerId):
 		msgEntries = self.clientMsgs.get(playerId, [])
 		if msgEntries:
 			self.clientMsgs[playerId] = []
 		return [("msg",) + m for m in msgEntries]
 
-	def __getLogEntries(self, fromStateN, toStateN):
+	def _getLogEntries(self, fromStateN, toStateN):
 		logEntries = self.gameLog.getLogEntries(fromStateN, toStateN)
 		return [("game_log",) + l for l in logEntries]
 
-	def __getUIChanges(self, playerId, fromStateN, toStateN):
+	def _getUIChanges(self, playerId, fromStateN, toStateN):
 		if self.gameStarted():
 			if playerId in self.playerUIHistories:
 				assert(self.playerUIHistories[playerId].getCurrentStateN() == self.currentStateN)
@@ -53,7 +50,7 @@ class GameManager(UIInterface, ActionReceiver):
 		else:
 			return []
 
-	def __advanceGameState(self, actionObj, playerId=None):
+	def _advanceGameState(self, actionObj, playerId=None):
 		# advance game state
 		self.actionHistory.append((playerId, actionObj))
 		self.currentStateN += 1
@@ -71,18 +68,18 @@ class GameManager(UIInterface, ActionReceiver):
 		self.game = game
 
 	def getClientUpdates(self, playerId, revertN, fromStateN, toStateN):
-		fromStateN = GameManager.__clampNumber(fromStateN, 0, self.currentStateN)
-		toStateN = GameManager.__clampNumber(toStateN, 0, self.currentStateN)
+		fromStateN = GameManager._clampNumber(fromStateN, 0, self.currentStateN)
+		toStateN = GameManager._clampNumber(toStateN, 0, self.currentStateN)
 		data = []
 		if revertN != self.currentRevertN:
 			# we reset the client and let it recreate divs and log from stateN zero
 			data += [("reset_ui",), ("revert_n", self.currentRevertN)]
 			fromStateN = 0
 		data += [("state_n", toStateN)]
-		data += self.__popClientMessages(playerId)
+		data += self._popClientMessages(playerId)
 		if self.gameStarted():
-			data += self.__getLogEntries(fromStateN, toStateN)
-			data += self.__getUIChanges(playerId, fromStateN, toStateN)
+			data += self._getLogEntries(fromStateN, toStateN)
+			data += self._getUIChanges(playerId, fromStateN, toStateN)
 		return data
 	
 	def clientAction(self, currentRevertN, stateN, actionObj, playerId = None):
@@ -95,7 +92,7 @@ class GameManager(UIInterface, ActionReceiver):
 		if (actionReceiver is not self) and (not self.game.actionCheck(actionArgs, playerId)):
 			return False
 		if actionReceiver.tryAction(actionArgs, playerId):
-			self.__advanceGameState(actionObj, playerId)
+			self._advanceGameState(actionObj, playerId)
 			return True
 		else:
 			return False
@@ -123,7 +120,7 @@ class GameManager(UIInterface, ActionReceiver):
 	def revertToStateN(self, stateN):
 		if stateN <= 0:
 			random.seed()
-		toStateN = GameManager.__clampNumber(stateN, 1, self.currentStateN)
+		toStateN = GameManager._clampNumber(stateN, 1, self.currentStateN)
 		if toStateN < self.currentStateN:
 			assert(toStateN >= 1)
 			# revert game state

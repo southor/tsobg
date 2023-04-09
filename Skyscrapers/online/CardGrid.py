@@ -19,7 +19,7 @@ class CardGrid():
 	
 	cellPadding = 10
 
-	def __updateSurfaceDivSize(self):
+	def _updateSurfaceDivSize(self):
 		surfaceSize = self.grid.getCurrentUISize()
 		self.uiInterface.stageUIChange(("set_div", self.surfaceDivID, {"size": surfaceSize}))
 
@@ -37,7 +37,7 @@ class CardGrid():
 		#				uiOffsetPos[1] + gridSpaces[1] * cellSize[1]) # height
 		#surfaceSize = self.grid.getCurrentUISize()
 		#uiInterface.stageUIChange(("set_div", surfaceDivID, {"size": surfaceSize}))
-		self.__updateSurfaceDivSize()
+		self._updateSurfaceDivSize()
 
 	def getNSpaces(self):
 		return self.grid.getMaxNItems()
@@ -56,7 +56,7 @@ class CardGrid():
 		uiPos = self.grid.addItem(card)
 		if uiPos:
 			if self.grid.growthHappened(clearFlag=True):
-				self.__updateSurfaceDivSize()
+				self._updateSurfaceDivSize()
 			divOpts = {"parent":self.surfaceDivID, "pos":uiPos}
 			divOpts.update(extraDivOpts)
 			card.setDiv(self.uiInterface, **divOpts)

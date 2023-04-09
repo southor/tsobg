@@ -202,7 +202,7 @@ def shutdownServer():
 			globals()['shutdownSignaled'] = True
 			return renderMsgPage("Server was shutdown.")
 		else:
-			return renderMsgPage("Cannot turn off server.<br/>Instead use Ctrl+C in the terminal window.", "/admin?token=" + token, "return to Admin")
+			return renderMsgPage("Cannot turn off server. Instead use Ctrl+C in the terminal window.", "/admin?token=" + token, "return to Admin")
 	else:
 		return renderTokenError(token)
 

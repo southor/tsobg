@@ -15,19 +15,19 @@ from CardGrid import CardGrid
 
 class CardMarket(CardGrid):
 	
-	def __initCardDict(self, allCards):
+	def _initCardDict(self, allCards):
 		self.cardDict = {}
 		for card in allCards:
 			self.cardDict[card.id] = card
 	
-	def __lookupCardId(self, cardId):
+	def _lookupCardId(self, cardId):
 		return self.cardDict[cardId]
 	
 	def __init__(self, uiInterface:UIInterface):
 		super().__init__(uiInterface, "card_market", (5, 3))
 		uiInterface.stageUIChange(("set_div", "card_market", {"parent": "center"}))
 		allCards = createAllCards()
-		self.__initCardDict(allCards)
+		self._initCardDict(allCards)
 		self.deck = Deck(allCards)
 	
 	def fillUp(self):
@@ -39,7 +39,7 @@ class CardMarket(CardGrid):
 
 	def removeCard(self, cardId) -> Card:
 		""" If card exists it is removed and returned. otherwise None is returned. """
-		card = self.__lookupCardId(cardId)
+		card = self._lookupCardId(cardId)
 		if super().removeCard(card, {"onClick":None}):
 			return card
 		else:

@@ -1,14 +1,14 @@
 
 class UIGrid():
 	
-	def __initCells(self):
+	def _initCells(self):
 		self.rows = []
 		self.itemIndex = {}
 		for i in range(0, self.nRows):
 			row = [None]*self.nColumns
 			self.rows.append(row)
 
-	def __findItem(self):
+	def _findItem(self):
 		for rowN,row in enumerate(self.rows):
 			for colN,cell in enumerate(row):
 				if cell:
@@ -16,7 +16,7 @@ class UIGrid():
 		return None
 	
 	# returns grid position (rowN, colN)
-	def __findItem(self, item):
+	def _findItem(self, item):
 		for rowN,row in enumerate(self.rows):
 			for colN,cell in enumerate(row):
 				#if cell == item:
@@ -24,7 +24,7 @@ class UIGrid():
 					return rowN,colN
 		return None
 
-	def __findFreeCell(self):
+	def _findFreeCell(self):
 		""" returns grid position as (colN, rowN) or None if no free cell was found """
 		for rowN,row in enumerate(self.rows):
 			for colN,cell in enumerate(row):
@@ -32,7 +32,7 @@ class UIGrid():
 					return (colN,rowN)
 		return None
 
-	def __grow(self):
+	def _grow(self):
 		if self.autoGrow == "columns":
 			newRows = []
 			for i,row in enumerate(self.rows):
@@ -66,7 +66,7 @@ class UIGrid():
 		#	raise RuntimeError("Must specify at least one of maxNColumns, maxNRows.")
 		#if self.maxNColumns != None and self.maxNRows != None and self.nSpaces != None:
 		#	raise RuntimeError("UIGrid constructor was called with 3 optional args (maxNColumns, maxNRows, nSpaces), only 2 of three can be used.")
-		self.__initCells()
+		self._initCells()
 		
 	#def getNSpaces(self):
 	#	return self.nSpaces
@@ -115,10 +115,10 @@ class UIGrid():
 		return x,y
 
 	def getItemGridPos(self, item):
-		return self.__findItem(item)
+		return self._findItem(item)
 
 	def getItem(self):
-		gridPos = __findItem(self)
+		gridPos = _findItem(self)
 		if gridPos:
 			rowN,colN = gridPos
 			return self.rows[rowN][colN]
@@ -133,10 +133,10 @@ class UIGrid():
 		"""
 		if self.isFull():
 			return None
-		gridPos = self.__findFreeCell()
+		gridPos = self._findFreeCell()
 		if not gridPos:
-			self.__grow()
-			gridPos = self.__findFreeCell()
+			self._grow()
+			gridPos = self._findFreeCell()
 		assert(gridPos)
 		colN,rowN = gridPos
 		assert(self.rows[rowN][colN] == None)
@@ -145,7 +145,7 @@ class UIGrid():
 		return self.getCellUIPos(rowN, colN)
 
 	def hasItem(self, item, recursive=False, remove=False):
-		gridPos = self.__findItem(item)
+		gridPos = self._findItem(item)
 		if gridPos:
 			if remove:
 				rowN,colN = gridPos

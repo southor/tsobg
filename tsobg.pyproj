@@ -174,9 +174,6 @@
     <Compile Include="RepelloLab\main.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="RepelloLab\GameBoard_Old.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="RepelloLab\PlayerObject.py">
       <SubType>Code</SubType>
     </Compile>
@@ -240,9 +237,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tsobg\Layout.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="tsobg\ObjectGrid_Old.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tsobg\random.py">

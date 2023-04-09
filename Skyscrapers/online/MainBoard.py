@@ -19,16 +19,16 @@ class MainBoard():
     floorShiftY = -20
 
     
-    def __getDivID(tileX, tileY, i):
+    def _getDivID(tileX, tileY, i):
         return "floor_" + str(tileX) + "_" + str(tileY) + "_" + str(i)
 
-    def __getFloorFilename(floor):
+    def _getFloorFilename(floor):
         return "game_file/" + floorGraphicsFolder + "/" + "floor_" + floor + ".png"
 
     def getCityAreaUISize(self):
         return (self.getNColumns() * MainBoard.tileSize, self.getNRows() * MainBoard.tileSize)
 
-    def __getFloorImgUIPos(self, tileX, tileY, i):
+    def _getFloorImgUIPos(self, tileX, tileY, i):
         # Using css coordinate system (origo is in top left)
         tileSize = MainBoard.tileSize
         lotSize = MainBoard.lotSize
@@ -38,12 +38,12 @@ class MainBoard():
         floorImgTopLeftCorner = (lotTopLeftCorner[0] + MainBoard.floorShiftX * i, lotTopLeftCorner[1] + MainBoard.floorShiftY * (i + 1))
         return floorImgTopLeftCorner
 
-    def __initGrid(self, map):
+    def _initGrid(self, map):
         self.grid = [list(row) for row in board_data.map]
 
     def __init__(self, uiInterface: UIInterface):
         self.uiInterface = uiInterface
-        self.__initGrid(board_data.map)
+        self._initGrid(board_data.map)
         uiInterface.stageUIChange(("set_div", "main_board", {"parent": "center", "size": (1000, 700), "img":"game_file/generated_graphics/map.png"}))
 
     def getNRows(self):
@@ -88,20 +88,20 @@ class MainBoard():
         newHeight = len(floors)
         
         for i in range(0,oldHeight):
-            divID = MainBoard.__getDivID(tileX, tileY, i)
+            divID = MainBoard._getDivID(tileX, tileY, i)
             if i >= newHeight:
                 # remove floor
                 self.uiInterface.stageUIChange(("set_div", divID, {"parent":None}))
             elif oldFloors[i] != floors[i]:
                 # change floor image
-                filename = MainBoard.__getFloorFilename(floors[i])
+                filename = MainBoard._getFloorFilename(floors[i])
                 self.uiInterface.stageUIChange(("set_div", divID, {"img":filename}))
         
         for i in range(oldHeight, newHeight):
             # add floor
-            divID = MainBoard.__getDivID(tileX, tileY, i)
-            filename = MainBoard.__getFloorFilename(floors[i])
-            uiPos = self.__getFloorImgUIPos(tileX, tileY, i)
+            divID = MainBoard._getDivID(tileX, tileY, i)
+            filename = MainBoard._getFloorFilename(floors[i])
+            uiPos = self._getFloorImgUIPos(tileX, tileY, i)
             divOpts = {"parent":"main_board", "divPositioning":"absolute", "img":filename, "pos":uiPos}
             self.uiInterface.stageUIChange(("set_div", divID, divOpts))
         

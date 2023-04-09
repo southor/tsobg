@@ -187,7 +187,7 @@ class GameObject():
 				if object._parent is self:
 					object._parent = None
 					if "visible" in object._flags:
-						object.__uiUpdate()
+						object._uiUpdate()
 				else:
 					# The parent of object must be a child or descendent, so it should already have been removed by call to self._layout.hasObject
 					assert(object._parent is None)

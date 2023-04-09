@@ -37,21 +37,21 @@ class Card():
 		self.id = cardData["name"] + "_d" + str(duplicateN)
 		self.divCreated = False
 		
-	def __getFilename(self):
+	def _getFilename(self):
 		return "game_file/" + cardsFolder + "/" + self.data["name"] + ".png"
 
-	def __newDivOpts(self):
+	def _newDivOpts(self):
 		if self.divCreated:
 			return {}
 		else:
 			self.divCreated = True
-			return {"divPositioning":"absolute", "img":self.__getFilename()}
+			return {"divPositioning":"absolute", "img":self._getFilename()}
 		
 	def sameCardAs(self, otherCard):
 		return self.data is otherCard.data
 		
 	def setDiv(self, uiInterface: UIInterface, **divOpts):
 		""" stages set_div on uiInterface for this card with divOpts, img is added automatically to divOpts """
-		divOpts2 = self.__newDivOpts()
+		divOpts2 = self._newDivOpts()
 		divOpts2.update(divOpts)
 		uiInterface.stageUIChange(("set_div", self.id, divOpts2))
