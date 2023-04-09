@@ -25,4 +25,8 @@ class GameInterface(ActionReceiver):
 		""" reset game state to the same as after __init__"""
 		pass
 
+	def startGame(self, playerIDs: list, playerNames: list):
+		""" Is called when game should start and provides the player ids and names """
+		pass
+
 

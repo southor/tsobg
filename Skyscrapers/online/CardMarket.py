@@ -23,19 +23,21 @@ class CardMarket(CardGrid):
 	def __lookupCardId(self, cardId):
 		return self.cardDict[cardId]
 	
-	def __init__(self, uiInterface:UIInterface, actionReveiver:ActionReceiver):
+	#def __init__(self, uiInterface:UIInterface, actionReveiver:ActionReceiver):
+	def __init__(self, uiInterface:UIInterface):
 		super().__init__(uiInterface, "card_market", (5, 3))
 		uiInterface.stageUIChange(("set_div", "card_market", {"parent": "center"}))
 		allCards = createAllCards()
 		self.__initCardDict(allCards)
 		self.deck = Deck(allCards)
-		self.actionReveiver = actionReveiver
+		#self.actionReveiver = actionReveiver
 	
 	def fillUp(self):
 		nMissingCards = self.getNSpaces() - self.nCards()
 		newCards = self.deck.draw(nMissingCards)
 		for card in newCards:
-			actionObj = (self.actionReveiver, "take_card", card.id, "ia")
+			#actionObj = (self.actionReveiver, "take_card", card.id, "ia")
+			actionObj = ("Skyscrapers", "take_card", card.id, "ia")
 			self.addCard(card, {"onClick":actionObj})
 
 	def removeCard(self, cardId) -> Card:
