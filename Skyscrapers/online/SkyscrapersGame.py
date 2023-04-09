@@ -8,7 +8,7 @@ pathHere = Path(__file__).absolute().parent
 # import tsobg GameInterface
 sys.path.append(str(pathHere.parent.parent))
 print(pathHere.parent.parent)
-from tsobg import GameInterface
+from tsobg import GameInterface, ActionReceiver
 
 # import SkyScrapers cards
 #sys.path.append(str(pathHere.parent))
@@ -19,7 +19,7 @@ from CardMarket import CardMarket
 from MainBoard import MainBoard
 
 
-class SkyscrapersGame(GameInterface):
+class SkyscrapersGame(GameInterface, ActionReceiver):
 
 	playerStartSupply = {"money":12}
 
@@ -99,6 +99,37 @@ class SkyscrapersGame(GameInterface):
 	def getRootPath(self):
 		return pathHere.parent
 
+	def resetGameState(self):
+		""" reset game state to the same as after __init__"""
+		selfVars = vars(self)
+		for k in self.gameStateVars:
+			if k in selfVars:
+				selfVars.pop(k)
+
+	def startGame(self, playerIDs: list, playerNames: list):
+		gameIsStarted = hasattr(self, "playerIDs")
+		assert(not gameIsStarted)
+		# check card image files
+		text = checkCardImageFiles()
+		if text:
+			self.gameManager.sendMessageToPlayers(("error", text))
+		# init game
+		self.gameManager.registerActionReceiver(self, self.getName())
+		self.playerIDs = playerIDs
+		self.playerNames = playerNames
+		self.gamePhase = "cards_phase"
+		self.currentPlayer = 0
+		self.gameManager.stageUIChange(("set_div", "game_area", {"width":1015}))
+		self.gameManager.stageUIChange(("set_div", "center", {"parent": "game_area", "class": "game-surface", "width":1000}))
+		#self.cardMarket = CardMarket(self.gameManager, self)
+		self.cardMarket = CardMarket(self.gameManager)
+		self.mainBoard = MainBoard(self.gameManager)
+		self.__initPlayerSurfaces(playerNames)
+		self.__initPlayerAreas()
+		self.cardMarket.fillUp()
+		self.mainBoard.setFloors(3,1, ["shop", "office", "office"])
+		self.gameManager.stageLogEntry("Game started, players: " + ", ".join(playerNames))
+
 	def actionCheck(self, actionArgs, playerId):
 		if playerId != self.getCurrentPlayerID():
 			if playerId == None:
@@ -109,18 +140,14 @@ class SkyscrapersGame(GameInterface):
 				return False
 		return True
 	
-	def tryAction(self, actionArgs, playerId=None):
+	# --------------- "ActionReceiver" expected methods ---------------
+
+	def tryAction(self, actionArgs, playerId):
 		gameHasStarted = hasattr(self, "playerIDs")
 		action = actionArgs[0]
-		if action not in ["start_game", "take_card"]:
+		if action not in ["take_card"]:
 			self.gameManager.sendMessageToPlayer(("error", "Unknown action: " + str(actionArgs)), playerId)
 			return False
-		if action == "start_game":
-			if gameHasStarted:
-				# game has already been started
-				raise RuntimeError("Tried to start game but playerIDs is already set in " + __class__.__name__ + " object")
-			self.__actionStartGame(actionArgs[1], actionArgs[2]) # pass playerIDs and playerNames
-			return True
 		if not gameHasStarted:
 			# game has not been started yet
 			if playerId == None:
@@ -134,14 +161,7 @@ class SkyscrapersGame(GameInterface):
 			self.gameManager.sendMessageToPlayer(("info", "Action {} not allowed in the {} phase.".format(action, self.gamePhase)), playerId)
 			
 
-	def resetGameState(self):
-		""" reset game state to the same as after __init__"""
-		selfVars = vars(self)
-		for k in self.gameStateVars:
-			if k in selfVars:
-				selfVars.pop(k)
-		
-	# --------------- Action Methods ---------------
+	# --------------- Setup / Action Methods ---------------
 
 	def __getPlayerSurfaceDivID(seatN):
 		return "player_space_" + str(seatN)
@@ -168,26 +188,6 @@ class SkyscrapersGame(GameInterface):
 		for seatN,items in enumerate(self.playersSupply):
 			playerSurfaceDivID = SkyscrapersGame.__getPlayerSurfaceDivID(seatN)
 			self.playerAreas.append(PlayerArea(self.gameManager, self, seatN, playerSurfaceDivID, items))
-
-	def __actionStartGame(self, playerIDs: list, playerNames: list):
-		# check card image files
-		text = checkCardImageFiles()
-		if text:
-			self.gameManager.sendMessageToPlayers(("error", text))
-		# init game
-		self.playerIDs = playerIDs
-		self.playerNames = playerNames
-		self.gamePhase = "cards_phase"
-		self.currentPlayer = 0
-		self.gameManager.stageUIChange(("set_div", "game_area", {"width":1015}))
-		self.gameManager.stageUIChange(("set_div", "center", {"parent": "game_area", "class": "game-surface", "width":1000}))
-		self.cardMarket = CardMarket(self.gameManager, self)
-		self.mainBoard = MainBoard(self.gameManager)
-		self.__initPlayerSurfaces(playerNames)
-		self.__initPlayerAreas()
-		self.cardMarket.fillUp()
-		self.mainBoard.setFloors(3,1, ["shop", "office", "office"])
-		self.gameManager.stageLogEntry("Game started, players: " + ", ".join(playerNames))
 
 	def __actionTakeCard(self, cardId):
 		playerArea = self.getCurrentPlayerArea()

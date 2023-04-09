@@ -5,7 +5,7 @@ from pathlib import Path
 from pathlib import PurePath
 
 from .UIInterface import UIInterface
-from .actions import decodeActionObj, ActionReceiver
+from .actions import ActionReceiver, decodeActionReceiver
 from .UIHistory import UIHistory
 from .GameLog import GameLog
 from .UIState import encodeUIChange
@@ -13,7 +13,7 @@ from . import random
 
 
 
-class GameManager(UIInterface):
+class GameManager(UIInterface, ActionReceiver):
 	
 	def __init__(self):
 	#def __init__(self, name, gameRootPath: Path):
@@ -53,6 +53,13 @@ class GameManager(UIInterface):
 		else:
 			return []
 
+	def __advanceGameState(self, actionObj, playerId=None):
+		# advance game state
+		self.actionHistory.append((playerId, actionObj))
+		self.currentStateN += 1
+		for uiHistory in self.playerUIHistories.values():
+			uiHistory.commitUIChanges()
+
 	# ----------------- Server Methods -----------------
 	
 	def getGame(self):
@@ -82,26 +89,13 @@ class GameManager(UIInterface):
 		if stateN != self.currentStateN:
 			return False # TODO: respond 409 conflict?
 
-		actionObj = decodeActionObj(self.arMap, actionObj)
-
-		#if len(actionObj) == 0:
-		#	raise ValueError("Received actionObj from client without an actionReceiver and no arguments!")
-		#actionReceiver = decodeActionReceiver(self.arMap, actionObj[0])
-		#actionArgs = actionObj[1:]
-		#if not actionReceiver:
-		#	raise ValueError("Received invalid actionReceiverID in actionObj, actionObj = {}".format(actionObj))
-		
-		actionReceiver = actionObj[0]
+		actionReceiver = decodeActionReceiver(self.arMap, actionObj[0])
 		actionArgs = actionObj[1:]
 		assert(isinstance(actionReceiver, ActionReceiver))
-		if not self.game.actionCheck(actionArgs, playerId=playerId):
+		if (actionReceiver is not self) and (not self.game.actionCheck(actionArgs, playerId)):
 			return False
 		if actionReceiver.tryAction(actionArgs, playerId):
-			# advance game state
-			self.actionHistory.append((playerId, actionObj))
-			self.currentStateN += 1
-			for uiHistory in self.playerUIHistories.values():
-				uiHistory.commitUIChanges()
+			self.__advanceGameState(actionObj, playerId)
 			return True
 		else:
 			return False
@@ -112,7 +106,7 @@ class GameManager(UIInterface):
 		for p in playerIDs:
 			self.playerUIHistories[p] = UIHistory()
 			self.clientMsgs[p] = []
-		actionObj = (self.game, "start_game", playerIDs, playerNames)
+		actionObj = (self, "start_game", playerIDs, playerNames)
 		res = self.clientAction(0, 0, actionObj)
 		if res:
 			print("Game started, playerIDs:", playerIDs)
@@ -131,6 +125,7 @@ class GameManager(UIInterface):
 			random.seed()
 		toStateN = GameManager.__clampNumber(stateN, 1, self.currentStateN)
 		if toStateN < self.currentStateN:
+			assert(toStateN >= 1)
 			# revert game state
 			# go back to game state zero, and rebuild everything from there
 			random.reset()
@@ -163,6 +158,17 @@ class GameManager(UIInterface):
 		else:
 			return None
 	
+	# --------------- "ActionReceiver" expected methods ---------------
+	
+	def tryAction(self, actionArgs, playerId):
+		if actionArgs[0] == "start_game":
+			if self.gameStarted():
+				# game has already been started
+				raise RuntimeError("Tried to start game but game was already started.")
+			self.game.startGame(actionArgs[1], actionArgs[2]) # pass playerIDs and playerNames
+			return True
+		return False
+
 	# ----------------- Client Message methods -----------------
 	
 	def sendMessageToPlayer(self, msgEntry, playerID):
@@ -188,7 +194,14 @@ class GameManager(UIInterface):
 	def stageLogEntries(self, msgs: list):
 		self.gameLog.addLogEntries(self.currentStateN, msgs)
 
-	# ----------------- UI Methods -----------------	
+	# ----------------- UI Methods -----------------
+
+	def registerActionReceiver(self, actionReceiver, actionReceiverID):
+		if not isinstance(actionReceiver, ActionReceiver):
+			raise ValueError("actionReceiver must be of type ActionReceiver, not " + str(type(actionReceiver)))
+		if not isinstance(actionReceiverID, str):
+			raise ValueError("actionReceiverID must be of type string, not " + str(type(actionReceiverID)))
+		self.arMap[actionReceiverID] = actionReceiver
 
 	def stageUIChange(self, uiChange, playerID = None, playerIDs = None):
 		"""playerID and playerIDs are optional, but don't pass more than one of them. If none are passed then it applies to all players."""

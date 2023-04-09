@@ -1,6 +1,6 @@
 from .actions import ActionReceiver
 
-class GameInterface(ActionReceiver):
+class GameInterface():
 	
 	def getName(self):
 		pass
@@ -15,14 +15,11 @@ class GameInterface(ActionReceiver):
 		"""
 		pass
 
-	def tryAction(self, actionArgs):
-		""" 
-		Used only for startGame action, other actions are called on the actionReceiver for each action.
-		"""
-		pass
-
 	def resetGameState(self):
 		""" reset game state to the same as after __init__"""
 		pass
 
+	def startGame(self, playerIDs: list, playerNames: list):
+		""" Is called when game should start and provides the player ids and names """
+		pass
 
