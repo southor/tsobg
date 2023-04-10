@@ -6,7 +6,7 @@ class ActionReceiver:
 	"""
 
 	def tryAction(self, actionArgs, playerId) -> bool:
-		pass
+		return False
 
 def _raiseActionObjError(text, actionObj):
 	raise ValueError(text + ", actionObj = {}".format(actionObj))

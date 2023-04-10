@@ -1,11 +1,38 @@
 
 
 // store div elements that was created by this file in a Map object, accessed by div id
-divs = null;
-selectedIds = null;
+var divs = null;
+var selectedIds = null;
+var specialDivOpts = null;
+let specialDivOptsDefaults = {"tsobg-selectable":false, "tsobg-onClick":null};
+
 
 function log(level, ...msgArgs) {
 	//console.log(level, msgArgs);
+}
+
+function getSpecialDivOpts(divId, name) {
+	let specialOpts = (specialDivOpts ? specialDivOpts.get(divId) : null) ?? specialDivOptsDefaults;
+	return specialOpts["tsobg-" + name];
+}
+
+function setSpecialDivOpts(divId, name, value) {
+	if (specialDivOpts === null) {
+		specialDivOpts = new Map();
+	}
+	let specialOpts = specialDivOpts.get(divId) ?? Object.assign({}, specialDivOptsDefaults);
+	specialOpts["tsobg-" + name] = value;
+}
+
+function readSpecialDivOpts(divId, opts, name) {
+	var value;
+	if (name in opts) {
+		value = opts[name];
+		setSpecialDivOpts(divId, name, value);
+	} else {
+		value = getSpecialDivOpts(divId, name);
+	}
+	return value;
 }
 
 /**
@@ -76,49 +103,9 @@ function stopEventPropagation(e) {
 }
 
 /**
- * Sets the onclick property for the div
- * @param {Element} div The div element to set
- * @param {function(string, any[])} onClickFunc The function that should be called, the function should have the form 'function(divId, actions)'
- * @param {any[]} actionObj
+ * @return true if object is then selected, false otehrwise
  */
-function setDivOnClick(div, onClickFunc, actionObj) {
-	log("info", "setDivOnClick with actionObj: ", actionObj);
-	if (onClickFunc) {
-		div.onclick = function(e) {
-			log("info", "divOnClick");
-			onClickFunc(div.getAttribute("id"), actionObj);
-			stopEventPropagation(e);
-			return true;
-		};
-	} else {
-		div.onclick = function(e) {
-			return false;
-		};
-	}
-}
-
-/**
- * Sets the onclick property for the an image located on top of a div
- * @param {Element} div The div element of the image to set
- * @param {function(string, any[])} onClickFunc The function that should be called, the function should have the form 'function(divId, actions)'
- * @param {any[]} actions An array of actions, these actions will be passed to the function every time the image is clicked
- */
-function setImgOnClick(div, imgElement, onClickFunc, actions) {
-	log("info", "setImgOnClick: ", actions);
-	if (onClickFunc) {
-		imgElement.onclick = function(e) {
-			log("info", "imgOnClick");
-			onClickFunc(div.getAttribute("id"), actions[0]);
-			stopEventPropagation(e);
-		};
-	} else {
-		div.onclick = function(e) {
-			return false;
-		};
-	}
-}
-
-function toggleDivSelected(divId, _) {
+function toggleDivSelected(divId) {
 	highlightDivId = divId + "_highlight";
 	selectedIds = getSelectedIds();
 	if (selectedIds.has(divId)) {
@@ -130,6 +117,7 @@ function toggleDivSelected(divId, _) {
 		} else {
 			console.log("highlight was never created in the first place");
 		}
+		return false;
 	} else {
 		// select it
 		if ( ! getDiv(highlightDivId)) {
@@ -143,6 +131,37 @@ function toggleDivSelected(divId, _) {
 		setDiv(highlightDivId, highlightOpts);
 		selectedIds.add(divId);
 		console.log("highlight on");
+		return true;
+	}
+}
+
+/**
+ * Sets the onclick property for the div
+ * @param {Element} div The div element to set
+ * @param {boolean} selectable
+ * @param {function(string, any[])} onClickFunc The function that should be called, the function should have the form 'function(divId, actions)'
+ * @param {any[]} actionObj
+ */
+function setDivOnClick(div, selectable, onClickFunc, actionObj) {
+	log("info", "setDivOnClick with actionObj: ", actionObj);
+	if (selectable || onClickFunc) {
+		div.onclick = function(e) {
+			log("info", "divOnClick");
+			let divId = div.getAttribute("id");
+			if (selectable) {
+				toggleDivSelected(divId);
+			}
+			if (onClickFunc) {
+				onClickFunc(divId, actionObj);
+			}
+			stopEventPropagation(e);
+			return true;
+		};
+	} else {
+		div.onclick = function(e) {
+			stopEventPropagation(e);
+			return false;
+		};
 	}
 }
 
@@ -171,6 +190,25 @@ function setDivImg(div, opts) {
 // If val is Number it returns it as string and adds "px", else returns val as is
 function addPXIfNeeded(val) {
 	return (typeof val == "number") ? (val.toString() + "px") : val;
+}
+
+function setDivClickSettings(div, opts, sendActionFunc) {
+	let selectable = readSpecialDivOpts(div.getAttribute("id"), opts, "selectable");
+	let onClick = readSpecialDivOpts(div.getAttribute("id"), opts, "onClick");
+	var onClickFunc = null;
+	var actionObj = null;
+	if (onClick === "actions") {
+		// TODO Trigger popup of actions to choose from (use "actions" property)
+		onClickFunc = null;
+	} else if (Array.isArray(onClick)) {
+		actionObj = onClick
+		onClickFunc = sendActionFunc;
+	} else if (onClick === null) {
+		onClickFunc = null;
+	} else {
+		log("error", "Received onClick property with invalid value: ", onClick);
+	}
+	setDivOnClick(div, selectable, onClickFunc, actionObj);
 }
 
 // If div does not exists it is created
@@ -234,25 +272,8 @@ function setDiv(id, opts, sendActionFunc) {
 		div.style.borderColor = opts.borderColor;
 	}
 
-	if ("onClick" in opts) {
-		oldOnClick = div.getAttribute("tsobg-onClick");
-		newOnClick = opts.onClick
-		if (newOnClick !== oldOnClick) {
-			if (newOnClick === "select") {
-				setDivOnClick(div, toggleDivSelected);
-			} else if (newOnClick === "actions") {
-				// TODO Trigger popup of actions to choose from (use "actions" property)
-				setDivOnClick(div, null);
-			} else if (Array.isArray(newOnClick)) {
-				actionObj = newOnClick
-				setDivOnClick(div, sendActionFunc, actionObj);
-			} else if (newOnClick === null) {
-				setDivOnClick(div, null);
-			} else {
-				log("error", "Received onClick property with invalid value: ", newOnClick);
-			}
-		}
-		div.setAttribute("tsobg-onClick", newOnClick);
+	if ("selectable" in opts || "onClick" in opts) {
+		setDivClickSettings(div, opts, sendActionFunc);
 	}
 
 	setDivImg(div, opts);

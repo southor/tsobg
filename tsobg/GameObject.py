@@ -18,7 +18,8 @@ class GameObject():
 		else:
 			raise Error("parent of {} must be either string, GameObject or None. parent={}".format(self.divID, str(parent)[:50]))
 		if parent != None:
-			divOpts.update({"pos":self._uiPos, "size":self._uiSize, "text":self._text, "img":self._image, "border":self._border, "onClick":self._onClick, "actions":self._actions})
+			selectable = self.getFlag("selectable")
+			divOpts.update({"pos":self._uiPos, "size":self._uiSize, "text":self._text, "img":self._image, "border":self._border, "selectable":selectable, "onClick":self._onClick, "actions":self._actions})
 		self._uiInterface.stageUIChange(("set_div", self._divID, divOpts))
 
 	def __init__(self, uiInterface:UIInterface, divID, **kwargs):
