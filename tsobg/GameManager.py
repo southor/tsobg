@@ -86,8 +86,8 @@ class GameManager(UIInterface, ActionReceiver):
 		if stateN != self.currentStateN:
 			return False # TODO: respond 409 conflict?
 
-		actionReceiver = decodeActionReceiver(self.arMap, actionObj[0])
-		actionArgs = actionObj[1:]
+		actionReceiver = decodeActionReceiver(self.arMap, actionObj["receiver"])
+		actionArgs = actionObj.get("args", [])
 		assert(isinstance(actionReceiver, ActionReceiver))
 		if (actionReceiver is not self) and (not self.game.actionCheck(actionArgs, playerId)):
 			return False
@@ -103,7 +103,7 @@ class GameManager(UIInterface, ActionReceiver):
 		for p in playerIDs:
 			self.playerUIHistories[p] = UIHistory()
 			self.clientMsgs[p] = []
-		actionObj = (self, "start_game", playerIDs, playerNames)
+		actionObj = {"receiver":self, "args":("start_game", playerIDs, playerNames)}
 		res = self.clientAction(0, 0, actionObj)
 		if res:
 			print("Game started, playerIDs:", playerIDs)

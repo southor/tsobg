@@ -57,7 +57,7 @@ function toggleDivSelected(divId) {
 		if ( ! getDiv(highlightDivId)) {
 			// highlight div needs setup
 			div = getDiv(divId, false);
-			highlightOpts = {parent: divId, divPositioning: "absolute", left: "0px", top: "0px", width: div.style.width, height: div.style.height, border: "solid", borderColor: "red"};
+			highlightOpts = {parent: divId, divPositioning: "absolute", left: "0px", top: "0px", width: div.clientWidth, height: div.clientHeight, border: "solid", borderColor: "red"};
 		} else {
 			// highlight div already setup
 			highlightOpts = {parent: divId};
@@ -74,7 +74,7 @@ function toggleDivSelected(divId) {
  * @param {Element} div The div element to set
  * @param {boolean} selectable
  * @param {function(string, any[])} onClickFunc The function that should be called, the function should have the form 'function(divId, actions)'
- * @param {any[]} actionObj
+ * @param {Object} actionObj
  */
 function setDivOnClick(div, selectable, onClickFunc, actionObj) {
 	log("info", "setDivOnClick with actionObj: ", actionObj);
@@ -134,13 +134,14 @@ function setDivClickSettings(div, opts, sendActionFunc) {
 	if (onClick === "actions") {
 		// TODO Trigger popup of actions to choose from (use "actions" property)
 		onClickFunc = null;
-	} else if (Array.isArray(onClick)) {
+	} else if (typeof onClick === 'object' && onClick !== null) {
 		actionObj = onClick
 		onClickFunc = sendActionFunc;
 	} else if (onClick === null) {
 		onClickFunc = null;
 	} else {
-		log("error", "Received onClick property with invalid value: ", onClick);
+		console.log("error", "Received onClick property with invalid value: ", onClick);
+		return;
 	}
 	setDivOnClick(div, selectable, onClickFunc, actionObj);
 }

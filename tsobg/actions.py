@@ -15,38 +15,49 @@ def _raiseActionObjError(text, actionObj):
 def encodeActionObj(arMap, actionObj):
 	"""
 	arMap stores actionReceiver of type ActionReceiver by actionReceiverID of type string
-	actionObj should be a tuple on the form (actionReceiver, *actionArgs)
+	actionObj should be a dictionary with the key "receiver" and optionally the keys "args", "kwargs"
 	actionReceiver can either be a string actionReceiverID, or of type ActionReceiver
 	"""
-	if not isinstance(actionObj, tuple):
-		_raiseActionObjError("actionObj must be of type tuple", actionObj)
-	if len(actionObj) == 0:
-		_raiseActionObjError("Received an empty actionObj from game (must contain actionReceiver)", actionObj)
-	actionReceiver = actionObj[0]
-	if not (isinstance(actionReceiver, str) or isinstance(actionReceiver, ActionReceiver)):
-		_raiseActionObjError("actionObj[0] must be an instance of ActionReceiver or a string actionReceiverID", actionObj)
+	
+	def checkGetActionObjMemberType(actionObj, name, type1, type2, typesStr, mandatoryMember):
+		val = actionObj.get(name, None)
+		if (val is not None) or mandatoryMember:
+			if not (isinstance(val, type1) or isinstance(val, type2)):
+				_raiseactionObjError('actionObj must have a member "{}" and instance of {}'.format(name, typesStr), actionObj)
+		return val
+	
+	if not isinstance(actionObj, dict):
+		_raiseactionObjError("actionObj must be of type dict", actionObj)
+	allowedKeys = ["receiver", "args", "kwargs"]
+	for key in actionObj:
+		if key not in allowedKeys:
+			_raiseactionObjError("actionObj contains an unknown key, only keys from the list {} are allowed".format(allowedKeys), actionObj)
+	actionReceiver = actionObj.get("receiver", None)
+	checkGetActionObjMemberType(actionObj, "receiver", str, ActionReceiver, "ActionReceiver or a string representing actionReceiverID", True)
+	checkGetActionObjMemberType(actionObj, "args", tuple, list, "tuple or list", False)
+	checkGetActionObjMemberType(actionObj, "kwargs", dict, dict, "dict", False)
 	if isinstance(actionReceiver, ActionReceiver):
 		idMethod = getattr(actionReceiver, "getName", None)
 		if not idMethod:
 			idMethod = getattr(actionReceiver, "getDivID", None)
 		if not idMethod:
-			_raiseActionObjError('actionReceiver (actionObj[0]) must have method "getName" or method "getDivID"', actionObj)
+			_raiseactionObjError('actionReceiver must have method "getName" or method "getDivID"', actionObj)
 		actionReceiverID = idMethod()
 		if not isinstance(actionReceiverID, str):
 			_actionObjError('actionReceiver getName or getDivID method must return a string, returned {}'.format(actionReceiverID), actionObj)
 		# store actionReceiver
 		arMap[actionReceiverID] = actionReceiver
 		# replace actionReceiver reference with string actionReceiverID
-		actionObj = (actionReceiverID,) + actionObj[1:]
+		actionObj = {**actionObj, "receiver":actionReceiverID}
 	else:
 		assert(isinstance(actionReceiver, str))
 	return actionObj
 
-def encodeActionObjs(arMap, actions):
-	newActions = []
-	for actionObj in actions:
-		newActions.append(encodeActionObj(arMap, actionObj))
-	return newActions
+def encodeActionObjs(arMap, actionObjs):
+	newActionObjs = []
+	for actionObj in newActionObjs:
+		newActions.append(encodeactionObj(arMap, actionObj))
+	return newActionObjs
 
 def decodeActionReceiver(arMap, actionReceiver):
 	if isinstance(actionReceiver, ActionReceiver):

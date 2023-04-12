@@ -34,7 +34,7 @@ class CardMarket(CardGrid):
 		nMissingCards = self.getNSpaces() - self.nCards()
 		newCards = self.deck.draw(nMissingCards)
 		for card in newCards:
-			actionObj = ("Skyscrapers", "take_card", card.id, "ia")
+			actionObj = {"receiver":"Skyscrapers", "args":("take_card", card.id, "ia")}
 			self.addCard(card, {"onClick":actionObj})
 
 	def removeCard(self, cardId) -> Card:
