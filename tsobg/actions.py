@@ -5,7 +5,7 @@ class ActionReceiver:
 	Every actionReceiver instance must either contain method getName() or getDivID()
 	"""
 
-	def tryAction(self, actionArgs, playerId) -> bool:
+	def tryAction(self, *args, **kwargs) -> bool:
 		return False
 
 def _raiseActionObjError(text, actionObj):
@@ -26,10 +26,12 @@ def encodeActionObj(arMap, actionObj):
 			_raiseactionObjError('actionObj must have a member "{}" and instance of {}'.format(name, typesStr), actionObj)
 		return val
 	
-	allowedLookups = ["$playerId", "$divId", "$isSelected", "$allSelected"]
-	def checkArg(val, categoryName):
+	def checkArg(val, categoryName, allowedLookup):
 		if isinstance(val, str) and val[:1] == "$" and val not in allowedLookups:
-			_raiseactionObjError('actionObj {} member contains an unknown $-lookupName "{}", only lookups from the list {} are allowed.'.format(categoryName, val, allowedLookups), actionObj)
+			if allowedLookup:
+				_raiseactionObjError('actionObj {0} member contains an unknown $-lookupName "{1}", only lookups from the list {2} are allowed.'.format(categoryName, val, allowedLookups), actionObj)
+			else:
+				_raiseactionObjError('actionObj {0} member contains a $-lookup "{1}", lookups are not allowed in {0}.'.format(categoryName, val), actionObj)
 	
 	# check actionObj type
 	if not isinstance(actionObj, dict):
@@ -47,11 +49,13 @@ def encodeActionObj(arMap, actionObj):
 	args = checkGetActionObjMemberType(actionObj, "args", tuple, list, "tuple or list")
 	kwargs = checkGetActionObjMemberType(actionObj, "kwargs", dict, dict, "dict")
 	
-	# check for unknown lookups in actionObj members
+	# check for unknown lookups in actionObj args
+	allowedLookups = ["$playerId", "$divId", "$isSelected", "$allSelected"]
 	for val in args:
-		checkArg(val, "args")
+		checkArg(val, "args", allowedLookups)
+	# check for lookups in actionObj kwargs (not allowed)
 	for key,val in kwargs:
-		checkArg(val, "kwargs")
+		checkArg(val, "kwargs", [])
 
 	# perform encoding (replace ActionReceiver with actionReceiverID)
 	if isinstance(actionReceiver, ActionReceiver):

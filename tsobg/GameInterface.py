@@ -8,12 +8,12 @@ class GameInterface():
 	def getRootPath(self):
 		pass
 
-	def actionCheck(self, actionArgs, playerId):
+	def actionCheck(self, *args, **kwargs):
 		""" 
 		Used to check if an action is valid before tryAAction is called.
 		If it returns True then tryAction is called for the ActionReceiver, if it returns False then tryAction is skipped.
 		"""
-		pass
+		return True
 
 	def resetGameState(self):
 		""" reset game state to the same as after __init__"""

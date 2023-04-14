@@ -89,13 +89,13 @@ class GameManager(UIInterface, ActionReceiver):
 		actionReceiver = decodeActionReceiver(self.arMap, actionObj["receiver"])
 		actionArgs = tuple(actionObj.get("args", []))
 		actionKwargs = actionObj.get("kwargs", {})
-		actionKwargs["playerId"] = playerId
+		assert(actionKwargs.get("playerId", None) == playerId)
 		assert(isinstance(actionReceiver, ActionReceiver))
 		assert(isinstance(actionArgs, tuple))
 		assert(isinstance(actionKwargs, dict))
-		if (actionReceiver is not self) and (not self.game.actionCheck(actionArgs, playerId)):
+		if (actionReceiver is not self) and (not self.game.actionCheck(*actionArgs, **actionKwargs)):
 			return False
-		if actionReceiver.tryAction(actionArgs, playerId):
+		if actionReceiver.tryAction(*actionArgs, **actionKwargs):
 			self._advanceGameState(actionObj, playerId)
 			return True
 		else:
@@ -161,12 +161,12 @@ class GameManager(UIInterface, ActionReceiver):
 	
 	# --------------- "ActionReceiver" expected methods ---------------
 	
-	def tryAction(self, actionArgs, playerId):
-		if actionArgs[0] == "start_game":
+	def tryAction(self, *args, playerId=None):
+		if args[0] == "start_game":
 			if self.gameStarted():
 				# game has already been started
 				raise RuntimeError("Tried to start game but game was already started.")
-			self.game.startGame(actionArgs[1], actionArgs[2]) # pass playerIDs and playerNames
+			self.game.startGame(args[1], args[2]) # pass playerIDs and playerNames
 			return True
 		return False
 

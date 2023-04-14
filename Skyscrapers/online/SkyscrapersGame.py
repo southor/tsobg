@@ -128,10 +128,10 @@ class SkyscrapersGame(GameInterface, ActionReceiver):
 		self.mainBoard.setFloors(3,1, ["shop", "office", "office"])
 		self.gameManager.stageLogEntry("Game started, players: " + ", ".join(playerNames))
 
-	def actionCheck(self, actionArgs, playerId):
+	def actionCheck(self, *args, playerId=None, **kwargs):
 		if playerId != self.getCurrentPlayerID():
 			if playerId == None:
-				raise RuntimeError("recieved actionArgs without playerId: ", actionArgs)
+				raise RuntimeError("recieved kwargs without playerId")
 			else:
 				#return "It is not your turn!"
 				self.gameManager.sendMessageToPlayer(("info", "It is not your turn!"), playerId)
@@ -140,21 +140,21 @@ class SkyscrapersGame(GameInterface, ActionReceiver):
 	
 	# --------------- "ActionReceiver" expected methods ---------------
 
-	def tryAction(self, actionArgs, playerId):
+	def tryAction(self, *args, playerId=None, **kwargs):
 		gameHasStarted = hasattr(self, "playerIDs")
-		action = actionArgs[0]
+		action = args[0]
 		if action not in ["take_card"]:
-			self.gameManager.sendMessageToPlayer(("error", "Unknown action: " + str(actionArgs)), playerId)
+			self.gameManager.sendMessageToPlayer(("error", "Unknown action: " + str(args)), playerId)
 			return False
 		if not gameHasStarted:
 			# game has not been started yet
 			if playerId == None:
-				raise RuntimeError("Received invalid actionArgs (game not started yet): " + str(actionArgs))
+				raise RuntimeError("Received invalid action args (game not started yet): " + str(args))
 			else:
 				self.gameManager.sendMessageToPlayer(("error", "Cannot perform action {}, game has not started yet!".format(action)), playerId)
 				return False
 		if self.gamePhase == "cards_phase" and action == "take_card":
-			return self._actionTakeCard(actionArgs[1])
+			return self._actionTakeCard(args[1])
 		else:
 			self.gameManager.sendMessageToPlayer(("info", "Action {} not allowed in the {} phase.".format(action, self.gamePhase)), playerId)
 			
