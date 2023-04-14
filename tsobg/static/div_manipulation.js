@@ -91,6 +91,7 @@ function resolvedActionObj(actionObj, divId, isSelected) {
 	let actionReceiver = actionObj.receiver;
 	let args = [...actionObj.args]; // make copy
 	let kwargs = Object.assign({}, actionObj.kwargs); // make copy
+	kwargs.receiver = actionReceiver
 	kwargs.playerId = playerId
 	kwargs.divId = divId;
 	kwargs.isSelected = isSelected;
