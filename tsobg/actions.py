@@ -19,23 +19,41 @@ def encodeActionObj(arMap, actionObj):
 	actionReceiver can either be a string actionReceiverID, or of type ActionReceiver
 	"""
 	
-	def checkGetActionObjMemberType(actionObj, name, type1, type2, typesStr, mandatoryMember):
+	def checkGetActionObjMemberType(actionObj, name, type1, type2, typesStr):
 		val = actionObj.get(name, None)
-		if (val is not None) or mandatoryMember:
-			if not (isinstance(val, type1) or isinstance(val, type2)):
-				_raiseactionObjError('actionObj must have a member "{}" and instance of {}'.format(name, typesStr), actionObj)
+		#if (val is not None) or mandatoryMember:
+		if not (isinstance(val, type1) or isinstance(val, type2)):
+			_raiseactionObjError('actionObj must have a member "{}" and instance of {}'.format(name, typesStr), actionObj)
 		return val
 	
+	allowedLookups = ["$playerId", "$divId", "$isSelected", "$allSelected"]
+	def checkArg(val, categoryName):
+		if isinstance(val, str) and val[:1] == "$" and val not in allowedLookups:
+			_raiseactionObjError('actionObj {} member contains an unknown $-lookupName "{}", only lookups from the list {} are allowed.'.format(categoryName, val, allowedLookups), actionObj)
+	
+	# check actionObj type
 	if not isinstance(actionObj, dict):
 		_raiseactionObjError("actionObj must be of type dict", actionObj)
+	
+	# check for unknown actionObj members
 	allowedKeys = ["receiver", "args", "kwargs"]
 	for key in actionObj:
 		if key not in allowedKeys:
 			_raiseactionObjError("actionObj contains an unknown key, only keys from the list {} are allowed".format(allowedKeys), actionObj)
-	actionReceiver = actionObj.get("receiver", None)
-	checkGetActionObjMemberType(actionObj, "receiver", str, ActionReceiver, "ActionReceiver or a string representing actionReceiverID", True)
-	checkGetActionObjMemberType(actionObj, "args", tuple, list, "tuple or list", False)
-	checkGetActionObjMemberType(actionObj, "kwargs", dict, dict, "dict", False)
+	
+	# check that actionObj members are correct
+	actionObj = {"args":[], "kwargs":{}, **actionObj} # add args and kwargs if it is not already there
+	actionReceiver = checkGetActionObjMemberType(actionObj, "receiver", str, ActionReceiver, "ActionReceiver or a string representing actionReceiverID")
+	args = checkGetActionObjMemberType(actionObj, "args", tuple, list, "tuple or list")
+	kwargs = checkGetActionObjMemberType(actionObj, "kwargs", dict, dict, "dict")
+	
+	# check for unknown lookups in actionObj members
+	for val in args:
+		checkArg(val, "args")
+	for key,val in kwargs:
+		checkArg(val, "kwargs")
+
+	# perform encoding (replace ActionReceiver with actionReceiverID)
 	if isinstance(actionReceiver, ActionReceiver):
 		idMethod = getattr(actionReceiver, "getName", None)
 		if not idMethod:
@@ -51,6 +69,8 @@ def encodeActionObj(arMap, actionObj):
 		actionObj = {**actionObj, "receiver":actionReceiverID}
 	else:
 		assert(isinstance(actionReceiver, str))
+
+	# return result
 	return actionObj
 
 def encodeActionObjs(arMap, actionObjs):

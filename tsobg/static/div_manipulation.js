@@ -9,6 +9,11 @@ function getSelectedIds() {
 	return selectedIds;
 }
 
+function isSelected(divId) {
+	selectedIds = getSelectedIds();
+	return selectedIds.has(divId);
+}
+
 function log(level, ...msgArgs) {
 	//console.log(level, msgArgs);
 }
@@ -69,6 +74,36 @@ function toggleDivSelected(divId) {
 	}
 }
 
+function isString(x) {
+    return Object.prototype.toString.call(x) === '[object String]';
+}
+
+/**
+ * Create a new actionObj where div related info has been added and all $ lookups has been resolved
+ */
+function resolvedActionObj(actionObj, divId, isSelected) {
+	function resolvedArg(arg, lookupObj) {
+		if ( ! isString(arg)) return arg;
+		if (arg.length === 0) return arg;
+		if (arg[0] !== '$') return arg;
+		return lookupObj[arg.substring(1)]
+	}
+	let actionReceiver = actionObj.receiver;
+	let args = [...actionObj.args]; // make copy
+	let kwargs = Object.assign({}, actionObj.kwargs); // make copy
+	kwargs.playerId = playerId
+	kwargs.divId = divId;
+	kwargs.isSelected = isSelected;
+	kwargs.allSelected = getSelectedIds();
+	for (let i=0; i<args.length; ++i) {
+		args[i] = resolvedArg(args[i], kwargs);
+	}
+	//for (key in Object.keys(kwargs)) {
+	//	kwargs[key] = resolvedArg(args[key]);
+	//}
+	return {"receiver":actionReceiver, "args":args, "kwargs":kwargs}; // return a new actionObj
+}
+
 /**
  * Sets the onclick property for the div
  * @param {Element} div The div element to set
@@ -82,11 +117,13 @@ function setDivOnClick(div, selectable, onClickFunc, actionObj) {
 		div.onclick = function(e) {
 			log("info", "divOnClick");
 			let divId = div.getAttribute("id");
+			var isSelected = false;
 			if (selectable) {
-				toggleDivSelected(divId);
+				isSelected = toggleDivSelected(divId);
 			}
 			if (onClickFunc) {
-				onClickFunc(divId, actionObj);
+				rActionObj = resolvedActionObj(actionObj, divId, isSelected);
+				onClickFunc(rActionObj);
 			}
 			stopEventPropagation(e);
 			return true;

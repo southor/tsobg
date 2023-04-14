@@ -87,8 +87,12 @@ class GameManager(UIInterface, ActionReceiver):
 			return False # TODO: respond 409 conflict?
 
 		actionReceiver = decodeActionReceiver(self.arMap, actionObj["receiver"])
-		actionArgs = actionObj.get("args", [])
+		actionArgs = tuple(actionObj.get("args", []))
+		actionKwargs = actionObj.get("kwargs", {})
+		actionKwargs["playerId"] = playerId
 		assert(isinstance(actionReceiver, ActionReceiver))
+		assert(isinstance(actionArgs, tuple))
+		assert(isinstance(actionKwargs, dict))
 		if (actionReceiver is not self) and (not self.game.actionCheck(actionArgs, playerId)):
 			return False
 		if actionReceiver.tryAction(actionArgs, playerId):
