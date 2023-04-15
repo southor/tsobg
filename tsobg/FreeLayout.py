@@ -3,14 +3,15 @@ from .Layout import Layout
 
 class FreeLayout(Layout):
 	
-	def __init__(self):
+	def __init__(self, limit=float('inf')):
 		self.items = set()
+		self.limit = limit
 
 	def getNObjects(self):
 		return len(self.items)
 
 	def isFull(self):
-		return False
+		return len(self.items) >= self.limit
 
 	def getObject(self):
 		for item in self.items:
@@ -21,6 +22,8 @@ class FreeLayout(Layout):
 		return self.addObject(self, object, (0,0))
 	
 	def addObject(self, object, uiPos="auto"):
+		if self.isFull():
+			return False
 		self.items.add(object)
 		object.setUIPos(uiPos)
 		return True
