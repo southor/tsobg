@@ -126,11 +126,7 @@ def clientAction(playerId, playerName, revertN, stateN):
 		print("not json, instead: ", flask.request.content_type)
 		flask.abort(400)
 	actionObj = flask.request.get_json()
-	print("client action:", actionObj)
-	#if gameManager.clientAction(int(revertN), int(stateN), actionObj, playerId=playerId):
-	#	return updateClient(playerId, playerName, revertN, stateN)
-	#else:
-	#	return Response("action not allowed", status=403, mimetype='application/json')
+	#print("client action:", actionObj)
 	gameManager.clientAction(int(revertN), int(stateN), actionObj, playerId=playerId)
 	return updateClient(playerId, playerName, revertN, stateN)
 

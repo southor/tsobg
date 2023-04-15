@@ -3,7 +3,7 @@
 var divs = null;
 
 var specialDivOpts = null;
-let specialDivOptsDefaults = {"tsobg-selectable":false, "tsobg-onClick":null};
+let specialDivOptsDefaults = {"tsobg-trapClicks":false, "tsobg-selectable":false, "tsobg-onClick":null};
 
 function getSpecialDivOpts(divId, name) {
 	let specialOpts = (specialDivOpts ? specialDivOpts.get(divId) : null) ?? specialDivOptsDefaults;

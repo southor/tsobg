@@ -234,6 +234,9 @@
     <Compile Include="tsobg\GameObject.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="tsobg\GameObject_test.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="tsobg\GridLayout.py">
       <SubType>Code</SubType>
     </Compile>

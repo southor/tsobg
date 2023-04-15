@@ -19,16 +19,17 @@ class GameObject():
 			raise Error("parent of {} must be either string, GameObject or None. parent={}".format(self.divID, str(parent)[:50]))
 		if parent != None:
 			selectable = self.getFlag("selectable")
-			divOpts.update({"pos":self._uiPos, "size":self._uiSize, "text":self._text, "img":self._image, "border":self._border, "selectable":selectable, "onClick":self._onClick, "actions":self._actions})
+			trapClicks = self.getFlag("trapClicks")
+			divOpts.update({"pos":self._uiPos, "size":self._uiSize, "text":self._text, "img":self._image, "border":self._border, "trapClicks":trapClicks, "selectable":selectable, "onClick":self._onClick, "actions":self._actions})
 		self._uiInterface.stageUIChange(("set_div", self._divID, divOpts))
 
 	def __init__(self, uiInterface:UIInterface, divID, **kwargs):
 		self._uiInterface = uiInterface
 		self._divID = divID
-		self._flags = set(["visible"])
+		self._flags = {"visible", "trapClicks"}
 		if "flags" in kwargs:
-			self._parent = None
 			self.setFlags(kwargs["flags"])
+		self._parent = None
 		# _divPositioning member will automatically be used with set_div if parent is a div id, but will be ignored if parent is another GameObject (in which case absolute is used instead)
 		self._divPositioning = kwargs.get("divPositioning", "static")
 		self._layout = kwargs.get("layout", FreeLayout())
@@ -75,45 +76,55 @@ class GameObject():
 	def getActions(self):
 		return self._actions
 
-	def setFlags(self, *argsFlags, **kwFlags):
+	def setFlags(self, *argsFlags, **kwargFlags):
 		"""
-		Each flag must be a string
-		Every arg in argsFlags can be either a flag, or an iterable containing flags
-		If the iterable is dictionary, a lookup is done for the flag and if it is True it is added, if False it is removed.
-		All other iterable types (list, tuple) will only add flags, never remove them.
-		kwArgs can be used to add or remove individual flags too by setting the keys to True/False.
+		Is used to turn on, off a flag, or replace all flag statuses with new ones.
+		Arguments will be processed in the order they appear. kwargsFlags will be processed last.
+		Process starts with the current flags status of the gameObject.
+		For every arg in argsFlags:
+			If it is a string: The flag is turned on.
+			If it is a dictionary: Each key must be a string, the value will be turned into a boolean and used to set or unset the flag.
+			If it is a none dictionary iterable: Every member must be a string flag name. First all flags are set to off and then for every flag in the iterable that flag is turned on.
+		kwargsFlags:
+			Each key must be a string, the value will be turned into a boolean and used to set or unset the flag.
 		"""
-		flagsChanged = False
-		argsFlags = list(argsFlags) + [kwFlags]
-		for arg in argsFlags:
+		flags = self._flags.copy()
+
+		def processDictionary(d):
+			for flag,val in arg.items():
+				if not isinstance(flag, str):
+					raise RuntimeError("setFlags dictionary argument must only contain strings (flag names) as keys, flag={}".format(flag))
+				if val:
+					flags.add(flag)
+				else:
+					flags.discard(flag)
+
+		inputArgs = argsFlags + (kwargFlags,)
+		for arg in inputArgs:
+			# check for string
 			if isinstance(arg, str):
-				# add flag
-				flag = arg
-				oldFlag = (flag in self._flags)
-				if not oldFlag:
-					flagsChanged = True
-					self._flags.add(flag)
+				flags.add(arg)
 				continue
+			# check for dictionary
+			if(isinstance(arg, dict)):
+				processDictionary(arg)
+				continue
+			# check for iterable
 			try:
-				flags = arg
-				for flag in flags:
-					assert(isinstance(flag, str))
-					oldFlag = (flag in self._flags)
-					if isinstance(flags, dict) and not flags[flag]:
-						# remove flag
-						if oldFlag:
-							flagsChanged = True
-							self._flags.remove(flag)
-					else:
-						# add flag
-						if not oldFlag:
-							self._flags.add(flag)
-							flagsChanged = True
-			except TypeError:
-				raise RuntimeError("setFlags argument must be either a string or iterable: {}".format(arg))
-		if self._parent and flagsChanged:
-			# TODO: Add optional argument to _uiChange so we can tell it to only update flags
-			self._uiUpdate()
+				flags2 = set()
+				for flag in arg:
+					if not isinstance(flag, str):
+						raise RuntimeError("setFlags iterable argument must only contain strings (flag names), flag={}".format(flag))
+					flags2.add(flag)
+				# since for loop did not trigger exception we know arg is an iterable, we can update the flags
+				flags = flags2
+			except TypeError as e:
+				raise RuntimeError("setFlags argument must be either a string, dictionary, or iterable: {}".format(arg))
+		if flags != self._flags:
+			self._flags = flags
+			if self._parent:
+				# TODO: Add optional argument to _uiChange so we can tell it to only update flags (for performance)
+				self._uiUpdate()
 
 	def setParent(self, parent):
 		"""parent must be either a string divID or None"""

@@ -108,11 +108,12 @@ function resolvedActionObj(actionObj, divId, isSelected) {
 /**
  * Sets the onclick property for the div
  * @param {Element} div The div element to set
+ * @param {boolean} trapClicks
  * @param {boolean} selectable
  * @param {function(string, any[])} onClickFunc The function that should be called, the function should have the form 'function(divId, actions)'
  * @param {Object} actionObj
  */
-function setDivOnClick(div, selectable, onClickFunc, actionObj) {
+function setDivOnClick(div, trapClicks, selectable, onClickFunc, actionObj) {
 	log("info", "setDivOnClick with actionObj: ", actionObj);
 	if (selectable || onClickFunc) {
 		div.onclick = function(e) {
@@ -129,7 +130,7 @@ function setDivOnClick(div, selectable, onClickFunc, actionObj) {
 			stopEventPropagation(e);
 			return true;
 		};
-	} else {
+	} else if (trapClicks) {
 		div.onclick = function(e) {
 			stopEventPropagation(e);
 			return false;
@@ -165,8 +166,10 @@ function addPXIfNeeded(val) {
 }
 
 function setDivClickSettings(div, opts, sendActionFunc) {
-	let selectable = readSpecialDivOpts(div.getAttribute("id"), opts, "selectable");
-	let onClick = readSpecialDivOpts(div.getAttribute("id"), opts, "onClick");
+	let divId = div.getAttribute("id")
+	let trapClicks = readSpecialDivOpts(divId, opts, "trapClicks");
+	let selectable = readSpecialDivOpts(divId, opts, "selectable");
+	let onClick = readSpecialDivOpts(divId, opts, "onClick");
 	var onClickFunc = null;
 	var actionObj = null;
 	if (onClick === "actions") {
@@ -181,7 +184,7 @@ function setDivClickSettings(div, opts, sendActionFunc) {
 		console.log("error", "Received onClick property with invalid value: ", onClick);
 		return;
 	}
-	setDivOnClick(div, selectable, onClickFunc, actionObj);
+	setDivOnClick(div, trapClicks, selectable, onClickFunc, actionObj);
 }
 
 // If div does not exists it is created
@@ -245,7 +248,7 @@ function setDiv(id, opts, sendActionFunc) {
 		div.style.borderColor = opts.borderColor;
 	}
 
-	if ("selectable" in opts || "onClick" in opts) {
+	if ("selectable" in opts || "onClick" in opts || "trapClicks" in opts) {
 		setDivClickSettings(div, opts, sendActionFunc);
 	}
 

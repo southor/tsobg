@@ -121,6 +121,7 @@ class UIState():
 		"img":None, # adds an img element with "img" as the img attribute
 		"text":None, # adds a text element with "text" as innerHTML
 		# other special
+		"trapClicks":False, # If there is no onClick action and not selectable, clicks can be let through to object below if trapClicks is set to False
 		"selectable":False,
 		"onClick":None,
 		"actions":[]
