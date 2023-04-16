@@ -20,40 +20,51 @@ class GameObject():
 		if parent != None:
 			selectable = self.getFlag("selectable")
 			trapClicks = self.getFlag("trapClicks")
-			divOpts.update({"pos":self._uiPos, "size":self._uiSize, "text":self._text, "img":self._image, "border":self._border, "trapClicks":trapClicks, "selectable":selectable, "onClick":self._onClick, "actions":self._actions})
+			divOpts.update({"pos":self._uiPos, "size":self._uiSize, "text":self._text, "img":self._image, "color":self._color, "border":self._border, "borderColor":self._borderColor, "trapClicks":trapClicks, "selectable":selectable, "onClick":self._onClick, "actions":self._actions})
 		self._uiInterface.stageUIChange(("set_div", self._divID, divOpts))
 
 	def __init__(self, uiInterface:UIInterface, divID, **kwargs):
 		self._uiInterface = uiInterface
 		self._divID = divID
+		self._parent = None
 		self._flags = {"visible", "trapClicks"}
 		if "flags" in kwargs:
 			self.setFlags(kwargs["flags"])
-		self._parent = None
 		# _divPositioning member will automatically be used with set_div if parent is a div id, but will be ignored if parent is another GameObject (in which case absolute is used instead)
 		self._divPositioning = kwargs.get("divPositioning", "static")
 		self._layout = kwargs.get("layout", FreeLayout())
-		self._parent = kwargs.get("parent", None)
-		self._uiPos = kwargs.get("uiPos", "auto")
+		self._uiPos = kwargs.get("uiPos", "auto") # passed uiPos will not be used if parent is provided and parent uses GridLayout
 		self._uiSize = kwargs.get("uiSize", "auto")
 		self._text = kwargs.get("text", None)
 		self._image = kwargs.get("image", None)
-		self._border = kwargs.get("border", None)
+		self._color = kwargs.get("color", "transparent")
+		self._border = kwargs.get("border", "none")
+		self._borderColor = kwargs.get("borderColor", "black")
 		self._onClick = kwargs.get("onClick", None)
 		self._actions = kwargs.get("actions", [])
-		self._uiUpdate()
+		parent = kwargs.get("parent", None)
+		if parent:
+			if isinstance(self._layout, FreeLayout):
+				parent.putObject(self, self._uiPos)
+			else:
+				parent.putObject(self)
+		else:
+			self._uiUpdate()
 
 	def getDivID(self):
 		return self._divID
+
+	def getParent(self):
+		return self._parent
+
+	def getLayoutType(self):
+		return type(self._layout)
 
 	def getFlags(self):
 		return self._flags
 
 	def getFlag(self, flag):
 		return flag in self._flags
-
-	def getParent(self):
-		return self._parent
 
 	def getUIPos(self):
 		return self._uiPos
@@ -66,15 +77,33 @@ class GameObject():
 
 	def getImage(self):
 		return self._image
+
+	def getColor(self):
+		return self._color
 	
 	def getBorder(self):
 		return self._border
+
+	def getBorderColor(self):
+		return self._borderColor
 
 	def getOnClick(self):
 		return self._onClick
 
 	def getActions(self):
 		return self._actions
+
+	def setParent(self, parent):
+		"""parent must be either a string divID or None"""
+		if self._parent is parent:
+			return
+		if not (isinstance(parent, str) or parent == None):
+			raise Error("parent of {} must be either string, or None when set directly. parent={}".format(self.divID, str(parent)[:50]))
+		if isinstance(self._parent, GameObject):
+			self._parent.removeObject(self)
+		self._parent = parent
+		if "visible" in self._flags:
+			self._uiUpdate()
 
 	def setFlags(self, *argsFlags, **kwargFlags):
 		"""
@@ -126,18 +155,6 @@ class GameObject():
 				# TODO: Add optional argument to _uiChange so we can tell it to only update flags (for performance)
 				self._uiUpdate()
 
-	def setParent(self, parent):
-		"""parent must be either a string divID or None"""
-		if self._parent is parent:
-			return
-		if not (isinstance(parent, str) or parent == None):
-			raise Error("parent of {} must be either string, or None when set directly. parent={}".format(self.divID, str(parent)[:50]))
-		if isinstance(self._parent, GameObject):
-			self._parent.removeObject(self)
-		self._parent = parent
-		if "visible" in self._flags:
-			self._uiUpdate()
-
 	def setUIPos(self, uiPos):
 		if self._uiPos == uiPos:
 			return
@@ -162,10 +179,20 @@ class GameObject():
 		if self._isVisible():
 			self._uiInterface.stageUIChange(("set_div", self._divID, {"img":filename}))
 
+	def setColor(self, color):
+		self._color = color
+		if self._isVisible():
+			self._uiInterface.stageUIChange(("set_div", self._divID, {"color":color}))
+
 	def setBorder(self, border):
 		self._border = border
 		if self._isVisible():
 			self._uiInterface.stageUIChange(("set_div", self._divID, {"border":border}))
+
+	def setBorderColor(self, borderColor):
+		self._borderColor = borderColor
+		if self._isVisible():
+			self._uiInterface.stageUIChange(("set_div", self._divID, {"borderColor":borderColor}))
 
 	def setOnClick(self, onClick):
 		self._onClick = onClick
@@ -181,6 +208,9 @@ class GameObject():
 
 	def getObject(self, *layoutArgs):
 		return self._layout.getObject(*layoutArgs)
+
+	def getObjectLayoutArgs(self, object, recursive=False):
+		return self._layout.getObjectLayoutArgs(object, recursive)
 
 	def putObject(self, object, *layoutArgs):
 		if not self._layout.addObject(object, *layoutArgs):

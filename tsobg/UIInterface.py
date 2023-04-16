@@ -26,6 +26,9 @@ class UIInterface:
 
 	# ----------------- UI Methods -----------------
 
+	def registerActionReceiver(self, actionReceiver, actionReceiverID):
+		pass
+
 	def stageUIChange(self, uiChange, playerID = None, playerIDs = None):
 		"""playerID and playerIDs are optional, but don't pass more than one of them. If none are passed then it applies to all players."""
 		pass

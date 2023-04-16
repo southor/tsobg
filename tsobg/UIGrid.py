@@ -114,8 +114,18 @@ class UIGrid():
 		y = self.uiOffsetPos[1] + rowN * self.uiCellSize[1]
 		return x,y
 
-	def getItemGridPos(self, item):
-		return self._findItem(item)
+	def getItemGridPos(self, item, recursive=False):
+		gridPos = self._findItem(item)
+		if gridPos:
+			return gridPos
+		if recursive:
+			for rowN,row in enumerate(self.rows):
+				for colN,cell in enumerate(row):
+					if cell:
+						assert(cell is not item)
+						if cell.hasObject(item, recursive=recursive):
+							return rowN,colN
+		return None
 
 	def getItem(self):
 		gridPos = _findItem(self)

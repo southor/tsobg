@@ -27,6 +27,9 @@ class GridLayout(Layout):
 	def getObject(self, rowN, colN):
 		return self.grid.getItemAtCell(rowN, colN)
 
+	def getObjectLayoutArgs(self, object, recursive=False):
+		return self.grid.getItemGridPos(object, recursive)
+
 	def addObject(self, object):
 		uiPos = self.grid.addItem(object)
 		if not uiPos:

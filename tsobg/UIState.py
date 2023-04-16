@@ -112,7 +112,6 @@ class UIState():
 		"bottom":"auto",
 		"width":"auto",
 		"height":"auto",
-	
 		"color":"transparent", # style.backgroundColor
 		"border":"none", # style.border
 		"borderColor":"black", # style.borderColor

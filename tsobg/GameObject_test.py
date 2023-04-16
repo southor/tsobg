@@ -3,6 +3,8 @@ import unittest
 
 from .UIInterface import UIInterface
 from .GameObject import GameObject
+from .FreeLayout import FreeLayout
+from .GridLayout import GridLayout
 
 
 class GameObject_test(unittest.TestCase):
@@ -34,6 +36,45 @@ class GameObject_test(unittest.TestCase):
 		self.assertEqual(go.getFlags(), {"visible"})
 		go.setFlags({"visible", "selectable"}, {"selectable":False}, "selectable")
 		self.assertEqual(go.getFlags(), {"visible", "selectable"})
+		self.assertTrue(go.getFlag("visible"))
+		self.assertTrue(go.getFlag("selectable"))
+		self.assertFalse(go.getFlag("trapClicks"))
+
+	def testGrandchild(self):
+		# test: FreeLayout, FreeLayout
+		p = GameObject(UIInterface(), "parent", uiSize=(20, 20))
+		c = GameObject(UIInterface(), "child", parent=p, uiPos=(5, 0), uiSize=(10, 10))
+		gc = GameObject(UIInterface(), "grandchild", uiSize=(5, 5))
+		c.putObject(gc, (3, 0))
+		self.assertEqual(p.getLayoutType(), FreeLayout)
+		self.assertEqual(c.getLayoutType(), FreeLayout)
+		self.assertEqual(gc.getLayoutType(), FreeLayout)
+		self.assertEqual(c.getParent(), p)
+		self.assertEqual(gc.getParent(), c)
+		self.assertTrue(p.hasObject(c, False))
+		self.assertTrue(p.hasObject(gc, True))
+		self.assertFalse(p.hasObject(gc, False))
+		self.assertEqual(c.getObjectLayoutArgs(gc), (3, 0))
+		self.assertEqual(p.getObjectLayoutArgs(c), (5, 0))
+		self.assertEqual(p.getObjectLayoutArgs(gc), None) # Without recursive, grand child should not be found
+		self.assertEqual(p.getObjectLayoutArgs(gc, True), (5, 0)) # With recursive, grand child is found, coordinate of child should be returned
+		# test: TileLayout, FreeLayout
+		p.removeObject(c)
+		self.assertEqual(c.getParent(), None)
+		layout = GridLayout((5, 5), (20, 20))
+		p = GameObject(UIInterface(), "parent", layout=layout, uiSize=(100, 100))
+		p.putObject(c, 0, 2)
+		self.assertEqual(p.getLayoutType(), GridLayout)
+		self.assertEqual(c.getLayoutType(), FreeLayout)
+		self.assertEqual(gc.getLayoutType(), FreeLayout)
+		self.assertTrue(p.hasObject(gc, True))
+		self.assertFalse(p.hasObject(gc, False))
+		self.assertEqual(c.getObjectLayoutArgs(gc), (3, 0))
+		self.assertEqual(p.getObjectLayoutArgs(c), (0, 2))
+		self.assertEqual(p.getObjectLayoutArgs(gc), None) # Without recursive, grand child should not be found
+		self.assertEqual(p.getObjectLayoutArgs(gc, True), (0, 2)) # With recursive, grand child is found, coordinate of child should be returned
+		self.assertEqual(c.getUIPos(), (40, 0)) # uiPos of child should have been set by GridLayout (grid pos multiplied by tile size)
 
 	def runTest(self):
 		self.testFlags()
+		self.testGrandchild()
