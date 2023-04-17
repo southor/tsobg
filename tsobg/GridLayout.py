@@ -24,10 +24,11 @@ class GridLayout(Layout):
 	def getObject(self):
 		return grid.getItem(self)
 
-	def getObject(self, rowN, colN):
-		return self.grid.getItemAtCell(rowN, colN)
+	def getObject(self, colN, rowN):
+		return self.grid.getItemAtCell(colN, rowN)
 
 	def getObjectLayoutArgs(self, object, recursive=False):
+		""" returns grid position as (colN, rowN) """
 		return self.grid.getItemGridPos(object, recursive)
 
 	def addObject(self, object):
@@ -37,8 +38,8 @@ class GridLayout(Layout):
 		object.setUIPos(uiPos)
 		return True
 	
-	def addObject(self, object, rowN, colN):
-		uiPos = self.grid.addItemAtCell(object, rowN, colN)
+	def addObject(self, object, colN, rowN):
+		uiPos = self.grid.addItemAtCell(object, colN, rowN)
 		if not uiPos:
 			return False
 		object.setUIPos(uiPos)

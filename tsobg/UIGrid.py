@@ -9,23 +9,23 @@ class UIGrid():
 			self.rows.append(row)
 
 	def _findItem(self):
+		""" returns first grid position that contains an object as (colN, rowN), None otherwise """
 		for rowN,row in enumerate(self.rows):
 			for colN,cell in enumerate(row):
 				if cell:
-					return rowN,colN
+					return colN,rowN
 		return None
 	
-	# returns grid position (rowN, colN)
 	def _findItem(self, item):
+		""" returns the grid position where item is located as (colN, rowN), None if not found """
 		for rowN,row in enumerate(self.rows):
 			for colN,cell in enumerate(row):
-				#if cell == item:
 				if cell is item:
-					return rowN,colN
+					return colN,rowN
 		return None
 
 	def _findFreeCell(self):
-		""" returns grid position as (colN, rowN) or None if no free cell was found """
+		""" returns a free grid position as (colN, rowN) or None if no free cell was found """
 		for rowN,row in enumerate(self.rows):
 			for colN,cell in enumerate(row):
 				if cell == None:
@@ -60,22 +60,7 @@ class UIGrid():
 		self.maxNItems = kwargs.get("maxNItems", nColsRows[0] * nColsRows[1])
 		self.autoGrow = kwargs.get("autoGrow", "rows")
 		self.growFlag = kwargs.get("growFlag", False)
-		#if self.nSpaces > nColumns * nRows:
-		#	raise RuntimeError("nSpaces={} is too many for grid {}x{}.".format(self.nSpaces, nColumns, nRows))
-		#if self.maxNColumns == None and self.maxNRows == None:
-		#	raise RuntimeError("Must specify at least one of maxNColumns, maxNRows.")
-		#if self.maxNColumns != None and self.maxNRows != None and self.nSpaces != None:
-		#	raise RuntimeError("UIGrid constructor was called with 3 optional args (maxNColumns, maxNRows, nSpaces), only 2 of three can be used.")
 		self._initCells()
-		
-	#def getNSpaces(self):
-	#	return self.nSpaces
-
-	#def getNOccupied(self):
-	#	return self.nOccupied
-
-	#def getNUnoccupied(self):
-	#	return self.nSpaces - self.nOccupied
 
 	def getMaxNItems(self):
 		return self.maxNItems
@@ -89,16 +74,12 @@ class UIGrid():
 	def getNColumns(self):
 		return self.nColumns
 
-	#def getNFreeSpaces(self):
-	#	""" Number of items that can be added before maxNItems is reached """
-	#	return self.maxNItems - self.nItems
-
 	def isFull(self):
 		assert(self.nItems <= self.maxNItems)
 		return self.nItems >= self.maxNItems
 
 	def getCurrentUISize(self):
-		""" Returns the current grid size """
+		""" Returns the total UI size in pixels as (width, height) """
 		return (self.uiOffsetPos[0] + self.nColumns * self.uiCellSize[0], # width
 				self.uiOffsetPos[1] + self.nRows * self.uiCellSize[1]) # height
 
@@ -109,12 +90,17 @@ class UIGrid():
 		return res
 
 	# returns ui position (pixelX, pixelY)
-	def getCellUIPos(self, rowN, colN):
+	def getCellUIPos(self, colN, rowN):
 		x = self.uiOffsetPos[0] + colN * self.uiCellSize[0]
 		y = self.uiOffsetPos[1] + rowN * self.uiCellSize[1]
 		return x,y
 
 	def getItemGridPos(self, item, recursive=False):
+		""" 
+		Returns the grid position where item is located as (colN, rowN), None if not found.
+		If recursive is set to True it will search among children recursively for item (children must have method "hasObject").
+		If the item is found recursively this way, the grid position for the child of this UIGrid that contained the item is returned.
+		"""
 		gridPos = self._findItem(item)
 		if gridPos:
 			return gridPos
@@ -124,13 +110,13 @@ class UIGrid():
 					if cell:
 						assert(cell is not item)
 						if cell.hasObject(item, recursive=recursive):
-							return rowN,colN
+							return colN,rowN
 		return None
 
 	def getItem(self):
 		gridPos = _findItem(self)
 		if gridPos:
-			rowN,colN = gridPos
+			colN,rowN = gridPos
 			return self.rows[rowN][colN]
 		return None
 	
@@ -152,13 +138,13 @@ class UIGrid():
 		assert(self.rows[rowN][colN] == None)
 		self.rows[rowN][colN] = item
 		self.nItems += 1
-		return self.getCellUIPos(rowN, colN)
+		return self.getCellUIPos(colN,rowN)
 
 	def hasItem(self, item, recursive=False, remove=False):
 		gridPos = self._findItem(item)
 		if gridPos:
 			if remove:
-				rowN,colN = gridPos
+				colN,rowN = gridPos
 				self.rows[rowN][colN] = None
 				self.nItems -= 1
 			return True
@@ -174,10 +160,10 @@ class UIGrid():
 	def removeItem(self, item, recursive=False):
 		return self.hasItem(item, recursive=recursive, remove=True)
 
-	def getItemAtCell(self, rowN, colN):
+	def getItemAtCell(self, colN, rowN):
 		return self.rows[rowN][colN]
 
-	def addItemAtCell(self, item, rowN, colN):
+	def addItemAtCell(self, item, colN, rowN):
 		"""
 		returns ui position of the cell.
 		return None if the space was not free
@@ -185,68 +171,12 @@ class UIGrid():
 		if self.rows[rowN][colN]:
 			return None
 		self.rows[rowN][colN] = item
-		return self.getCellUIPos(rowN, colN)
+		return self.getCellUIPos(colN, rowN)
 
-	def removeItemAtCell(self, rowN, colN):
+	def removeItemAtCell(self, colN, rowN):
 		"""
 		returns the item that was removed, None otherwise
 		"""
 		item = self.rows[rowN][colN]
 		self.rows[rowN][colN] = None
 		return item
-		
-		
-	"""	
-	# add the items into the first free cells we find
-	# returns the items that were not added (due to lack of free cells)
-	def fillWithItems(self, items):
-		if not isinstance(items, list):
-			item = list(items)
-		i = 0
-		nItemsToAdd = len(items)
-		for row in self.rows:
-			for j,cell in enumerate(row):
-				if i >= nItemsToAdd:
-					break # all items were added already
-				if cell == None:
-					row[j] = items[i]
-					i += 1
-		# TODO: store into client gui update structure
-		return items[i:]
-	
-	# returns item or None
-	def getItem(self, row, column):
-		return self.rows[row][column]
-	
-	def setItem(self, item, row, column):
-		if self.rows[row][column] == None:
-			self.nItems += 1
-		if item == None:
-			self.nItems -= 1
-		self.rows[row][column] = item
-		# TODO store into client gui update structure
-	
-	# sets that cell to None
-	def removeItem(self, row, column):
-		if self.rows[row][column] != None:
-			self.nItems -= 1
-			self.rows[row][column] = None
-			# TODO store into client gui update structure
-			
-	# yields all cell items that are not None
-	def allItems(self):
-		for row in rows:
-			for cell in row:
-				if cell != None:
-					yield cell
-					
-	# extracts all current uiChanges and resets the internal list
-	def extractUIChanges(self):
-		if self.uiChanges:
-			res = self.uiChanges
-			self.uiChanges = []
-			return res
-		else:
-			return []
-			
-	"""

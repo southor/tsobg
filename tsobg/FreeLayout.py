@@ -3,15 +3,15 @@ from .Layout import Layout
 
 class FreeLayout(Layout):
 	
-	def __init__(self, limit=float('inf')):
+	def __init__(self, maxNItems=float('inf')):
 		self.items = set()
-		self.limit = limit
+		self.maxNItems = maxNItems
 
 	def getNObjects(self):
 		return len(self.items)
 
 	def isFull(self):
-		return len(self.items) >= self.limit
+		return len(self.items) >= self.maxNItems
 
 	def getObject(self):
 		for item in self.items:

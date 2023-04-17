@@ -73,7 +73,7 @@ class GameObject_test(unittest.TestCase):
 		self.assertEqual(p.getObjectLayoutArgs(c), (0, 2))
 		self.assertEqual(p.getObjectLayoutArgs(gc), None) # Without recursive, grand child should not be found
 		self.assertEqual(p.getObjectLayoutArgs(gc, True), (0, 2)) # With recursive, grand child is found, coordinate of child should be returned
-		self.assertEqual(c.getUIPos(), (40, 0)) # uiPos of child should have been set by GridLayout (grid pos multiplied by tile size)
+		self.assertEqual(c.getUIPos(), (0, 40)) # uiPos of child should have been set by GridLayout (grid pos multiplied by tile size)
 
 	def runTest(self):
 		self.testFlags()
