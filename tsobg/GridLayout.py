@@ -35,14 +35,14 @@ class GridLayout(Layout):
 		uiPos = self.grid.addItem(object)
 		if not uiPos:
 			return False
-		object.setUIPos(uiPos)
+		object.setPos(uiPos)
 		return True
 	
 	def addObject(self, object, colN, rowN):
 		uiPos = self.grid.addItemAtCell(object, colN, rowN)
 		if not uiPos:
 			return False
-		object.setUIPos(uiPos)
+		object.setPos(uiPos)
 		return True
 
 	def hasObject(self, object, recursive=False, remove=False):

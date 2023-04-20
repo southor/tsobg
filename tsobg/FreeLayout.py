@@ -20,21 +20,21 @@ class FreeLayout(Layout):
 
 	def getObjectLayoutArgs(self, object, recursive=False):
 		if object in self.items:
-			return object.getUIPos()
+			return object.getPos()
 		if recursive:
 			for item in self.items:
 				if item.hasObject(object, recursive):
-					return item.getUIPos()
+					return item.getPos()
 		return None
 
 	def addObject(self, object):
 		return self.addObject(self, object, (0,0))
 	
-	def addObject(self, object, uiPos="auto"):
+	def addObject(self, object, pos="auto"):
 		if self.isFull():
 			return False
 		self.items.add(object)
-		object.setUIPos(uiPos)
+		object.setPos(pos)
 		return True
 
 	def hasObject(self, object, recursive=False, remove=False):
