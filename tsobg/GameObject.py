@@ -123,16 +123,19 @@ class GameObject():
 
 
 	def setParent(self, parent):
-		"""parent must be either a string divID or None"""
+		"""parent must be either a GameObject, string divID or None"""
 		if self._parent is parent:
 			return
-		if not (isinstance(parent, str) or parent == None):
-			raise Error("parent of {} must be either string, or None when set directly. parent={}".format(self.divID, str(parent)[:50]))
+		if not (isinstance(parent, GameObject) or isinstance(parent, str) or parent == None):
+			raise Error("parent of {} must be either a GameObjcet, string, or None. parent={}".format(self.divID, str(parent)[:50]))
 		if isinstance(self._parent, GameObject):
 			self._parent.removeObject(self)
-		self._parent = parent
-		if "visible" in self._flags:
-			self._uiUpdate()
+		if isinstance(parent, GameObject):
+			parent.putObject(self)
+		else:
+			self._parent = parent
+			if "visible" in self._flags:
+				self._uiUpdate()
 
 	def setFlags(self, *argsFlags, **kwargFlags):
 		"""

@@ -23,25 +23,25 @@ def encodeActionObj(arMap, actionObj):
 		val = actionObj.get(name, None)
 		#if (val is not None) or mandatoryMember:
 		if not (isinstance(val, type1) or isinstance(val, type2)):
-			_raiseactionObjError('actionObj must have a member "{}" and instance of {}'.format(name, typesStr), actionObj)
+			_raiseActionObjError('actionObj must have a member "{}" an instance of {}'.format(name, typesStr), actionObj)
 		return val
 	
 	def checkArg(val, categoryName, allowedLookup):
 		if isinstance(val, str) and val[:1] == "$" and val not in allowedLookups:
 			if allowedLookup:
-				_raiseactionObjError('actionObj {0} member contains an unknown $-lookupName "{1}", only lookups from the list {2} are allowed.'.format(categoryName, val, allowedLookups), actionObj)
+				_raiseActionObjError('actionObj {0} member contains an unknown $-lookupName "{1}", only lookups from the list {2} are allowed.'.format(categoryName, val, allowedLookups), actionObj)
 			else:
-				_raiseactionObjError('actionObj {0} member contains a $-lookup "{1}", lookups are not allowed in {0}.'.format(categoryName, val), actionObj)
+				_raiseActionObjError('actionObj {0} member contains a $-lookup "{1}", lookups are not allowed in {0}.'.format(categoryName, val), actionObj)
 	
 	# check actionObj type
 	if not isinstance(actionObj, dict):
-		_raiseactionObjError("actionObj must be of type dict", actionObj)
+		_raiseActionObjError("actionObj must be of type dict", actionObj)
 	
 	# check for unknown actionObj members
 	allowedKeys = ["receiver", "args", "kwargs"]
 	for key in actionObj:
 		if key not in allowedKeys:
-			_raiseactionObjError("actionObj contains an unknown key, only keys from the list {} are allowed".format(allowedKeys), actionObj)
+			_raiseActionObjError('actionObj contains an unknown key "{}", only keys from the list {} are allowed'.format(key, allowedKeys), actionObj)
 	
 	# check that actionObj members are correct
 	actionObj = {"args":[], "kwargs":{}, **actionObj} # add args and kwargs if it is not already there
@@ -63,7 +63,7 @@ def encodeActionObj(arMap, actionObj):
 		if not idMethod:
 			idMethod = getattr(actionReceiver, "getDivID", None)
 		if not idMethod:
-			_raiseactionObjError('actionReceiver must have method "getName" or method "getDivID"', actionObj)
+			_raiseActionObjError('actionReceiver must have method "getName" or method "getDivID"', actionObj)
 		actionReceiverID = idMethod()
 		if not isinstance(actionReceiverID, str):
 			_actionObjError('actionReceiver getName or getDivID method must return a string, returned {}'.format(actionReceiverID), actionObj)

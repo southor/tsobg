@@ -18,14 +18,8 @@ function log(level, ...msgArgs) {
 	//console.log(level, msgArgs);
 }
 
-
-function getDivImgElement(div) {
-	const arr = div.getElementsByTagName('img');
-	return (arr.length >= 1) ? arr[0] : null;
-}
-
-function getDivParagraphElement(div) {
-	const arr = div.getElementsByTagName('p');
+function getDivChildElement(div, tag) {
+	const arr = div.getElementsByTagName(tag);
 	return (arr.length >= 1) ? arr[0] : null;
 }
 
@@ -106,7 +100,7 @@ function resolvedActionObj(actionObj, divId, isSelected) {
 }
 
 /**
- * Sets the onclick property for the div
+ * Sets the onclick property for the div (or button)
  * @param {Element} div The div element to set
  * @param {boolean} trapClicks
  * @param {boolean} selectable
@@ -138,12 +132,52 @@ function setDivOnClick(div, trapClicks, selectable, onClickFunc, actionObj) {
 	}
 }
 
-// updates div image and/or img actions according to opts
+function setButtonOnClick(buttonElement, onClickFunc, actionObj) {
+	log("info", "setButtonOnClick with actionObj: ", actionObj);
+	if (onClickFunc) {
+		let divId = buttonElement.parentElement.getAttribute("id");
+		buttonElement.onclick = function(e) {
+			rActionObj = resolvedActionObj(actionObj, divId, false);
+			onClickFunc(rActionObj);
+			stopEventPropagation(e); // TODO: is this needed for buttons?
+			return true;
+		};
+	} else {
+		buttonElement.onclick = function(e) {
+			stopEventPropagation(e); // TODO: is this needed for buttons?
+			return false;
+		};
+	}
+}
+
+// creates div button and enables/disables
+// returns buttonElement if it exists
+function setDivButton(div, opts) {
+	let buttonElement = getDivChildElement(div, "button");
+	if ("button" in opts) {
+		if (opts.button) {
+			if ( ! buttonElement) {
+				buttonElement = activateButtonElement(div.getAttribute("id"), true);
+				div.appendChild(buttonElement);
+			}
+			buttonElement.innerHTML = opts.button;
+		} else {
+			if (buttonElement) {
+				div.removeChild(buttonElement);
+			}
+			buttonElement = null;
+		}
+	}
+	return buttonElement;
+}
+
+// updates div image
 function setDivImg(div, opts) {
 	if ("img" in opts) {
-		let imgElement = getDivImgElement(div);
+		let imgElement = getDivChildElement(div, "img");
 		if (opts.img) {
 			if (imgElement) {
+				// TODO: visible images still takes up space
 				imgElement.style.visibility = "visible";
 			} else {
 				log("info", "creating div img");
@@ -154,6 +188,7 @@ function setDivImg(div, opts) {
 		} else {
 			console.assert(opts.img === null);
 			if (imgElement) {
+				// TODO: visible images still takes up space
 				imgElement.style.visibility = "hidden";
 			}
 		}
@@ -167,6 +202,7 @@ function addPXIfNeeded(val) {
 
 function setDivClickSettings(div, opts, sendActionFunc) {
 	let divId = div.getAttribute("id")
+	let buttonElement = setDivButton(div, opts);
 	let trapClicks = readSpecialDivOpts(divId, opts, "trapClicks");
 	let selectable = readSpecialDivOpts(divId, opts, "selectable");
 	let onClick = readSpecialDivOpts(divId, opts, "onClick");
@@ -184,7 +220,14 @@ function setDivClickSettings(div, opts, sendActionFunc) {
 		console.log("error", "Received onClick property with invalid value: ", onClick);
 		return;
 	}
-	setDivOnClick(div, trapClicks, selectable, onClickFunc, actionObj);
+	if (buttonElement) {
+		console.log("buttonElement maybe clickable");
+		setButtonOnClick(buttonElement, onClickFunc, actionObj);
+		setDivOnClick(div, true, false, null, actionObj);
+	} else {
+		//setButtonOnClick(buttonElement, null, actionObj);
+		setDivOnClick(div, trapClicks, selectable, onClickFunc, actionObj);
+	}
 }
 
 // If div does not exists it is created
@@ -248,14 +291,10 @@ function setDiv(id, opts, sendActionFunc) {
 		div.style.borderColor = opts.borderColor;
 	}
 
-	if ("selectable" in opts || "onClick" in opts || "trapClicks" in opts) {
-		setDivClickSettings(div, opts, sendActionFunc);
-	}
-
 	setDivImg(div, opts);
 
 	if (opts.text || opts.text === null) {
-		let pElement = getDivParagraphElement(div);
+		let pElement = getDivChildElement(div, "p");
 		if (opts.text) {
 			if ( ! pElement) {
 				log("info", "creating div paragraph");
@@ -269,6 +308,11 @@ function setDiv(id, opts, sendActionFunc) {
 				pElement.innerHTML = "";
 			}
 		}
+	}
+
+	if ("selectable" in opts || "button" in opts || "onClick" in opts || "trapClicks" in opts) {
+		console.log("click settings!")
+		setDivClickSettings(div, opts, sendActionFunc);
 	}
 	
 	return div;

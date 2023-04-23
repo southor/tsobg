@@ -1,6 +1,7 @@
 
 // store div elements that was created by this file in a Map object, accessed by div id
-var divs = null;
+var divsMap = null;
+var buttonsMap = null;
 
 var specialDivOpts = null;
 let specialDivOptsDefaults = {"tsobg-trapClicks":false, "tsobg-selectable":false, "tsobg-onClick":null};
@@ -37,10 +38,10 @@ function readSpecialDivOpts(divId, opts, name) {
  * @return { Element } The div element or null
  */
 function getDiv(id, create, defaultDivPositioning) {
-	if (divs === null) {
-		divs = new Map();
+	if (divsMap === null) {
+		divsMap = new Map();
 	}
-	let div = divs.get(id) ?? document.getElementById(id);
+	let div = divsMap.get(id) ?? document.getElementById(id);
 	if (create && ! div) {
 		log("info", "creating div: " + id);
 		div = document.createElement("div");
@@ -48,21 +49,47 @@ function getDiv(id, create, defaultDivPositioning) {
 		if (defaultDivPositioning) {
 			div.style.position = defaultDivPositioning;
 		}
-		divs.set(id, div);
+		divsMap.set(id, div);
 	}
 	return div;
 }
 
+function _activateElement(elementsMap, elementsName, id, create) {
+	if (elementsMap === null) {
+		elementsMap = new Map();
+	}
+	let element = elementsMap.get(id);
+	if (create && ! element) {
+		log("info", "creating " + elementsName + " element for divId: " + id);
+		element = document.createElement(elementsName);
+		elementsMap.set(id, element);
+	}
+	return element;
+}
 
-function deleteAllCreatedDivs() {
-	if (divs !== null) {
-		for (const [id, div] of divs.entries()) {
-			const parentNode = div.parentNode;
+/**
+ * Get div from DOM, create div if it doesn't exist
+ * @param { String } divId The div id that button belongs to
+ * @param { Boolean } create If div does not already exist it will be created if 'create' is true, otherwise null is returned
+ * @return { Element } The button element or null
+ */
+function activateButtonElement(divId, create) {
+	return _activateElement(buttonsMap, "button", divId, create);
+}
+
+function _deleteAllCreatedElements(elementsMap) {
+	if (elementsMap !== null) {
+		for (const [id, element] of elementsMap.entries()) {
+			const parentNode = element.parentNode;
 			if (parentNode) {
-				//log("removing " + id + " from document");
-				parentNode.removeChild(div);
+				parentNode.removeChild(element);
 			}
 		}
-		divs.clear();
+		elementsMap.clear();
 	}
+}
+
+function deleteAllCreatedElements() {
+	_deleteAllCreatedElements(buttonsMap);
+	_deleteAllCreatedElements(divsMap);
 }

@@ -116,10 +116,11 @@ class UIState():
 		"borderColor":"black", # style.borderColor
 		# element configurations
 		"parent":None, # sets parent by adding as child
+		"button":None, # adds a button element with "button" as the caption and "onClick" divOpts for the event
 		"img":None, # adds an img element with "img" as the img attribute
 		"text":None, # adds a text element with "text" as innerHTML
 		# other special
-		"trapClicks":False, # If there is no onClick action and not selectable, clicks can be let through to object below if trapClicks is set to False
+		"trapClicks":False, # If there is no onClick action and not selectable, clicks on div element can be let through to object below if trapClicks is set to False
 		"selectable":False,
 		"onClick":None,
 		"actions":[]
