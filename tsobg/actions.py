@@ -23,7 +23,7 @@ def encodeActionObj(arMap, actionObj):
 		val = actionObj.get(name, None)
 		#if (val is not None) or mandatoryMember:
 		if not (isinstance(val, type1) or isinstance(val, type2)):
-			_raiseActionObjError('actionObj must have a member "{}" an instance of {}'.format(name, typesStr), actionObj)
+			_raiseActionObjError('actionObj must have a member "{}", which should be an instance of {}'.format(name, typesStr), actionObj)
 		return val
 	
 	def checkArg(val, categoryName, allowedLookup):

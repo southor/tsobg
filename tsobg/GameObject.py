@@ -5,6 +5,8 @@ from .UIState import UIState
 
 class GameObject():
 
+	_specialProps = {"parent", "divPositioning"}
+
 	def _createGetMethod(key):
 		def _methodTemplate(self):
 			return self._divProps[key] if key in self._divProps else GameObject._propsDefaults[key]
@@ -21,7 +23,6 @@ class GameObject():
 		# add the default values
 		GameObject._propsDefaults = propsDefaults
 		# add getter methods
-		GameObject._specialProps = {"parent", "divPositioning"}
 		for p in propsDefaults:
 			name = p[0].upper() + p[1:]
 			if p not in GameObject._specialProps:
@@ -57,6 +58,10 @@ class GameObject():
 		self._flags = {"visible"}
 		if "flags" in kwargs:
 			self.setFlags(kwargs["flags"])
+		if "pos" in kwargs:
+			self.setPos(kwargs["pos"])
+		if "size" in kwargs:
+			self.setSize(kwargs["size"])
 		# _divPositioning member will automatically be used with set_div if parent is a div id, but will be ignored if parent is another GameObject (in which case absolute is used instead)
 		self._divPositioning = kwargs.get("divPositioning", "static")
 		self._layout = kwargs.get("layout", FreeLayout())
@@ -93,6 +98,12 @@ class GameObject():
 
 	def getFlag(self, flag):
 		return flag in self._flags
+
+	def getPos(self):
+		return (self.getLeft(), self.getTop())
+
+	def getSize(self):
+		return (self.getWidth(), self.getHeight())
 
 	#def getUIPos(self):
 	#	return self._uiPos
@@ -186,6 +197,14 @@ class GameObject():
 			if self._parent:
 				# TODO: Add optional argument to _uiChange so we can tell it to only update flags (for performance)
 				self._uiUpdate()
+
+	def setPos(self, pos):
+		self.setLeft(pos[0])
+		self.setTop(pos[1])
+
+	def setSize(self, size):
+		self.setWidth(size[0])
+		self.setHeight(size[1])
 
 	#def setUIPos(self, uiPos):
 	#	if self._uiPos == uiPos:

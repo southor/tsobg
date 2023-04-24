@@ -100,7 +100,8 @@ def combineUIChanges(uiChangeA, uiChangeB):
 
 class UIState():
     
-	_divOptsDefaultsEncoded = {
+	#_divOptsDefaultsEncoded = {
+	divOptsDefaults = {
 		# css properties
 		"class":None,
 		"divPositioning":"static", # style.position
@@ -126,11 +127,11 @@ class UIState():
 		"actions":[]
 	}
 
-	divOptsDefaults = {
-		**_divOptsDefaultsEncoded,
-		"pos": "auto",
-		"size": "auto"
-	}
+	#divOptsDefaults = {
+	#	**_divOptsDefaultsEncoded,
+	#	"pos": "auto",
+	#	"size": "auto"
+	#}
 		
 	def __init__(self, divs = {}):
 		self.divs = divs
