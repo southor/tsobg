@@ -31,15 +31,15 @@ class UIGrid_test(unittest.TestCase):
 		self.assertEqual(grid.getNItems(), 6)
 		self.assertEqual(grid.getMaxNItems(), 6)
 		self.assertEqual(grid.isFull(), True)
-		self.assertEqual(grid.removeItem("cat"), False)
+		self.assertFalse(grid.removeItem("cat"))
 		self.assertEqual(grid.isFull(), True)
-		self.assertEqual(grid.removeItem("cow"), True)
+		self.assertTrue(grid.removeItem("cow"))
 		self.assertEqual(grid.getNItems(), 5)
 		self.assertEqual(grid.isFull(), False)
-		self.assertEqual(grid.removeItem("cow"), False)
+		self.assertFalse(grid.removeItem("cow"))
 		self.assertEqual(grid.getNItems(), 5)
-		self.assertEqual(grid.removeItem("pig"), True)
-		self.assertEqual(grid.removeItem("horse"), True)
+		self.assertTrue(grid.removeItem("pig"))
+		self.assertTrue(grid.removeItem("horse"))
 		self.assertEqual(grid.addItem("cat"), (10, 0))
 		self.assertEqual(grid.getNItems(), 4)
 		# test with ui offset and maxNItems smaller than grid
@@ -55,7 +55,7 @@ class UIGrid_test(unittest.TestCase):
 		self.assertEqual(grid.isFull(), True)
 		self.assertEqual(grid.getMaxNItems(), 3)
 		self.assertEqual(grid.getNItems(), 3)
-		self.assertEqual(grid.removeItem("sheep"), True) # removing one sheep
+		self.assertTrue(grid.removeItem("sheep")) # removing one sheep
 		self.assertEqual(grid.isFull(), False)
 		self.assertEqual(grid.addItem("cow"), (5,5)) # should take the position that was freed by the first sheep
 		self.assertEqual(grid.isFull(), True)

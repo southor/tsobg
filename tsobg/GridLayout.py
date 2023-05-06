@@ -21,30 +21,50 @@ class GridLayout(Layout):
 	def isFull(self):
 		return self.grid.isFull()
 
-	def getObject(self):
-		return grid.getItem(self)
+	def hasObject(self, object):
+		return self.grid.hasItem(object)
 
-	def getObject(self, colN, rowN):
-		return self.grid.getItemAtCell(colN, rowN)
+	def getObjectCoordinates(self, object):
+		return self.grid.getItemGridPos(object)
 
-	def getObjectLayoutArgs(self, object, recursive=False):
-		""" returns grid position as (colN, rowN) """
-		return self.grid.getItemGridPos(object, recursive)
+	def getFirstObject(self, remove=False):
+		return grid.getFirstItem(remove)
+
+	def getObjectAt(self, colN, rowN):
+		return self.grid.getItemAt(colN, rowN)
 
 	def addObject(self, object):
 		uiPos = self.grid.addItem(object)
 		if not uiPos:
 			return False
-		object.setPos(uiPos)
+		object.setLayoutPos(uiPos)
 		return True
 	
-	def addObject(self, object, colN, rowN):
-		uiPos = self.grid.addItemAtCell(object, colN, rowN)
+	def addObjectAt(self, object, colN, rowN):
+		uiPos = self.grid.addItemAt(object, colN, rowN)
 		if not uiPos:
 			return False
-		object.setPos(uiPos)
+		object.setLayoutPos(uiPos)
 		return True
 
-	def hasObject(self, object, recursive=False, remove=False):
-		return self.grid.hasItem(object, recursive=recursive, remove=remove)
-		#self.grid.visitItems(visitor)
+	def removeObject(self, object):
+		if self.grid.removeItem(object):
+			return True
+		return False
+
+	def removeObjectAt(self, colN, rowN):
+		""" returns the object that was removed, if any """
+		return self.grid.removeItemAt(colN, rowN)
+
+	def visitCellsReduce(self, visitFunc, initRes=None, visitOnlyOccupied=False):
+		return self.grid.visitCellsReduce(visitFunc, initRes, visitOnlyOccupied=visitOnlyOccupied)
+
+	def visitCellsShortcut(self, visitFunc, failRes=None, visitOnlyOccupied=False):
+		return self.grid.visitCellsShortcut(visitFunc, failRes, visitOnlyOccupied=visitOnlyOccupied)
+
+	def visitObjectsReduce(self, visitFunc, initRes=None):
+		return self.grid.visitCellsReduce(visitFunc, initRes, visitOnlyOccupied=True)
+
+	def visitObjectsShortcut(self, visitFunc, failRes=None):
+		return self.grid.visitCellsShortcut(visitFunc, failRes, visitOnlyOccupied=True)
+

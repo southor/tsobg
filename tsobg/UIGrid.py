@@ -8,29 +8,29 @@ class UIGrid():
 			row = [None]*self.nColumns
 			self.rows.append(row)
 
-	def _findItem(self):
-		""" returns first grid position that contains an object as (colN, rowN), None otherwise """
-		for rowN,row in enumerate(self.rows):
-			for colN,cell in enumerate(row):
-				if cell:
-					return colN,rowN
-		return None
+	#def _findAnyItem(self):
+	#	""" returns first grid position that contains an object as (colN, rowN), None otherwise """
+	#	for rowN,row in enumerate(self.rows):
+	#		for colN,cell in enumerate(row):
+	#			if cell:
+	#				return colN,rowN
+	#	return None
 	
-	def _findItem(self, item):
-		""" returns the grid position where item is located as (colN, rowN), None if not found """
-		for rowN,row in enumerate(self.rows):
-			for colN,cell in enumerate(row):
-				if cell is item:
-					return colN,rowN
-		return None
+	#def _findItem(self, item):
+	#	""" returns the grid position where item is located as (colN, rowN), None if not found """
+	#	for rowN,row in enumerate(self.rows):
+	#		for colN,cell in enumerate(row):
+	#			if cell is item:
+	#				return colN,rowN
+	#	return None
 
-	def _findFreeCell(self):
-		""" returns a free grid position as (colN, rowN) or None if no free cell was found """
-		for rowN,row in enumerate(self.rows):
-			for colN,cell in enumerate(row):
-				if cell == None:
-					return (colN,rowN)
-		return None
+	#def _findFreeCell(self):
+	#	""" returns a free grid position as (colN, rowN) or None if no free cell was found """
+	#	for rowN,row in enumerate(self.rows):
+	#		for colN,cell in enumerate(row):
+	#			if cell == None:
+	#				return (colN,rowN)
+	#	return None
 
 	def _grow(self):
 		if self.autoGrow == "columns":
@@ -95,30 +95,85 @@ class UIGrid():
 		y = self.uiOffsetPos[1] + rowN * self.uiCellSize[1]
 		return x,y
 
-	def getItemGridPos(self, item, recursive=False):
-		""" 
-		Returns the grid position where item is located as (colN, rowN), None if not found.
-		If recursive is set to True it will search among children recursively for item (children must have method "hasObject").
-		If the item is found recursively this way, the grid position for the child of this UIGrid that contained the item is returned.
+	def visitCellsReduce(self, visitFunc, initRes=None, visitOnlyOccupied=False):
 		"""
-		gridPos = self._findItem(item)
-		if gridPos:
-			return gridPos
-		if recursive:
-			for rowN,row in enumerate(self.rows):
+		Visits all the cells in the grid and calls visitFunc(colN, rowN, cell, previousRes)
+		previousRes contains the return value from the previous visitorFunc call.
+		For the first cell the "previousRes" argument will be set to the value of the "initRes" argument.
+		Returns the return value of the last visitFunc call.
+		"""
+		res = initRes
+		for rowN,row in enumerate(self.rows):
 				for colN,cell in enumerate(row):
-					if cell:
-						assert(cell is not item)
-						if cell.hasObject(item, recursive=recursive):
-							return colN,rowN
-		return None
+					if cell != None or not visitOnlyOccupied:
+						res = visitFunc(colN, rowN, cell, res)
+		return res
 
-	def getItem(self):
-		gridPos = _findItem(self)
-		if gridPos:
-			colN,rowN = gridPos
-			return self.rows[rowN][colN]
+	def visitCellsShortcut(self, visitFunc, failRes=None, visitOnlyOccupied=False):
+		"""
+		Visits all the cells in the grid and calls visitFunc(colN, rowN, cell)
+		If the return value of a visitFunc call evaluates to True the iteration will stop and the value is returned.
+		If all return values evaluates to False then failRes is returned.
+		"""
+		for rowN,row in enumerate(self.rows):
+				for colN,cell in enumerate(row):
+					if cell != None or not visitOnlyOccupied:
+						res = visitFunc(colN, rowN, cell)
+						if res:
+							return res
+		return failRes
+
+
+	def hasItem(self, item):
+		for rowN,row in enumerate(self.rows):
+			if item in row:
+				return True
+		return False
+
+	def getItemGridPos(self, item):
+		def visitCell(colN, rowN, cell):
+			return (colN, rowN) if cell is item else None
+		return self.visitCellsShortcut(visitCell)
+
+	#def getItemGridPos(self, item, recursive=False):
+	#	""" 
+	#	Returns the grid position where item is located as (colN, rowN), None if not found.
+	#	If recursive is set to True it will search among children recursively for item (children must have method "hasObject").
+	#	If the item is found recursively this way, the grid position for the child of this UIGrid that contained the item is returned.
+	#	"""
+	#	gridPos = self._findItem(item)
+	#	if gridPos:
+	#		return gridPos
+	#	if recursive:
+	#		for rowN,row in enumerate(self.rows):
+	#			for colN,cell in enumerate(row):
+	#				if cell:
+	#					assert(cell is not item)
+	#					if cell.hasObject(item, recursive=recursive):
+	#						return colN,rowN
+	#	return None
+
+
+	def getFirstFreeGridPos(self):
+		""" For the first ockupied cell found, return the grid position otherwise None """
+		for rowN,row in enumerate(self.rows):
+			for colN,cell in enumerate(row):
+				if cell == None:
+					return (colN,rowN)
 		return None
+	
+	def getFirstItem(self, remove=False):
+		""" For the first ockupied cell found, return the item there, otherwise None """
+		res = self.visitCellsShortcut(lambda colN, rowN, cell: (colN, rowN, cell) if cell else None)
+		if not res:
+			return None
+		colN,rowN,item = res
+		if remove:
+			removeItemAt(colN,rowN)
+		return item
+
+	def getItemAt(self, colN, rowN):
+		return self.rows[rowN][colN]
 	
 	def addItem(self, item):
 		""" 
@@ -129,10 +184,10 @@ class UIGrid():
 		"""
 		if self.isFull():
 			return None
-		gridPos = self._findFreeCell()
+		gridPos = self.getFirstFreeGridPos()
 		if not gridPos:
 			self._grow()
-			gridPos = self._findFreeCell()
+			gridPos = self.getFirstFreeGridPos()
 		assert(gridPos)
 		colN,rowN = gridPos
 		assert(self.rows[rowN][colN] == None)
@@ -140,40 +195,51 @@ class UIGrid():
 		self.nItems += 1
 		return self.getCellUIPos(colN,rowN)
 
-	def hasItem(self, item, recursive=False, remove=False):
-		gridPos = self._findItem(item)
-		if gridPos:
-			if remove:
-				colN,rowN = gridPos
-				self.rows[rowN][colN] = None
-				self.nItems -= 1
-			return True
-		if recursive:
-			for rowN,row in enumerate(self.rows):
-				for colN,cell in enumerate(row):
-					if cell:
-						assert(cell is not item)
-						if cell.hasObject(item, recursive=recursive, remove=remove):
-							return True
-		return False
-	
-	def removeItem(self, item, recursive=False):
-		return self.hasItem(item, recursive=recursive, remove=True)
-
-	def getItemAtCell(self, colN, rowN):
-		return self.rows[rowN][colN]
-
-	def addItemAtCell(self, item, colN, rowN):
+	def addItemAt(self, item, colN, rowN):
 		"""
 		returns ui position of the cell.
 		return None if the space was not free
 		"""
+		if self.isFull():
+			return None
 		if self.rows[rowN][colN]:
 			return None
 		self.rows[rowN][colN] = item
 		return self.getCellUIPos(colN, rowN)
 
-	def removeItemAtCell(self, colN, rowN):
+	#def hasItem(self, item, recursive=False, remove=False):
+	#	gridPos = self._findItem(item)
+	#	if gridPos:
+	#		if remove:
+	#			colN,rowN = gridPos
+	#			self.rows[rowN][colN] = None
+	#			self.nItems -= 1
+	#		return True
+	#	if recursive:
+	#		for rowN,row in enumerate(self.rows):
+	#			for colN,cell in enumerate(row):
+	#				if cell:
+	#					assert(cell is not item)
+	#					if cell.hasObject(item, recursive=recursive, remove=remove):
+	#						return True
+	#	return False
+	
+	#def removeItem(self, item, recursive=False):
+	#	return self.hasItem(item, recursive=recursive, remove=True)
+
+	def removeItem(self, item):
+		"""
+		returns the grid position of the removed item as (colN, rowN), or None if item not found.
+		"""
+		gridPos = self.getItemGridPos(item)
+		if gridPos:
+			colN,rowN = gridPos
+			self.rows[rowN][colN] = None
+			self.nItems -= 1
+			return colN,rowN
+		return None
+
+	def removeItemAt(self, colN, rowN):
 		"""
 		returns the item that was removed, None otherwise
 		"""

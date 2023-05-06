@@ -13,38 +13,54 @@ class FreeLayout(Layout):
 	def isFull(self):
 		return len(self.items) >= self.maxNItems
 
-	def getObject(self):
-		for item in self.items:
-			return item
+	def hasObject(self, object):
+		return object in self.items
+	
+	def getObjectCoordinates(self, object):
 		return None
 
-	def getObjectLayoutArgs(self, object, recursive=False):
-		if object in self.items:
-			return object.getPos()
-		if recursive:
-			for item in self.items:
-				if item.hasObject(object, recursive):
-					return item.getPos()
-		return None
+	def getFirstObject(self, remove=False):
+		if len(self.items) == 0:
+			return None
+		item = self.items.pop()
+		if not remove:
+			self.items.add(item)
+		return item
+		#item = None
+		#for itm in self.items:
+		#	item = itm
+		#	break
+		#if remove and item:
+		#	self.items.remove(item)
+		#return item
 
 	def addObject(self, object):
-		return self.addObject(self, object, (0,0))
-	
-	def addObject(self, object, pos="auto"):
 		if self.isFull():
 			return False
 		self.items.add(object)
-		object.setPos(pos)
 		return True
 
-	def hasObject(self, object, recursive=False, remove=False):
+	def removeObject(self, object):
 		if object in self.items:
-			if remove:
-				self.items.remove(object)
+			self.items.remove(object)
 			return True
-		if recursive:
-			for item in self.items:
-				if item.hasObject(object, recursive, remove):
-					return True
 		return False
 
+	#def visitCellsReduce(self, visitFunc, initRes=None):
+	#	return self.visitObjectsReduce(lambda object,res: visitFunc(None, None, object, res), initRes)
+
+	#def visitCellsShortcut(self, visitFunc, failValue=None):
+	#	return self.visitObjectsShortcut(lambda object: visitFunc(None, None, object), failValue)
+
+	def visitObjectsReduce(self, visitFunc, initRes=None):
+		res = initRes
+		for object in self.items:
+			res = visitFunc(None, None, object, res)
+		return res
+
+	def visitObjectsShortcut(self, visitFunc, failValue=None):
+		for object in self.items:
+			res = visitFunc(None, None, object)
+			if res:
+				return res
+		return failValue
