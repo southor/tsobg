@@ -1,5 +1,4 @@
 
-
 var selectedIds = null;
 
 function getSelectedIds() {
@@ -206,12 +205,13 @@ function setDivClickSettings(div, opts, sendActionFunc) {
 	let trapClicks = readSpecialDivOpts(divId, opts, "trapClicks");
 	let selectable = readSpecialDivOpts(divId, opts, "selectable");
 	let onClick = readSpecialDivOpts(divId, opts, "onClick");
+	let buttonEnabled = readSpecialDivOpts(divId, opts, "buttonEnabled");
 	var onClickFunc = null;
 	var actionObj = null;
 	if (onClick === "actions") {
 		// TODO Trigger popup of actions to choose from (use "actions" property)
 		onClickFunc = null;
-	} else if (typeof onClick === 'object' && onClick !== null) {
+	} else if ((typeof onClick === 'object') && onClick !== null) {
 		actionObj = onClick
 		onClickFunc = sendActionFunc;
 	} else if (onClick === null) {
@@ -221,7 +221,9 @@ function setDivClickSettings(div, opts, sendActionFunc) {
 		return;
 	}
 	if (buttonElement) {
-		console.log("buttonElement maybe clickable");
+		//console.log("buttonEnabled for ", divId, " is ", buttonEnabled);
+		//console.log("buttonEnabled for ", divId, " actionObj = ", actionObj, " onClick = ", onClick);
+		buttonElement.disabled = buttonEnabled ? false : true;
 		setButtonOnClick(buttonElement, onClickFunc, actionObj);
 		setDivOnClick(div, true, false, null, actionObj);
 	} else {
@@ -310,8 +312,7 @@ function setDiv(id, opts, sendActionFunc) {
 		}
 	}
 
-	if ("selectable" in opts || "button" in opts || "onClick" in opts || "trapClicks" in opts) {
-		console.log("click settings!")
+	if ("selectable" in opts || "button" in opts || "onClick" in opts || "trapClicks" in opts || "buttonEnabled" in opts) {
 		setDivClickSettings(div, opts, sendActionFunc);
 	}
 	

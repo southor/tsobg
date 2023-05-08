@@ -207,6 +207,15 @@ class GameObject():
 
 	# ------------ children ------------
 
+	def getNRows(self):
+		return self._layout.getNRows()
+
+	def getNColumns(self):
+		return self._layout.getNColumns()
+
+	def getGridSize(self):
+		return self._layout.getGridSize()
+
 	def hasChild(self, object):
 		return self._layout.hasObject(object)
 
@@ -251,7 +260,14 @@ class GameObject():
 			object._uiUpdateFull()
 		return True
 
+	def removeAllChildren(self):
+		""" returns number of children removed """
+		return self._layout.removeAllChildren()
+
 	# ------------ visiting ------------
+
+	def visitChildren(self, visitFunc):
+		return self._layout.visitObjectsReduce(lambda colN, rowN, cell, prevRes: visitFunc(colN, rowN, cell))
 
 	def visitChildrenReduce(self, visitFunc, initRes=None):
 		return self._layout.visitObjectsReduce(visitFunc, initRes)

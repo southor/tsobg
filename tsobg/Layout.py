@@ -1,6 +1,14 @@
 
 class Layout():
 
+	def getNRows(self):
+		raise NotImplementedError("getNRows(self)")
+
+	def getNColumns(self):
+		raise NotImplementedError("getNColumns(self)")
+
+	def getGridSize(self):
+		raise NotImplementedError("getGridSize(self)")
 
 	def getNObjects(self):
 		raise NotImplementedError("getNObjects(self)")
@@ -31,6 +39,10 @@ class Layout():
 
 	def removeObjectAt(self, object, colN, rowN):
 		raise NotImplementedError("removeObjectAt(self, object, colN, rowN)")
+
+	def removeAllObjects(self):
+		""" returns number of objects removed """
+		raise NotImplementedError("removeAllObjects(self)")
 	
 	def visitCellsReduce(self, visitFunc, initRes=None, visitOnlyOccupied=False):
 		raise NotImplementedError("visitCellsReduce(self, visitFunc, initRes=None)")

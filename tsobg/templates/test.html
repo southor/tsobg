@@ -1,0 +1,29 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>tsobg client test</title>
+</head>
+
+<script type="text/javascript" src="{{ url_for("static", filename="div_specials.js") }}"></script>
+<script type="text/javascript" src="{{ url_for("static", filename="div_specials_test.js") }}"></script>
+
+<script type="text/JavaScript">
+	function runTests() {
+		div_specials_testResultElement = document.getElementById("div_specials_testResultElement");
+		try {
+			runTest_div_specials();
+			div_specials_testResultElement.innerHTML = "div_specials.js test succeeded";
+		} catch (error) {
+			div_specials_testResultElement.innerHTML = "div_specials.js test failed with error: " + error;
+			throw error;
+		}
+	}
+</script>
+
+<body onload="runTests()">
+	<h1>tsobg Client Test</h1>
+	<p id="div_specials_testResultElement"></p>
+	</br>
+	<a href="/admin?token={{adminToken}}">back to admin</a>
+</body>
+</html>

@@ -7,6 +7,15 @@ class FreeLayout(Layout):
 		self.items = set()
 		self.maxNItems = maxNItems
 
+	def getNRows(self):
+		return None
+
+	def getNColumns(self):
+		return None
+
+	def getGridSize(self):
+		return None,None
+
 	def getNObjects(self):
 		return len(self.items)
 
@@ -45,6 +54,12 @@ class FreeLayout(Layout):
 			self.items.remove(object)
 			return True
 		return False
+
+	def removeAllObjects(self):
+		""" returns number of objects removed """
+		res = len(self.items)
+		self.items.clear()
+		return res
 
 	#def visitCellsReduce(self, visitFunc, initRes=None):
 	#	return self.visitObjectsReduce(lambda object,res: visitFunc(None, None, object, res), initRes)

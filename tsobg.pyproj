@@ -153,6 +153,7 @@
     <Content Include="todo.txt" />
     <Content Include="tsobg\static\div_manipulation.js" />
     <Content Include="tsobg\static\div_specials.js" />
+    <Content Include="tsobg\static\div_specials_test.js" />
     <Content Include="tsobg\static\game.css" />
     <Content Include="tsobg\static\game_log.js" />
     <Content Include="tsobg\templates\admin.html" />
@@ -161,6 +162,7 @@
     <Content Include="tsobg\templates\game.html" />
     <Content Include="tsobg\templates\msg.html" />
     <Content Include="tsobg\templates\start.html" />
+    <Content Include="tsobg\templates\test.html" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Skyscrapers\board_data.py">

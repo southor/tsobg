@@ -4,7 +4,7 @@ var divsMap = null;
 var buttonsMap = null;
 
 var specialDivOpts = null;
-let specialDivOptsDefaults = {"tsobg-trapClicks":false, "tsobg-selectable":false, "tsobg-onClick":null};
+let specialDivOptsDefaults = {"tsobg-trapClicks":false, "tsobg-selectable":false, "tsobg-onClick":null, "tsobg-buttonEnabled":true};
 
 function getSpecialDivOpts(divId, name) {
 	let specialOpts = (specialDivOpts ? specialDivOpts.get(divId) : null) ?? specialDivOptsDefaults;
@@ -17,6 +17,7 @@ function setSpecialDivOpts(divId, name, value) {
 	}
 	let specialOpts = specialDivOpts.get(divId) ?? Object.assign({}, specialDivOptsDefaults);
 	specialOpts["tsobg-" + name] = value;
+	specialDivOpts.set(divId, specialOpts)
 }
 
 function readSpecialDivOpts(divId, opts, name) {

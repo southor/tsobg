@@ -124,6 +124,7 @@ class UIState():
 		"trapClicks":False, # If there is no onClick action and not selectable, clicks on div element can be let through to object below if trapClicks is set to False
 		"selectable":False,
 		"onClick":None,
+		"buttonEnabled":True,
 		"actions":[]
 	}
 

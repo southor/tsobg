@@ -180,6 +180,14 @@ def debugPage():
 	else:
 		return renderTokenError(token)
 
+@app.route("/admin/test", methods=['GET'])
+def testPage():
+	token = flask.request.args.get('token')
+	if token == settings.adminToken:
+		return render_template("test.html", adminToken=token)
+	else:
+		return renderTokenError(token)
+
 @app.route("/admin/revert_to/<toStateN>", methods=['GET'])
 def revertGameTo(toStateN):
 	token = flask.request.args.get('token')

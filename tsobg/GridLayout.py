@@ -15,6 +15,9 @@ class GridLayout(Layout):
 	def getNColumns(self):
 		return self.grid.getNColumns()
 
+	def getGridSize(self):
+		return self.grid.getSize()
+
 	def getNObjects(self):
 		return self.grid.getNItems()
 
@@ -55,6 +58,10 @@ class GridLayout(Layout):
 	def removeObjectAt(self, colN, rowN):
 		""" returns the object that was removed, if any """
 		return self.grid.removeItemAt(colN, rowN)
+
+	def removeAllObjects(self):
+		""" returns number of objects removed """
+		return self.grid.removeAllItems()
 
 	def visitCellsReduce(self, visitFunc, initRes=None, visitOnlyOccupied=False):
 		return self.grid.visitCellsReduce(visitFunc, initRes, visitOnlyOccupied=visitOnlyOccupied)
