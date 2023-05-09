@@ -77,7 +77,7 @@ class GameObject_test(unittest.TestCase):
 		self.assertEqual(c.getParent(), None)
 		layout = GridLayout((5, 5), (20, 20))
 		p = GameObject(UIInterface(), "parent", layout=layout, size=(100, 100))
-		p.addChildAt(c, 0, 2)
+		p.setChildAt(c, 0, 2)
 		self.assertEqual(p.getLayoutType(), GridLayout)
 		self.assertEqual(c.getLayoutType(), FreeLayout)
 		self.assertEqual(gc.getLayoutType(), FreeLayout)
@@ -93,6 +93,9 @@ class GameObject_test(unittest.TestCase):
 		self.assertEqual(p.getChildCoordinates(gc), None)
 		self.assertEqual(p.getStackCoordinatesFor(gc), [(0, 2), (None, None)])
 		self.assertEqual(c.getLayoutPos(), (0, 40)) # layoutPos of child should have been set by GridLayout (grid pos multiplied by tile size)
+		p.setChildAt(None, 0, 2) # remove child by setChildAt
+		self.assertFalse(p.hasChild(c))
+		self.assertFalse(c.inStackOf(p))
 
 	def runTest(self):
 		self.testFlags()

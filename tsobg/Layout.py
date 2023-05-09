@@ -31,14 +31,29 @@ class Layout():
 	def addObject(self, object):
 		raise NotImplementedError("addObject(self, object)")
 
-	def addObjectAt(self, object, colN, rowN):
+	def setObjectAt(self, object, colN, rowN):
+		"""
+		Can be used to add or remove an object at a cell.
+		If object is None:
+			If cell contains an object:
+				The object in the cell is removed.
+				Returns True.
+			If cell is empty:
+				Returns None.
+		If object is non-None:
+			If cell contains an object or we have reached max number of objects (as set by maxNItems kwarg):
+				Returns None.
+			If cell is empty:
+				The object is added to the cell.
+				Returns the ui position of the cell.
+		"""
 		raise NotImplementedError("addObjectAt(self, object, pos)")
 
 	def removeObject(self, object):
 		raise NotImplementedError("removeObject(self, object)")
 
 	def removeObjectAt(self, object, colN, rowN):
-		raise NotImplementedError("removeObjectAt(self, object, colN, rowN)")
+		return self.setObjectAt(object, colN, rowN)
 
 	def removeAllObjects(self):
 		""" returns number of objects removed """

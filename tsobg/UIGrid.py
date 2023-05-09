@@ -156,15 +156,30 @@ class UIGrid():
 		self.nItems += 1
 		return self.getCellUIPos(colN,rowN)
 
-	def addItemAt(self, item, colN, rowN):
+	def setItemAt(self, item, colN, rowN):
 		"""
-		returns ui position of the cell.
-		return None if the space was not free
+		Can be used to add or remove an item at a cell.
+		If item is None:
+			If cell contains an item:
+				The item in the cell is removed.
+				Returns the ui position of the cell.
+			If cell is empty:
+				Returns None.
+		If item is non-None:
+			If cell contains an item or we have reached max number of items (as set by maxNItems kwarg):
+				Returns None.
+			If cell is empty:
+				The item is added to the cell.
+				Returns the ui position of the cell.
 		"""
-		if self.isFull():
-			return None
-		if self.rows[rowN][colN]:
-			return None
+		if item == None:
+			if self.rows[rowN][colN] == None:
+				return None
+		else:
+			if self.isFull():
+				return None
+			if self.rows[rowN][colN] != None:
+				return None
 		self.rows[rowN][colN] = item
 		return self.getCellUIPos(colN, rowN)
 

@@ -35,13 +35,6 @@ class FreeLayout(Layout):
 		if not remove:
 			self.items.add(item)
 		return item
-		#item = None
-		#for itm in self.items:
-		#	item = itm
-		#	break
-		#if remove and item:
-		#	self.items.remove(item)
-		#return item
 
 	def addObject(self, object):
 		if self.isFull():
@@ -60,12 +53,6 @@ class FreeLayout(Layout):
 		res = len(self.items)
 		self.items.clear()
 		return res
-
-	#def visitCellsReduce(self, visitFunc, initRes=None):
-	#	return self.visitObjectsReduce(lambda object,res: visitFunc(None, None, object, res), initRes)
-
-	#def visitCellsShortcut(self, visitFunc, failValue=None):
-	#	return self.visitObjectsShortcut(lambda object: visitFunc(None, None, object), failValue)
 
 	def visitObjectsReduce(self, visitFunc, initRes=None):
 		res = initRes
