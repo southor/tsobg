@@ -216,6 +216,9 @@ class GameObject():
 	def getGridSize(self):
 		return self._layout.getGridSize()
 
+	def getNChildren(self):
+		return self._layout.getNObjects()
+
 	def hasChild(self, object):
 		return self._layout.hasObject(object)
 
@@ -227,6 +230,9 @@ class GameObject():
 
 	def getChildAt(self, colN, rowN):
 		return self._layout.getObjectAt(colN, rowN)
+
+	def getChildByDivID(self, divID):
+		return visitChildrenShortcut(lambda colN, rowN, child: child if child.getDivID() == divID else None)
 
 	def addChild(self, object):
 		if not self._layout.addObject(object):
@@ -264,12 +270,12 @@ class GameObject():
 
 	def removeAllChildren(self):
 		""" returns number of children removed """
-		return self._layout.removeAllChildren()
+		return self._layout.removeAllObjects()
 
 	# ------------ visiting ------------
 
 	def visitChildren(self, visitFunc):
-		return self._layout.visitObjectsReduce(lambda colN, rowN, cell, prevRes: visitFunc(colN, rowN, cell))
+		return self._layout.visitObjectsReduce(lambda colN, rowN, object, prevRes: visitFunc(colN, rowN, object))
 
 	def visitChildrenReduce(self, visitFunc, initRes=None):
 		return self._layout.visitObjectsReduce(visitFunc, initRes)
@@ -286,10 +292,10 @@ class GameObject():
 	def getStackCoordinatesFor(self, object):
 		""" returns the stack coordinates for object realtive to self (if object is self [] is returned) """
 		targetObject = object
-		def visitFunc(colN, rowN, object, prevRes):
+		def visitFunc(colN, rowN, child, prevRes):
 			if prevRes:
 				return prevRes
-			res = object.getStackCoordinatesFor(targetObject)
+			res = child.getStackCoordinatesFor(targetObject)
 			return [(colN, rowN)] + res if res != None else None
 		if self is targetObject:
 			return []
@@ -304,9 +310,12 @@ class GameObject():
 			return child.getStackObjectAt(stackCoordinates[1:])
 		return None
 
+	def getStackObjectByDivID(self, divID):
+		if self.getDivID() == divID:
+			return self
+		return self.visitChildrenShortcut(lambda colN, rowN, child: child.getStackObjectByDivID(divID))
 
-		
-			
+
 
 
 # Add new methods to GameObject based on divOpts

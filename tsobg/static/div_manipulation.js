@@ -150,8 +150,9 @@ function setButtonOnClick(buttonElement, onClickFunc, actionObj) {
 }
 
 // creates div button and enables/disables
-// returns buttonElement if it exists
+// returns buttonElement if it exists otherwise null
 function setDivButton(div, opts) {
+	// TODO: share this code with setDivImg
 	let buttonElement = getDivChildElement(div, "button");
 	if ("button" in opts) {
 		if (opts.button) {
@@ -170,28 +171,25 @@ function setDivButton(div, opts) {
 	return buttonElement;
 }
 
-// updates div image
+// creates div image and enables/disables
+// returns imgElement if it exists otherwise null
 function setDivImg(div, opts) {
-	if ("img" in opts) {
-		let imgElement = getDivChildElement(div, "img");
-		if (opts.img) {
-			if (imgElement) {
-				// TODO: visible images still takes up space
-				imgElement.style.visibility = "visible";
-			} else {
-				log("info", "creating div img");
-				imgElement = document.createElement("img");
-				div.appendChild(imgElement);
-			}
-			imgElement.setAttribute('src', opts.img);
-		} else {
-			console.assert(opts.img === null);
-			if (imgElement) {
-				// TODO: visible images still takes up space
-				imgElement.style.visibility = "hidden";
-			}
+	let imgElement = getDivChildElement(div, "img");
+	//console.log("in setDivImg");
+	if (opts.img) {
+		if ( ! imgElement) {
+			imgElement = activateImageElement(div.getAttribute("id"), true);
+			div.appendChild(imgElement);
 		}
+		imgElement.setAttribute('src', opts.img);
+	} else {
+		console.assert(opts.img === null);
+		if (imgElement) {
+			div.removeChild(imgElement);
+		}
+		imgElement = null;
 	}
+	return imgElement;
 }
 
 // If val is Number it returns it as string and adds "px", else returns val as is
@@ -200,7 +198,7 @@ function addPXIfNeeded(val) {
 }
 
 function setDivClickSettings(div, opts, sendActionFunc) {
-	let divId = div.getAttribute("id")
+	let divId = div.getAttribute("id");
 	let buttonElement = setDivButton(div, opts);
 	let trapClicks = readSpecialDivOpts(divId, opts, "trapClicks");
 	let selectable = readSpecialDivOpts(divId, opts, "selectable");
@@ -293,7 +291,9 @@ function setDiv(id, opts, sendActionFunc) {
 		div.style.borderColor = opts.borderColor;
 	}
 
-	setDivImg(div, opts);
+	if ("img" in opts) {
+		setDivImg(div, opts);
+	}
 
 	if (opts.text || opts.text === null) {
 		let pElement = getDivChildElement(div, "p");

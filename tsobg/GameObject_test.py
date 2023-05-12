@@ -53,11 +53,32 @@ class GameObject_test(unittest.TestCase):
 		go.setFlags(set())
 		self.assertFalse(go.getFlag("visible"))
 
+	def testChildren(self):
+		uiInterface = UIInterface()
+		p = GameObject(uiInterface, "parent", layout=GridLayout((2,2), (50,50)), size=(100, 100))
+		c00 = GameObject(uiInterface, "child00", size=(40,40))
+		c10= GameObject(uiInterface, "child10", size=(40,40))
+		c01 = GameObject(uiInterface, "child01", size=(40,40))
+		c11 = GameObject(uiInterface, "child11", size=(40,40))
+		p.addChild(c00)
+		p.addChild(c10)
+		p.addChild(c01)
+		p.addChild(c11)
+		p.getChildCoordinates(c00) == (0, 0)
+		p.getChildCoordinates(c11) == (1, 1)
+		self.assertTrue(p.getStackObjectByDivID("child00") is c00)
+		self.assertTrue(p.getStackObjectByDivID("child01") is c01)
+		self.assertTrue(p.getChildAt(1, 0) is c10)
+		self.assertEqual(p.getNChildren(), 4)
+		p.removeAllChildren()
+		self.assertEqual(p.getNChildren(), 0)
+
 	def testGrandchild(self):
 		# test: FreeLayout, FreeLayout
-		p = GameObject(UIInterface(), "parent", size=(20, 20))
-		c = GameObject(UIInterface(), "child", parent=p, pos=(5, 0), size=(10, 10))
-		gc = GameObject(UIInterface(), "grandchild", pos=(3, 0), size=(5, 5))
+		uiInterface = UIInterface()
+		p = GameObject(uiInterface, "parent", size=(20, 20))
+		c = GameObject(uiInterface, "child", parent=p, pos=(5, 0), size=(10, 10))
+		gc = GameObject(uiInterface, "grandchild", pos=(3, 0), size=(5, 5))
 		c.addChild(gc)
 		self.assertEqual(p.getLayoutType(), FreeLayout)
 		self.assertEqual(c.getLayoutType(), FreeLayout)
@@ -72,11 +93,12 @@ class GameObject_test(unittest.TestCase):
 		self.assertEqual(p.getChildCoordinates(gc), None)
 		self.assertEqual(p.getStackCoordinatesFor(c), [(None, None)])
 		self.assertEqual(p.getStackCoordinatesFor(gc), [(None, None), (None, None)])
+		self.assertTrue(p.getStackObjectByDivID("grandchild") is gc)
 		# test: GridLayout, FreeLayout
 		p.removeChild(c)
 		self.assertEqual(c.getParent(), None)
 		layout = GridLayout((5, 5), (20, 20))
-		p = GameObject(UIInterface(), "parent", layout=layout, size=(100, 100))
+		p = GameObject(uiInterface, "parent", layout=layout, size=(100, 100))
 		p.setChildAt(c, 0, 2)
 		self.assertEqual(p.getLayoutType(), GridLayout)
 		self.assertEqual(c.getLayoutType(), FreeLayout)
@@ -96,7 +118,16 @@ class GameObject_test(unittest.TestCase):
 		p.setChildAt(None, 0, 2) # remove child by setChildAt
 		self.assertFalse(p.hasChild(c))
 		self.assertFalse(c.inStackOf(p))
+		self.assertTrue(c.hasChild(gc))
+		self.assertTrue(gc.inStackOf(c))
+		self.assertEqual(p.getNChildren(), 0)
+		self.assertEqual(c.getNChildren(), 1)
+		p.removeAllChildren()
+		self.assertEqual(p.getNChildren(), 0)
+		self.assertEqual(c.getNChildren(), 1)
+		
 
 	def runTest(self):
 		self.testFlags()
+		self.testChildren()
 		self.testGrandchild()

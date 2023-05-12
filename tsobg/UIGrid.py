@@ -192,20 +192,22 @@ class UIGrid():
 			colN,rowN = gridPos
 			self.rows[rowN][colN] = None
 			self.nItems -= 1
-			return colN,rowN
-		return None
+		return gridPos
 
 	def removeItemAt(self, colN, rowN):
 		"""
 		returns the item that was removed, None otherwise
 		"""
 		item = self.rows[rowN][colN]
-		self.rows[rowN][colN] = None
+		if item:
+			self.rows[rowN][colN] = None
+			self.nItems -= 1
 		return item
 
 	def removeAllItems(self):
 		""" returns number of items removed """
 		def visitFunc(colN, rowN, cell, res):
 			self.rows[rowN][colN] = None
+			self.nItems -= 1
 			return res + 1
 		return self.visitCellsReduce(visitFunc, 0, visitOnlyOccupied=True)

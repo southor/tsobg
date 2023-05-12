@@ -1,6 +1,7 @@
 
 // store div elements that was created by this file in a Map object, accessed by div id
 var divsMap = null;
+var imgsMap = null;
 var buttonsMap = null;
 
 var specialDivOpts = null;
@@ -69,13 +70,23 @@ function _activateElement(elementsMap, elementsName, id, create) {
 }
 
 /**
- * Get div from DOM, create div if it doesn't exist
- * @param { String } divId The div id that button belongs to
+ * Get element from data structure, create element if it doesn't exist
+ * @param { String } divId The div id that the button belongs to
  * @param { Boolean } create If div does not already exist it will be created if 'create' is true, otherwise null is returned
  * @return { Element } The button element or null
  */
 function activateButtonElement(divId, create) {
-	return _activateElement(buttonsMap, "button", divId, create);
+	return _activateElement(imgsMap, "button", divId, create);
+}
+
+/**
+ * Get element from data structure, create element if it doesn't exist
+ * @param { String } divId The div id that the image belongs to
+ * @param { Boolean } create If div does not already exist it will be created if 'create' is true, otherwise null is returned
+ * @return { Element } The image element or null
+ */
+function activateImageElement(divId, create) {
+	return _activateElement(buttonsMap, "img", divId, create);
 }
 
 function _deleteAllCreatedElements(elementsMap) {
@@ -91,6 +102,7 @@ function _deleteAllCreatedElements(elementsMap) {
 }
 
 function deleteAllCreatedElements() {
+	_deleteAllCreatedElements(imgsMap);
 	_deleteAllCreatedElements(buttonsMap);
 	_deleteAllCreatedElements(divsMap);
 }
