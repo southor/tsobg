@@ -145,47 +145,31 @@ function setButtonOnClick(buttonElement, onClickFunc, actionObj) {
 	}
 }
 
-// creates div button and enables/disables
-// returns buttonElement if it exists otherwise null
-function setDivButton(div, opts) {
-	// TODO: share this code with setDivImg
-	var buttonElement = getDivChildElement(div, "button");
-	if ("button" in opts) {
-		if (opts.button) {
-			if ( ! buttonElement) {
-				buttonElement = activateSubElement(div.getAttribute("id"), "button", true);
-				div.appendChild(buttonElement);
+// creates div sub element or enables/disables it
+// If opts contains a string for key name then a sub element will be created of that element type if does not already exists.
+// If name is not a member of opts or set to something falsey then if sub element exists it will be removed.
+// Argument name: string element name (for example "button" or "img").
+// returns element or null
+function setDivSubElement(div, name, opts) {
+	var element = getDivChildElement(div, name);
+	if (name in opts) {
+		let val = opts[name]; // Should be button caption or image filename
+		if (val) {
+			if ( ! element) {
+				element = activateSubElement(div.getAttribute("id"), name, true);
+				div.appendChild(element);
 			}
-			buttonElement.innerHTML = opts.button;
+			if (name == "img") element.setAttribute('src', val);
+			else if (name == "button") element.innerHTML = val;
+			else console.assert(false);
 		} else {
-			if (buttonElement) {
-				div.removeChild(buttonElement);
+			if (element) {
+				div.removeChild(element);
 			}
-			buttonElement = null;
+			element = null;
 		}
 	}
-	return buttonElement;
-}
-
-// creates div image and enables/disables
-// returns imgElement if it exists otherwise null
-function setDivImg(div, opts) {
-	var imgElement = getDivChildElement(div, "img");
-	//console.log("in setDivImg");
-	if (opts.img) {
-		if ( ! imgElement) {
-			imgElement = activateSubElement(div.getAttribute("id"), "img", true);
-			div.appendChild(imgElement);
-		}
-		imgElement.setAttribute('src', opts.img);
-	} else {
-		console.assert(opts.img === null);
-		if (imgElement) {
-			div.removeChild(imgElement);
-		}
-		imgElement = null;
-	}
-	return imgElement;
+	return element;
 }
 
 // If val is Number it returns it as string and adds "px", else returns val as is
@@ -195,7 +179,7 @@ function addPXIfNeeded(val) {
 
 function setDivClickSettings(div, opts, sendActionFunc) {
 	let divId = div.getAttribute("id");
-	let buttonElement = setDivButton(div, opts);
+	let buttonElement = setDivSubElement(div, "button", opts);
 	let trapClicks = readSpecialDivOpts(divId, opts, "trapClicks");
 	let selectable = readSpecialDivOpts(divId, opts, "selectable");
 	let onClick = readSpecialDivOpts(divId, opts, "onClick");
@@ -285,7 +269,7 @@ function setDiv(id, opts, sendActionFunc) {
 	}
 
 	if ("img" in opts) {
-		setDivImg(div, opts);
+		setDivSubElement(div, "img", opts);
 	}
 
 	if (opts.text || opts.text === null) {
