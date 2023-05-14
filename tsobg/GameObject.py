@@ -228,11 +228,12 @@ class GameObject():
 	def getFirstChild(self, remove=False):
 		return self._layout.getFirstObject(remove)
 
+	def getChild(self, divID):
+		""" get child by divID, returns child GameObject or None """
+		return self.visitChildrenShortcut(lambda colN, rowN, child: child if child.getDivID() == divID else None)
+
 	def getChildAt(self, colN, rowN):
 		return self._layout.getObjectAt(colN, rowN)
-
-	def getChildByDivID(self, divID):
-		return self.visitChildrenShortcut(lambda colN, rowN, child: child if child.getDivID() == divID else None)
 
 	def addChild(self, object):
 		if not self._layout.addObject(object):
@@ -242,14 +243,18 @@ class GameObject():
 			object._uiUpdateFull()
 		return True
 
-	def setChildAt(self, colN, rowN, object):
-		if not self._layout.setObjectAt(colN, rowN, object):
-			return False
+	def setChildAt(self, colN, rowN, object): 
+		removedObject = self._layout.getObjectAt(colN, rowN)
+		res = bool(self._layout.setObjectAt(colN, rowN, object))
+		if removedObject:
+			removedObject._parent = None
+			if "visible" in removedObject._flags:
+				removedObject._uiUpdateFull()
 		if object:
 			object._parent = self
 			if "visible" in object._flags:
 				object._uiUpdateFull()
-		return True
+		return res
 
 	def removeChild(self, object):
 		if not self._layout.removeObject(object):
@@ -286,20 +291,35 @@ class GameObject():
 	# ------------ stack ------------
 
 	def inStackOf(self, object):
-		""" returns True if self is object or if self is in stack of object """
-		return object.getStackCoordinatesFor(self) != None
+		"""
+		Argument object must be a gameObject or a divID
+		returns True if self is object or if self is in stack of object
+		"""
+		if (self is object) or (self.getDivID() == object):
+			return True
+		if not self._parent:
+			return False
+		return self._parent.inStackOf(object)
+		#return object.getStackCoordinatesFor(self) != None
 
 	def getStackCoordinatesFor(self, object):
-		""" returns the stack coordinates for object realtive to self (if object is self [] is returned) """
-		targetObject = object
+		"""
+		Argument object can either be a GameObject or the divID for a GameObject
+		returns the stack coordinates for object realtive to self (if object is self [] is returned)
+		"""
+		if self is object or self.getDivID() == object:
+			return []
 		def visitFunc(colN, rowN, child, prevRes):
 			if prevRes:
 				return prevRes
-			res = child.getStackCoordinatesFor(targetObject)
+			res = child.getStackCoordinatesFor(object)
 			return [(colN, rowN)] + res if res != None else None
-		if self is targetObject:
-			return []
 		return self.visitChildrenReduce(visitFunc, None)
+
+	def getStackObject(self, divID):
+		if self.getDivID() == divID:
+			return self
+		return self.visitChildrenShortcut(lambda colN, rowN, child: child.getStackObject(divID))
 
 	def getStackObjectAt(self, stackCoordinates: list):
 		if len(stackCoordinates) == 0:
@@ -309,13 +329,6 @@ class GameObject():
 		if child:
 			return child.getStackObjectAt(stackCoordinates[1:])
 		return None
-
-	def getStackObjectByDivID(self, divID):
-		if self.getDivID() == divID:
-			return self
-		return self.visitChildrenShortcut(lambda colN, rowN, child: child.getStackObjectByDivID(divID))
-
-
 
 
 # Add new methods to GameObject based on divOpts
