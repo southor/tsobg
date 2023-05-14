@@ -242,8 +242,8 @@ class GameObject():
 			object._uiUpdateFull()
 		return True
 
-	def setChildAt(self, object, colN, rowN):
-		if not self._layout.setObjectAt(object, colN, rowN):
+	def setChildAt(self, colN, rowN, object):
+		if not self._layout.setObjectAt(colN, rowN, object):
 			return False
 		if object:
 			object._parent = self
@@ -259,13 +259,13 @@ class GameObject():
 			object._uiUpdateFull()
 		return True
 
-	def removeChildAt(self, object, colN, rowN):
+	def removeChildAt(self, colN, rowN):
 		""" returns the item that was removed, otherwise None """
-		res = self._layout.removeObjectAt(object, colN, rowN)
+		res = self._layout.removeObjectAt(colN, rowN)
 		if res:
-			object._parent = None
-			if "visible" in object._flags:
-				object._uiUpdateFull()
+			res._parent = None
+			if "visible" in res._flags:
+				res._uiUpdateFull()
 		return res
 
 	def removeAllChildren(self):

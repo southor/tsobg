@@ -36,6 +36,11 @@ class FreeLayout(Layout):
 			self.items.add(item)
 		return item
 
+	def getObjectAt(self, colN, rowN):
+		if not (colN == None and rowN == None):
+			raise ValueError("Passed incorrect arguments to FreeLayout.getObjectAt. arguments = {}, {}" + str(colN) + str(rowN))
+		return self.getFirstObject()
+
 	def addObject(self, object):
 		if self.isFull():
 			return False

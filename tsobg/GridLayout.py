@@ -43,8 +43,8 @@ class GridLayout(Layout):
 		object.setLayoutPos(uiPos)
 		return True
 	
-	def setObjectAt(self, object, colN, rowN):
-		uiPos = self.grid.setItemAt(object, colN, rowN)
+	def setObjectAt(self, colN, rowN, object):
+		uiPos = self.grid.setItemAt(colN, rowN, object)
 		if not uiPos:
 			return False
 		if object:

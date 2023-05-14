@@ -156,7 +156,7 @@ class UIGrid():
 		self.nItems += 1
 		return self.getCellUIPos(colN,rowN)
 
-	def setItemAt(self, item, colN, rowN):
+	def setItemAt(self, colN, rowN, item):
 		"""
 		Can be used to add or remove an item at a cell.
 		If item is None:
