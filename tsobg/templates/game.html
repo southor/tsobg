@@ -113,6 +113,7 @@
 					} else if (uData[0] === "reset_ui") {
 						deleteAllCreatedElements();
 						deleteAllGamelogEntries();
+						resetSpecialDivOpts();
 					} else {
 						unknownDataError(uData, "receiveUpdate 3");
 					}

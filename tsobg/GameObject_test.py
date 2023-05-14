@@ -68,6 +68,8 @@ class GameObject_test(unittest.TestCase):
 		p.getChildCoordinates(c11) == (1, 1)
 		self.assertTrue(p.getStackObjectByDivID("child00") is c00)
 		self.assertTrue(p.getStackObjectByDivID("child01") is c01)
+		self.assertTrue(p.getChildByDivID("child10") is c10)
+		self.assertTrue(p.getChildByDivID("child11") is c11)
 		self.assertTrue(p.getChildAt(1, 0) is c10)
 		self.assertEqual(p.getNChildren(), 4)
 		p.removeAllChildren()

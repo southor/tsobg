@@ -232,7 +232,7 @@ class GameObject():
 		return self._layout.getObjectAt(colN, rowN)
 
 	def getChildByDivID(self, divID):
-		return visitChildrenShortcut(lambda colN, rowN, child: child if child.getDivID() == divID else None)
+		return self.visitChildrenShortcut(lambda colN, rowN, child: child if child.getDivID() == divID else None)
 
 	def addChild(self, object):
 		if not self._layout.addObject(object):

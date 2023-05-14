@@ -13,10 +13,6 @@ function isSelected(divId) {
 	return selectedIds.has(divId);
 }
 
-function log(level, ...msgArgs) {
-	//console.log(level, msgArgs);
-}
-
 function getDivChildElement(div, tag) {
 	const arr = div.getElementsByTagName(tag);
 	return (arr.length >= 1) ? arr[0] : null;
@@ -153,11 +149,11 @@ function setButtonOnClick(buttonElement, onClickFunc, actionObj) {
 // returns buttonElement if it exists otherwise null
 function setDivButton(div, opts) {
 	// TODO: share this code with setDivImg
-	let buttonElement = getDivChildElement(div, "button");
+	var buttonElement = getDivChildElement(div, "button");
 	if ("button" in opts) {
 		if (opts.button) {
 			if ( ! buttonElement) {
-				buttonElement = activateButtonElement(div.getAttribute("id"), true);
+				buttonElement = activateSubElement(div.getAttribute("id"), "button", true);
 				div.appendChild(buttonElement);
 			}
 			buttonElement.innerHTML = opts.button;
@@ -174,11 +170,11 @@ function setDivButton(div, opts) {
 // creates div image and enables/disables
 // returns imgElement if it exists otherwise null
 function setDivImg(div, opts) {
-	let imgElement = getDivChildElement(div, "img");
+	var imgElement = getDivChildElement(div, "img");
 	//console.log("in setDivImg");
 	if (opts.img) {
 		if ( ! imgElement) {
-			imgElement = activateImageElement(div.getAttribute("id"), true);
+			imgElement = activateSubElement(div.getAttribute("id"), "img", true);
 			div.appendChild(imgElement);
 		}
 		imgElement.setAttribute('src', opts.img);
@@ -219,13 +215,10 @@ function setDivClickSettings(div, opts, sendActionFunc) {
 		return;
 	}
 	if (buttonElement) {
-		//console.log("buttonEnabled for ", divId, " is ", buttonEnabled);
-		//console.log("buttonEnabled for ", divId, " actionObj = ", actionObj, " onClick = ", onClick);
 		buttonElement.disabled = buttonEnabled ? false : true;
 		setButtonOnClick(buttonElement, onClickFunc, actionObj);
 		setDivOnClick(div, true, false, null, actionObj);
 	} else {
-		//setButtonOnClick(buttonElement, null, actionObj);
 		setDivOnClick(div, trapClicks, selectable, onClickFunc, actionObj);
 	}
 }
