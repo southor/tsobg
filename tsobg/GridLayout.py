@@ -31,10 +31,10 @@ class GridLayout(Layout):
 		return self.grid.getItemGridPos(object)
 
 	def getFirstObject(self, remove=False):
-		return grid.getFirstItem(remove)
+		return self.grid.getFirstItem(remove)
 
-	def getObjectAt(self, colN, rowN):
-		return self.grid.getItemAt(colN, rowN)
+	def getObjectAt(self, gridPos):
+		return self.grid.getItemAt(gridPos)
 
 	def addObject(self, object):
 		uiPos = self.grid.addItem(object)
@@ -43,8 +43,8 @@ class GridLayout(Layout):
 		object.setLayoutPos(uiPos)
 		return True
 	
-	def setObjectAt(self, colN, rowN, object):
-		uiPos = self.grid.setItemAt(colN, rowN, object)
+	def setObjectAt(self, gridPos, object):
+		uiPos = self.grid.setItemAt(gridPos, object)
 		if not uiPos:
 			return False
 		if object:
@@ -56,9 +56,9 @@ class GridLayout(Layout):
 			return True
 		return False
 
-	def removeObjectAt(self, colN, rowN):
+	def removeObjectAt(self, gridPos):
 		""" returns the object that was removed, otherwise None """
-		return self.grid.removeItemAt(colN, rowN)
+		return self.grid.removeItemAt(gridPos)
 
 	def removeAllObjects(self):
 		""" returns number of objects removed """

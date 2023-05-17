@@ -230,10 +230,10 @@ class GameObject():
 
 	def getChild(self, divID):
 		""" get child by divID, returns child GameObject or None """
-		return self.visitChildrenShortcut(lambda colN, rowN, child: child if child.getDivID() == divID else None)
+		return self.visitChildrenShortcut(lambda pos, child: child if child.getDivID() == divID else None)
 
-	def getChildAt(self, colN, rowN):
-		return self._layout.getObjectAt(colN, rowN)
+	def getChildAt(self, pos):
+		return self._layout.getObjectAt(pos)
 
 	def addChild(self, object):
 		if not self._layout.addObject(object):
@@ -243,9 +243,9 @@ class GameObject():
 			object._uiUpdateFull()
 		return True
 
-	def setChildAt(self, colN, rowN, object): 
-		removedObject = self._layout.getObjectAt(colN, rowN)
-		res = bool(self._layout.setObjectAt(colN, rowN, object))
+	def setChildAt(self, pos, object): 
+		removedObject = self._layout.getObjectAt(pos)
+		res = bool(self._layout.setObjectAt(pos, object))
 		if removedObject:
 			removedObject._parent = None
 			if "visible" in removedObject._flags:
@@ -264,9 +264,9 @@ class GameObject():
 			object._uiUpdateFull()
 		return True
 
-	def removeChildAt(self, colN, rowN):
+	def removeChildAt(self, pos):
 		""" returns the item that was removed, otherwise None """
-		res = self._layout.removeObjectAt(colN, rowN)
+		res = self._layout.removeObjectAt(pos)
 		if res:
 			res._parent = None
 			if "visible" in res._flags:
@@ -280,7 +280,7 @@ class GameObject():
 	# ------------ visiting ------------
 
 	def visitChildren(self, visitFunc):
-		return self._layout.visitObjectsReduce(lambda colN, rowN, object, prevRes: visitFunc(colN, rowN, object))
+		return self._layout.visitObjectsReduce(lambda pos, object, prevRes: visitFunc(pos, object))
 
 	def visitChildrenReduce(self, visitFunc, initRes=None):
 		return self._layout.visitObjectsReduce(visitFunc, initRes)
@@ -309,23 +309,23 @@ class GameObject():
 		"""
 		if self is object or self.getDivID() == object:
 			return []
-		def visitFunc(colN, rowN, child, prevRes):
+		def visitFunc(pos, child, prevRes):
 			if prevRes:
 				return prevRes
 			res = child.getStackCoordinatesFor(object)
-			return [(colN, rowN)] + res if res != None else None
+			return [pos] + res if res != None else None
 		return self.visitChildrenReduce(visitFunc, None)
 
 	def getStackObject(self, divID):
 		if self.getDivID() == divID:
 			return self
-		return self.visitChildrenShortcut(lambda colN, rowN, child: child.getStackObject(divID))
+		return self.visitChildrenShortcut(lambda pos, child: child.getStackObject(divID))
 
 	def getStackObjectAt(self, stackCoordinates: list):
 		if len(stackCoordinates) == 0:
 			return self
-		coords = stackCoordinates[0]
-		child = self.getChildAt(*coords) if coords else self.getFirstChild()
+		pos = stackCoordinates[0]
+		child = self.getChildAt(pos) if pos else self.getFirstChild()
 		if child:
 			return child.getStackObjectAt(stackCoordinates[1:])
 		return None

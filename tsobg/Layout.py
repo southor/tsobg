@@ -25,13 +25,13 @@ class Layout():
 	def getFirstObject(self, remove=False):
 		raise NotImplementedError("getFirstObject(self, remove=False)")
 
-	def getObjectAt(self, colN, rowN):
-		raise NotImplementedError("getObjectAt(self, colN, rowN)")
+	def getObjectAt(self, pos):
+		raise NotImplementedError("getObjectAt(self, pos)")
 
 	def addObject(self, object):
 		raise NotImplementedError("addObject(self, object)")
 
-	def setObjectAt(self, colN, rowN, object):
+	def setObjectAt(self, pos, object):
 		"""
 		Can be used to add or remove an object at a cell.
 		If object is None:
@@ -52,8 +52,8 @@ class Layout():
 	def removeObject(self, object):
 		raise NotImplementedError("removeObject(self, object)")
 
-	def removeObjectAt(self, colN, rowN):
-		return self.setObjectAt(colN, rowN, None)
+	def removeObjectAt(self, pos):
+		return self.setObjectAt(pos, None)
 
 	def removeAllObjects(self):
 		""" returns number of objects removed """

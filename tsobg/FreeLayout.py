@@ -4,7 +4,8 @@ from .Layout import Layout
 class FreeLayout(Layout):
 	
 	def __init__(self, maxNItems=float('inf')):
-		self.items = set()
+		self.items = []
+		self.nItems = 0
 		self.maxNItems = maxNItems
 
 	def getNRows(self):
@@ -17,57 +18,100 @@ class FreeLayout(Layout):
 		return None,None
 
 	def getNObjects(self):
-		return len(self.items)
+		#return len(self.items)
+		#nObjects = 0
+		#for item in items:
+		#return sum(x is not None for x in lst)
+		assert(self.nItems >= 1)
+		return self.nItems
 
 	def isFull(self):
-		return len(self.items) >= self.maxNItems
+		return self.nItems >= self.maxNItems
 
 	def hasObject(self, object):
 		return object in self.items
 	
 	def getObjectCoordinates(self, object):
-		return None
+		try:
+			return self.items.index(object)
+		except:
+			return None
 
 	def getFirstObject(self, remove=False):
-		if len(self.items) == 0:
-			return None
-		item = self.items.pop()
-		if not remove:
-			self.items.add(item)
-		return item
+		idx = None
+		res = None
+		for i,item in enumerate(self.items):
+			if item:
+				idx = i
+				res = item
+				break
+		if remove and idx != None:
+			self.items[idx] = None
+			self.nItems -= 1
+		return res
+		#if len(self.items) == 0:
+		#	return None
+		#item = self.items.pop()
+		#if not remove:
+		#	self.items.add(item)
+		#return item
 
-	def getObjectAt(self, colN, rowN):
-		if not (colN == None and rowN == None):
-			raise ValueError("Passed incorrect arguments to FreeLayout.getObjectAt. arguments = {}, {}" + str(colN) + str(rowN))
-		return self.getFirstObject()
+	def getObjectAt(self, index):
+		#if not (colN == None and rowN == None):
+		#	raise ValueError("Passed incorrect arguments to FreeLayout.getObjectAt. arguments = {}, {}" + str(colN) + str(rowN))
+		#return self.getFirstObject()
+		try:
+			return self.items[index]
+		except:
+			return None
 
 	def addObject(self, object):
 		if self.isFull():
 			return False
-		self.items.add(object)
+		try:
+			idx = self.items.index(None)
+			self.items[idx] = object
+		except:
+			self.items.append(object)
+		self.nItems += 1
 		return True
+		#self.items.append(object)
+		#self.nItems += 1
+		#return True
 
 	def removeObject(self, object):
-		if object in self.items:
-			self.items.remove(object)
+		try:
+			idx = self.items.index(object)
+			assert(self.nItems >= 1)
+			self.items[idx] = None
+			self.nItems -= 1
 			return True
-		return False
+		except:
+			return False
+		#if object in self.items:
+		#	self.items.remove(object)
+		#	self.nItems -= 1
+		#	return True
+		#return False
 
 	def removeAllObjects(self):
 		""" returns number of objects removed """
-		res = len(self.items)
+		res = self.nItems
 		self.items.clear()
+		self.nItems = 0
 		return res
 
 	def visitObjectsReduce(self, visitFunc, initRes=None):
 		res = initRes
-		for object in self.items:
-			res = visitFunc(None, None, object, res)
+		for i,object in enumerate(self.items):
+			if object:
+				res = visitFunc(i, object, res)
 		return res
 
 	def visitObjectsShortcut(self, visitFunc, failValue=None):
-		for object in self.items:
-			res = visitFunc(None, None, object)
-			if res:
-				return res
+		for i,object in enumerate(self.items):
+			if object:
+				res = visitFunc(i, object)
+				if res:
+					return res
 		return failValue

@@ -51,7 +51,7 @@ class UIGrid():
 		return self.nColumns
 
 	def getSize(self):
-		return (self.nColumns,self.nRows)
+		return (self.nColumns, self.nRows)
 
 	def isFull(self):
 		assert(self.nItems <= self.maxNItems)
@@ -69,9 +69,9 @@ class UIGrid():
 		return res
 
 	# returns ui position (pixelX, pixelY)
-	def getCellUIPos(self, colN, rowN):
-		x = self.uiOffsetPos[0] + colN * self.uiCellSize[0]
-		y = self.uiOffsetPos[1] + rowN * self.uiCellSize[1]
+	def getCellUIPos(self, gridPos):
+		x = self.uiOffsetPos[0] + gridPos[0] * self.uiCellSize[0]
+		y = self.uiOffsetPos[1] + gridPos[1] * self.uiCellSize[1]
 		return x,y
 
 	def visitCellsReduce(self, visitFunc, initRes=None, visitOnlyOccupied=False):
@@ -85,7 +85,7 @@ class UIGrid():
 		for rowN,row in enumerate(self.rows):
 				for colN,cell in enumerate(row):
 					if cell != None or not visitOnlyOccupied:
-						res = visitFunc(colN, rowN, cell, res)
+						res = visitFunc((colN,rowN), cell, res)
 		return res
 
 	def visitCellsShortcut(self, visitFunc, failRes=None, visitOnlyOccupied=False):
@@ -97,7 +97,7 @@ class UIGrid():
 		for rowN,row in enumerate(self.rows):
 				for colN,cell in enumerate(row):
 					if cell != None or not visitOnlyOccupied:
-						res = visitFunc(colN, rowN, cell)
+						res = visitFunc((colN,rowN), cell)
 						if res:
 							return res
 		return failRes
@@ -110,8 +110,8 @@ class UIGrid():
 		return False
 
 	def getItemGridPos(self, item):
-		def visitCell(colN, rowN, cell):
-			return (colN, rowN) if cell is item else None
+		def visitCell(gridPos, cell):
+			return gridPos if cell is item else None
 		return self.visitCellsShortcut(visitCell)
 
 
@@ -125,15 +125,16 @@ class UIGrid():
 	
 	def getFirstItem(self, remove=False):
 		""" For the first ockupied cell found, return the item there, otherwise None """
-		res = self.visitCellsShortcut(lambda colN, rowN, cell: (colN, rowN, cell) if cell else None)
+		res = self.visitCellsShortcut(lambda gridPos, cell: (gridPos, cell) if cell else None)
 		if not res:
 			return None
-		colN,rowN,item = res
+		gridPos,item = res
 		if remove:
-			removeItemAt(colN,rowN)
+			removeItemAt(gridPos)
 		return item
 
-	def getItemAt(self, colN, rowN):
+	def getItemAt(self, gridPos):
+		colN,rowN = gridPos
 		return self.rows[rowN][colN]
 	
 	def addItem(self, item):
@@ -154,9 +155,9 @@ class UIGrid():
 		assert(self.rows[rowN][colN] == None)
 		self.rows[rowN][colN] = item
 		self.nItems += 1
-		return self.getCellUIPos(colN,rowN)
+		return self.getCellUIPos(gridPos)
 
-	def setItemAt(self, colN, rowN, item):
+	def setItemAt(self, gridPos, item):
 		"""
 		Can be used to add or remove an item at a cell.
 		If item is None:
@@ -172,6 +173,7 @@ class UIGrid():
 				The item is added to the cell.
 				Returns the ui position of the cell.
 		"""
+		colN,rowN = gridPos
 		if item == None:
 			if self.rows[rowN][colN] == None:
 				return None
@@ -181,7 +183,7 @@ class UIGrid():
 			if self.rows[rowN][colN] != None:
 				return None
 		self.rows[rowN][colN] = item
-		return self.getCellUIPos(colN, rowN)
+		return self.getCellUIPos(gridPos)
 
 	def removeItem(self, item):
 		"""
@@ -194,10 +196,11 @@ class UIGrid():
 			self.nItems -= 1
 		return gridPos
 
-	def removeItemAt(self, colN, rowN):
+	def removeItemAt(self, gridPos):
 		"""
 		returns the item that was removed, None otherwise
 		"""
+		colN,rowN = gridPos
 		item = self.rows[rowN][colN]
 		if item:
 			self.rows[rowN][colN] = None
@@ -206,7 +209,8 @@ class UIGrid():
 
 	def removeAllItems(self):
 		""" returns number of items removed """
-		def visitFunc(colN, rowN, cell, res):
+		def visitFunc(gridPos, cell, res):
+			colN,rowN = gridPos
 			self.rows[rowN][colN] = None
 			self.nItems -= 1
 			return res + 1
