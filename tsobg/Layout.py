@@ -39,10 +39,10 @@ class Layout():
 				The object in the cell is removed.
 				Returns True.
 			If cell is empty:
-				Returns None.
+				Returns False.
 		If object is non-None:
 			If cell contains an object or we have reached max number of objects (as set by maxNItems kwarg):
-				Returns None.
+				Returns False.
 			If cell is empty:
 				The object is added to the cell.
 				Returns the ui position of the cell.

@@ -22,7 +22,7 @@ class FreeLayout(Layout):
 		#nObjects = 0
 		#for item in items:
 		#return sum(x is not None for x in lst)
-		assert(self.nItems >= 1)
+		assert(self.nItems >= 0)
 		return self.nItems
 
 	def isFull(self):
@@ -78,6 +78,31 @@ class FreeLayout(Layout):
 		#self.items.append(object)
 		#self.nItems += 1
 		#return True
+
+
+	#def setObjectAt(self, pos, object):
+	#	n = len(self.items)
+	#	isFull = self.isFull()
+
+	#	if pos >= n:
+	#		if isFull or not object:
+	#			return False
+	#		# object is a GameObject that is allowed to be added but we need to extend the array
+	#		nNew = pos + 1 - n
+	#		self.items.extend([None * nNew])
+
+	#	if object:
+	#		if isFull:
+	#			return False
+	#		if not self.items[pos]:
+	#			self.nItems += 1
+	#	else:
+	#		if not self.items[pos]:
+	#			return False
+	#		self.nItems -= 1
+	#	self.items[pos] = object
+		
+	#	return True
 
 	def removeObject(self, object):
 		try:

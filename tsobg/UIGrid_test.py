@@ -7,8 +7,8 @@ else:
 
 
 class UIGrid_test(unittest.TestCase):
-	
-	def runTest(self):
+
+	def testWithAutoPos(self):
 		cellSize = (10, 10)
 		# test without maxNItems being set
 		grid = UIGrid((3,2), cellSize)
@@ -85,6 +85,28 @@ class UIGrid_test(unittest.TestCase):
 		self.assertEqual(grid.isFull(), False)
 		self.assertEqual(grid.addItem("horse"), (0,20)) # should trigger growth
 		self.assertEqual(grid.isFull(), True)
+
+	def testWithManualPos(self):
+		cellSize = (5, 5)
+		grid = UIGrid((2,2), cellSize)
+		self.assertEqual(grid.getNItems(), 0)
+		self.assertEqual(grid.getMaxNItems(), 4)
+		grid.setItemAt((1, 0), "foo")
+		grid.setItemAt((1, 1), "bar1")
+		self.assertEqual(grid.getNItems(), 2)
+		self.assertEqual(grid.getItemAt((0, 0)), None)
+		self.assertEqual(grid.getItemAt((1, 0)), "foo")
+		self.assertEqual(grid.getItemAt((0, 1)), None)
+		self.assertEqual(grid.getItemAt((1, 1)), "bar1")
+		#grid.setItemAt((1, 0), "bar2")
+		#self.assertEqual(grid.getNItems(), 2)
+		#self.assertEqual(grid.getMaxNItems(), 4)
+		#self.assertEqual(grid.getAt((1, 0), "bar2"))
+		
+		
+	def runTest(self):
+		self.testWithAutoPos()
+		self.testWithManualPos()
 
 if __name__ == '__main__':
 	unittest.main()

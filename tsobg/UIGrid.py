@@ -177,10 +177,14 @@ class UIGrid():
 		if item == None:
 			if self.rows[rowN][colN] == None:
 				return None
+			else:
+				self.nItems -= 1
 		else:
 			if self.isFull():
 				return None
-			if self.rows[rowN][colN] != None:
+			if self.rows[rowN][colN] == None:
+				self.nItems += 1
+			else:
 				return None
 		self.rows[rowN][colN] = item
 		return self.getCellUIPos(gridPos)
@@ -212,6 +216,8 @@ class UIGrid():
 		def visitFunc(gridPos, cell, res):
 			colN,rowN = gridPos
 			self.rows[rowN][colN] = None
-			self.nItems -= 1
 			return res + 1
-		return self.visitCellsReduce(visitFunc, 0, visitOnlyOccupied=True)
+		res = self.visitCellsReduce(visitFunc, 0, visitOnlyOccupied=True)
+		assert(res == self.nItems)
+		self.nItems = 0
+		return res

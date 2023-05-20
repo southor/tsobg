@@ -199,6 +199,9 @@
     <Compile Include="tsobg\FreeLayout.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="tsobg\FreeLayout_test.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="tsobg\GameInterface.py">
       <SubType>Code</SubType>
     </Compile>

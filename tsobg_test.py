@@ -8,6 +8,7 @@ from tsobg.UIState_test import UIState_test
 from tsobg.Deck_test import Deck_test
 from tsobg.UIGrid_test import UIGrid_test
 from tsobg.UIHistory_test import UIHistory_test
+from tsobg.FreeLayout_test import FreeLayout_test
 from tsobg.GameLog_test import GameLog_test
 from tsobg.GameObject_test import GameObject_test
 
@@ -19,6 +20,7 @@ suite.addTest(UIGrid_test())
 suite.addTest(UIHistory_test())
 suite.addTest(GameLog_test())
 suite.addTest(GameObject_test())
+suite.addTest(FreeLayout_test())
 
 
 result = unittest.TestResult()
