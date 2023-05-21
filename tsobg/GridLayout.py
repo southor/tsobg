@@ -80,9 +80,3 @@ class GridLayout(Layout):
 	def visitCellsShortcut(self, visitFunc, failRes=None, visitOnlyOccupied=False):
 		return self.grid.visitCellsShortcut(visitFunc, failRes, visitOnlyOccupied=visitOnlyOccupied)
 
-	def visitObjectsReduce(self, visitFunc, initRes=None):
-		return self.grid.visitCellsReduce(visitFunc, initRes, visitOnlyOccupied=True)
-
-	def visitObjectsShortcut(self, visitFunc, failRes=None):
-		return self.grid.visitCellsShortcut(visitFunc, failRes, visitOnlyOccupied=True)
-

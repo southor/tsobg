@@ -153,9 +153,3 @@ class FreeLayout(Layout):
 				if res:
 					return res
 		return failValue
-
-	def visitObjectsReduce(self, visitFunc, initRes=None):
-		return self.visitCellsReduce(visitFunc, initRes, visitOnlyOccupied=True)
-
-	def visitObjectsShortcut(self, visitFunc, failValue=None):
-		return self.visitCellsShortcut(visitFunc, failValue, visitOnlyOccupied=True)

@@ -69,7 +69,7 @@ class Layout():
 		raise NotImplementedError("visitCellsShortcut(self, visitFunc, failValue=None)")
 
 	def visitObjectsReduce(self, visitFunc, initRes=None):
-		raise NotImplementedError("visitObjectsReduce(self, visitFunc, initRes=None)")
+		return self.visitCellsReduce(visitFunc, initRes, visitOnlyOccupied=True)
 
-	def visitObjectsShortcut(self, visitFunc, failValue=None):
-		raise NotImplementedError("visitObjectsShortcut(self, visitFunc, failValue=None)")
+	def visitObjectsShortcut(self, visitFunc, failRes=None):
+		return self.visitCellsShortcut(visitFunc, failRes, visitOnlyOccupied=True)
