@@ -76,7 +76,7 @@ class UIGrid():
 
 	def visitCellsReduce(self, visitFunc, initRes=None, visitOnlyOccupied=False):
 		"""
-		Visits all the cells in the grid and calls visitFunc(colN, rowN, cell, previousRes)
+		Visits all the cells in the grid and calls visitFunc((colN,rowN), cell, previousRes)
 		previousRes contains the return value from the previous visitorFunc call.
 		For the first cell the "previousRes" argument will be set to the value of the "initRes" argument.
 		Returns the return value of the last visitFunc call.
@@ -90,7 +90,7 @@ class UIGrid():
 
 	def visitCellsShortcut(self, visitFunc, failRes=None, visitOnlyOccupied=False):
 		"""
-		Visits all the cells in the grid and calls visitFunc(colN, rowN, cell)
+		Visits all the cells in the grid and calls visitFunc((colN,rowN), cell)
 		If the return value of a visitFunc call evaluates to True the iteration will stop and the value is returned.
 		If all return values evaluates to False then failRes is returned.
 		"""
@@ -174,15 +174,16 @@ class UIGrid():
 				Returns the ui position of the cell.
 		"""
 		colN,rowN = gridPos
+		row = self.rows[rowN]
 		if item == None:
-			if self.rows[rowN][colN] == None:
+			if row[colN] == None:
 				return None
 			else:
 				self.nItems -= 1
 		else:
 			if self.isFull():
 				return None
-			if self.rows[rowN][colN] == None:
+			if row[colN] == None:
 				self.nItems += 1
 			else:
 				return None
@@ -211,13 +212,32 @@ class UIGrid():
 			self.nItems -= 1
 		return item
 
-	def removeAllItems(self):
-		""" returns number of items removed """
-		def visitFunc(gridPos, cell, res):
+	def removeAllItems(self, visitFunc=None):
+		"""
+		Calls visitFunc((colN,rowN), item) for each removed object (if visitFunc is non-None)
+		returns number of items removed
+		"""
+		#def removerFunc(gridPos, item, res):
+		#	colN,rowN = gridPos
+		#	self.rows[rowN][colN] = None
+		#	if visitFunc:
+		#		visitFunc(gridPos, item)
+		#	return res + 1
+		#res = self.visitCellsReduce(removerFunc, 0, visitOnlyOccupied=True)
+		#assert(res == self.nItems)
+		#self.nItems = 0
+		#return res
+		def removerFunc(gridPos, item, res):
 			colN,rowN = gridPos
-			self.rows[rowN][colN] = None
-			return res + 1
-		res = self.visitCellsReduce(visitFunc, 0, visitOnlyOccupied=True)
-		assert(res == self.nItems)
+			row = self.rows[rowN]
+			if row[colN] != None:
+				res.append((gridPos, row[colN]))
+				row[colN] = None
+			return res
+		removedRes = self.visitCellsReduce(removerFunc, [], visitOnlyOccupied=True)
+		assert(len(removedRes) == self.nItems)
 		self.nItems = 0
-		return res
+		if visitFunc:
+			for pos,item in removedRes:
+				visitFunc(pos, item)
+		return len(removedRes)

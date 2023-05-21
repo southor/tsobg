@@ -90,6 +90,9 @@ class GameObject():
 	def getLayoutType(self):
 		return type(self._layout)
 
+	def getLayoutPos(self):
+		return self._layoutPos
+
 	def getFlags(self):
 		return self._flags
 
@@ -101,9 +104,6 @@ class GameObject():
 
 	def getSize(self):
 		return (self.getWidth(), self.getHeight())
-
-	def getLayoutPos(self):
-		return self._layoutPos
 
 	def getEffectiveLeft(self):
 		left = self.getLeft()
@@ -140,6 +140,10 @@ class GameObject():
 			self._parent = parent
 			if "visible" in self._flags:
 				self._uiUpdateFull()
+
+	def setLayoutPos(self, layoutPos):
+		self._layoutPos = layoutPos
+		self._uiUpdatePos()
 
 	def setFlags(self, *argsFlags, **kwargFlags):
 		"""
@@ -199,10 +203,6 @@ class GameObject():
 	def setSize(self, size):
 		self.setWidth(size[0])
 		self.setHeight(size[1])
-		self._uiUpdatePos()
-
-	def setLayoutPos(self, layoutPos):
-		self._layoutPos = layoutPos
 		self._uiUpdatePos()
 
 	# ------------ children ------------
@@ -273,9 +273,12 @@ class GameObject():
 				res._uiUpdateFull()
 		return res
 
-	def removeAllChildren(self):
-		""" returns number of children removed """
-		return self._layout.removeAllObjects()
+	def removeAllChildren(self, visitFunc=None):
+		"""
+		Calls visitFunc(pos, object) for each removed child (if visitFunc is non-None)
+		returns number of children removed
+		"""
+		return self._layout.removeAllObjects(visitFunc=visitFunc)
 
 	# ------------ visiting ------------
 

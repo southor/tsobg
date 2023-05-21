@@ -22,7 +22,7 @@ class FreeLayout(Layout):
 		#nObjects = 0
 		#for item in items:
 		#return sum(x is not None for x in lst)
-		assert(self.nItems >= 0)
+		assert(self.nItems >= 0 and self.nItems <= len(self.items))
 		return self.nItems
 
 	def isFull(self):
@@ -74,35 +74,38 @@ class FreeLayout(Layout):
 		except:
 			self.items.append(object)
 		self.nItems += 1
+		#object.setLayoutPos(("auto", "auto"))
 		return True
 		#self.items.append(object)
 		#self.nItems += 1
 		#return True
 
 
-	#def setObjectAt(self, pos, object):
-	#	n = len(self.items)
-	#	isFull = self.isFull()
+	def setObjectAt(self, pos, object):
+		n = len(self.items)
+		isFull = self.isFull()
 
-	#	if pos >= n:
-	#		if isFull or not object:
-	#			return False
-	#		# object is a GameObject that is allowed to be added but we need to extend the array
-	#		nNew = pos + 1 - n
-	#		self.items.extend([None * nNew])
+		if pos >= n:
+			if isFull or not object:
+				return False
+			# object is a GameObject that is allowed to be added but we need to extend the array
+			nNew = pos + 1 - n
+			self.items.extend([None * nNew])
 
-	#	if object:
-	#		if isFull:
-	#			return False
-	#		if not self.items[pos]:
-	#			self.nItems += 1
-	#	else:
-	#		if not self.items[pos]:
-	#			return False
-	#		self.nItems -= 1
-	#	self.items[pos] = object
-		
-	#	return True
+		if object:
+			if isFull:
+				return False
+			if not self.items[pos]:
+				self.nItems += 1
+			else:
+				return False
+			#object.setLayoutPos(("auto", "auto"))
+		else:
+			if not self.items[pos]:
+				return False
+			self.nItems -= 1
+		self.items[pos] = object	
+		return True
 
 	def removeObject(self, object):
 		try:
@@ -119,24 +122,40 @@ class FreeLayout(Layout):
 		#	return True
 		#return False
 
-	def removeAllObjects(self):
-		""" returns number of objects removed """
-		res = self.nItems
-		self.items.clear()
+	def removeAllObjects(self, visitFunc=None):
+		nRemoved = 0
+		removedRes = []
+		for i,cell in enumerate(self.items):
+			if not cell:
+				continue
+			self.items[i] = None
+			nRemoved += 1
+			if visitFunc:
+				removedRes.append((i,cell))
+		assert(nRemoved == self.nItems)
 		self.nItems = 0
-		return res
+		if visitFunc:
+			for i,object in removedRes:
+				visitFunc(i, object)
+		return nRemoved
 
-	def visitObjectsReduce(self, visitFunc, initRes=None):
+	def visitCellsReduce(self, visitFunc, initRes=None, visitOnlyOccupied=False):
 		res = initRes
-		for i,object in enumerate(self.items):
-			if object:
-				res = visitFunc(i, object, res)
+		for i,cell in enumerate(self.items):
+			if cell or not visitOnlyOccupied:
+				res = visitFunc(i, cell, res)
 		return res
 
-	def visitObjectsShortcut(self, visitFunc, failValue=None):
-		for i,object in enumerate(self.items):
-			if object:
-				res = visitFunc(i, object)
+	def visitCellsShortcut(self, visitFunc, failValue=None, visitOnlyOccupied=False):
+		for i,cell in enumerate(self.items):
+			if cell or not visitOnlyOccupied:
+				res = visitFunc(i, cell)
 				if res:
 					return res
 		return failValue
+
+	def visitObjectsReduce(self, visitFunc, initRes=None):
+		return self.visitCellsReduce(visitFunc, initRes, visitOnlyOccupied=True)
+
+	def visitObjectsShortcut(self, visitFunc, failValue=None):
+		return self.visitCellsShortcut(visitFunc, failValue, visitOnlyOccupied=True)

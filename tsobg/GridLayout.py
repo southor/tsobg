@@ -44,25 +44,35 @@ class GridLayout(Layout):
 		return True
 	
 	def setObjectAt(self, gridPos, object):
+		prevObject = self.grid.getItemAt(gridPos)
 		uiPos = self.grid.setItemAt(gridPos, object)
 		if not uiPos:
 			return False
+		if prevObject:
+			prevObject.setLayoutPos(("auto", "auto"))
 		if object:
 			object.setLayoutPos(uiPos)
 		return True
 
 	def removeObject(self, object):
 		if self.grid.removeItem(object):
+			object.setLayoutPos(("auto", "auto"))
 			return True
 		return False
 
 	def removeObjectAt(self, gridPos):
 		""" returns the object that was removed, otherwise None """
-		return self.grid.removeItemAt(gridPos)
+		obj = self.grid.removeItemAt(gridPos)
+		if obj:
+			obj.setLayoutPos(("auto", "auto"))
+		return obj
 
-	def removeAllObjects(self):
-		""" returns number of objects removed """
-		return self.grid.removeAllItems()
+	def removeAllObjects(self, visitFunc=None):
+		def layoutPosResetter(pos, obj):
+			obj.setLayoutPos(("auto", "auto"))
+			if visitFunc:
+				visitFunc(pos, obj)
+		return self.grid.removeAllItems(visitFunc=layoutPosResetter)
 
 	def visitCellsReduce(self, visitFunc, initRes=None, visitOnlyOccupied=False):
 		return self.grid.visitCellsReduce(visitFunc, initRes, visitOnlyOccupied=visitOnlyOccupied)

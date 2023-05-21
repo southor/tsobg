@@ -47,7 +47,7 @@ class Layout():
 				The object is added to the cell.
 				Returns the ui position of the cell.
 		"""
-		raise NotImplementedError("addObjectAt(self, object, pos)")
+		raise NotImplementedError("setObjectAt(self, object, pos)")
 
 	def removeObject(self, object):
 		raise NotImplementedError("removeObject(self, object)")
@@ -55,8 +55,11 @@ class Layout():
 	def removeObjectAt(self, pos):
 		return self.setObjectAt(pos, None)
 
-	def removeAllObjects(self):
-		""" returns number of objects removed """
+	def removeAllObjects(self, visitFunc=None):
+		"""
+		Calls visitFunc(pos, object) for each removed object (if visitFunc is non-None)
+		returns number of objects removed
+		"""
 		raise NotImplementedError("removeAllObjects(self)")
 	
 	def visitCellsReduce(self, visitFunc, initRes=None, visitOnlyOccupied=False):

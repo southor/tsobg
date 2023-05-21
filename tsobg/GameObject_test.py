@@ -9,7 +9,7 @@ from .GridLayout import GridLayout
 
 class GameObject_test(unittest.TestCase):
 	
-	# def testFlags(self):
+	# def _testFlags(self):
 		# go = GameObject(UIInterface(), "testobj")
 		# # test default flag values
 		# self.assertTrue(go.getFlag("visible"))
@@ -40,7 +40,7 @@ class GameObject_test(unittest.TestCase):
 		# self.assertTrue(go.getFlag("selectable"))
 		# self.assertFalse(go.getFlag("trapClicks"))
 		
-	def testFlags(self):
+	def _testFlags(self):
 		go = GameObject(UIInterface(), "testobj")
 		# test default flag values
 		self.assertTrue(go.getFlag("visible"))
@@ -53,7 +53,10 @@ class GameObject_test(unittest.TestCase):
 		go.setFlags(set())
 		self.assertFalse(go.getFlag("visible"))
 
-	def testChildren(self):
+	def _gridPosToStr(gridPos):
+		return str(gridPos[0]) + str(gridPos[1])
+
+	def _testChildren(self):
 		uiInterface = UIInterface()
 		p = GameObject(uiInterface, "parent", layout=GridLayout((2,2), (50,50)), size=(100, 100))
 		c00 = GameObject(uiInterface, "child00", size=(40,40))
@@ -78,11 +81,19 @@ class GameObject_test(unittest.TestCase):
 		self.assertFalse(p.hasChild(c00))
 		self.assertFalse(p.getChild("child00"))
 		self.assertTrue(p.getFirstChild() is c10)
-		p.removeAllChildren()
+
+		self.assertEqual(p.getNChildren(), 3)
+		nVisitedDuringRemove = 0
+		def removedVisitor(pos, child):
+			self.assertEqual("child" + GameObject_test._gridPosToStr(pos), child.getDivID())
+			nonlocal nVisitedDuringRemove
+			nVisitedDuringRemove += 1
+		p.removeAllChildren(visitFunc=removedVisitor)
+		self.assertEqual(nVisitedDuringRemove, 3)
 		self.assertEqual(p.getNChildren(), 0)
 		self.assertTrue(p.getFirstChild() is None)
 
-	def testGrandchild(self):
+	def _testGrandchild(self):
 		# test: FreeLayout, FreeLayout
 		uiInterface = UIInterface()
 		p = GameObject(uiInterface, "parent", size=(20, 20))
@@ -142,9 +153,33 @@ class GameObject_test(unittest.TestCase):
 		p.removeAllChildren()
 		self.assertEqual(p.getNChildren(), 0)
 		self.assertEqual(c.getNChildren(), 1)
-		
+
+	def _testMoveToNewParent(self):
+		uiInterface = UIInterface()
+		p1 = GameObject(uiInterface, "parent1", size=(20, 20), layout=GridLayout((5, 5), (5, 5)))
+		p2 = GameObject(uiInterface, "parent2", size=(50, 50), layout=FreeLayout())
+		obj = GameObject(uiInterface, "obj1", size=(5, 5))
+		self.assertEqual(obj.getLayoutPos(), ("auto", "auto"))
+		# add child into grid
+		p1.setChildAt((2, 1), obj)
+		self.assertTrue(p1.hasChild(obj))
+		self.assertEqual(p1.getChildCoordinates(obj), (2, 1))
+		self.assertEqual(obj.getLayoutPos(), (10, 5))
+		self.assertEqual(obj.getEffectivePos(), (10, 5))
+		# apply position offsetting 
+		obj.setPos((2, 2))
+		self.assertEqual(obj.getLayoutPos(), (10, 5))
+		self.assertEqual(obj.getEffectivePos(), (12, 7))
+		# move child to new parent
+		obj.setParent(p2)
+		self.assertFalse(p1.hasChild(obj))
+		self.assertTrue(p2.hasChild(obj))
+		self.assertEqual(p1.getChildCoordinates(obj), None)
+		self.assertEqual(p2.getChildCoordinates(obj), 0)
+		self.assertEqual(obj.getLayoutPos(), ("auto", "auto"))
 
 	def runTest(self):
-		self.testFlags()
-		self.testChildren()
-		self.testGrandchild()
+		self._testFlags()
+		self._testChildren()
+		self._testGrandchild()
+		self._testMoveToNewParent()
