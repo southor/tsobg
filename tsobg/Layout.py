@@ -28,6 +28,16 @@ class Layout():
 	def getObjectAt(self, pos):
 		raise NotImplementedError("getObjectAt(self, pos)")
 
+	def getAllObjects(self):
+		res = []
+		self.visitObjectsReduce(lambda pos,object,_: res.append(object))
+		return res
+
+	def getAllObjectsWithPos(self):
+		res = []
+		self.visitObjectsReduce(lambda pos,object,_: res.append((pos, object)))
+		return res
+
 	def addObject(self, object):
 		raise NotImplementedError("addObject(self, object)")
 

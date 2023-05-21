@@ -235,6 +235,12 @@ class GameObject():
 	def getChildAt(self, pos):
 		return self._layout.getObjectAt(pos)
 
+	def getAllChildren(self):
+		return self._layout.getAllObjects()
+
+	def getAllChildrenWithPos(self):
+		return self._layout.getAllObjectsWithPos()
+
 	def addChild(self, object):
 		if not self._layout.addObject(object):
 			return False

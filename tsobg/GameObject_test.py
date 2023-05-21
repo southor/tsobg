@@ -81,6 +81,8 @@ class GameObject_test(unittest.TestCase):
 		self.assertFalse(p.hasChild(c00))
 		self.assertFalse(p.getChild("child00"))
 		self.assertTrue(p.getFirstChild() is c10)
+		self.assertEqual([c.getDivID() for c in p.getAllChildren()], ["child10", "child01", "child11"])
+		self.assertEqual([p for p,c in p.getAllChildrenWithPos()], [(1,0), (0,1), (1,1)])
 
 		self.assertEqual(p.getNChildren(), 3)
 		nVisitedDuringRemove = 0
