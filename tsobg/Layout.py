@@ -50,12 +50,15 @@ class Layout():
 				Returns True.
 			If cell is empty:
 				Returns False.
-		If object is non-None:
-			If cell contains an object or we have reached max number of objects (as set by maxNItems kwarg):
-				Returns False.
+		If object is non-None (then it must be of instance GameObject):
+			If we have reached max number of objects (as set by maxNItems kwarg):
+				Returns False
+			Else If cell contains an object
+				The object in the cell is replaced.
+				Returns True.
 			If cell is empty:
 				The object is added to the cell.
-				Returns the ui position of the cell.
+				Returns True.
 		"""
 		raise NotImplementedError("setObjectAt(self, object, pos)")
 

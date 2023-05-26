@@ -1,4 +1,5 @@
 
+""" Stores items (of any type except None) in a custom grid """
 class UIGrid():
 	
 	def _initCells(self):
@@ -166,9 +167,12 @@ class UIGrid():
 				Returns the ui position of the cell.
 			If cell is empty:
 				Returns None.
-		If item is non-None:
-			If cell contains an item or we have reached max number of items (as set by maxNItems kwarg):
-				Returns None.
+		If item is non-None (Can be of any type expect None):
+			If we have reached max number of items (as set by maxNItems kwarg):
+				Returns None
+			Else If cell contains an item:
+				The item is replaced.
+				Returns the ui position of the cell.
 			If cell is empty:
 				The item is added to the cell.
 				Returns the ui position of the cell.
@@ -181,12 +185,10 @@ class UIGrid():
 			else:
 				self.nItems -= 1
 		else:
-			if self.isFull():
-				return None
 			if row[colN] == None:
+				if self.isFull():
+					return None
 				self.nItems += 1
-			else:
-				return None
 		self.rows[rowN][colN] = item
 		return self.getCellUIPos(gridPos)
 
@@ -217,16 +219,6 @@ class UIGrid():
 		Calls visitFunc((colN,rowN), item) for each removed object (if visitFunc is non-None)
 		returns number of items removed
 		"""
-		#def removerFunc(gridPos, item, res):
-		#	colN,rowN = gridPos
-		#	self.rows[rowN][colN] = None
-		#	if visitFunc:
-		#		visitFunc(gridPos, item)
-		#	return res + 1
-		#res = self.visitCellsReduce(removerFunc, 0, visitOnlyOccupied=True)
-		#assert(res == self.nItems)
-		#self.nItems = 0
-		#return res
 		def removerFunc(gridPos, item, res):
 			colN,rowN = gridPos
 			row = self.rows[rowN]

@@ -98,10 +98,10 @@ class UIGrid_test(unittest.TestCase):
 		self.assertEqual(grid.getItemAt((1, 0)), "foo")
 		self.assertEqual(grid.getItemAt((0, 1)), None)
 		self.assertEqual(grid.getItemAt((1, 1)), "bar1")
-		#grid.setItemAt((1, 0), "bar2")
-		#self.assertEqual(grid.getNItems(), 2)
-		#self.assertEqual(grid.getMaxNItems(), 4)
-		#self.assertEqual(grid.getAt((1, 0), "bar2"))
+		grid.setItemAt((1, 0), "bar2")
+		self.assertEqual(grid.getNItems(), 2)
+		self.assertEqual(grid.getMaxNItems(), 4)
+		self.assertEqual(grid.getItemAt((1, 0)), "bar2")
 		
 		
 	def runTest(self):

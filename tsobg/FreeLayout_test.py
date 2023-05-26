@@ -29,23 +29,10 @@ class FreeLayout_test(unittest.TestCase):
 	def _testIndexes(self, uiInterface):
 		fl = FreeLayout()
 		objs = self._fillLayout(uiInterface, fl, 5)
-		#fl = FreeLayout()
-		#self.assertEqual(fl.getNObjects(), 0)
-		#self.assertEqual(fl.getFirstObject(), None)
-		#objs = [GameObject(uiInterface, "obj" + str(i)) for i in range(5)]
-		#for obj in objs:
-		#	fl.addObject(obj)
-		#self.assertFalse(fl.getObjectAt(1) is objs[0])
-		## should have indexes in correct order
-		#for i,obj in enumerate(objs):
-		#	self.assertTrue(fl.hasObject(obj))
-		#	self.assertTrue(fl.getObjectAt(i) is obj)
-		#	self.assertEqual(fl.getObjectCoordinates(obj), i)
-		#self.assertTrue(fl.getFirstObject() is objs[0])
 		self.assertEqual(fl.getNObjects(), 5)
 		# removing objects in between
 		fl.removeObject(objs[1])
-		fl.removeObject(objs[3]) # replace later with fl.removeObjectAt(3) ?
+		fl.removeObjectAt(3)
 		self.assertEqual(fl.getNObjects(), 3)
 		# verify correct one was removed and getObjectAt returns None for those indexes
 		self.assertTrue(fl.getFirstObject() is objs[0])
@@ -100,11 +87,35 @@ class FreeLayout_test(unittest.TestCase):
 		for obj in objs:
 			self.assertFalse(fl.hasObject(obj))
 		
+	def _testSetObjectAt(self, uiInterface):
+		""" Test setObjectAt with limited maxNItems """
+		fl = FreeLayout(5)
+		objs = self._fillLayout(uiInterface, fl, 3) # fill up with 3 (so is room for 2 more)
+		newObj2 = GameObject(uiInterface, "newObj2")
+		self.assertTrue(fl.setObjectAt(2, newObj2)) # replacing existing
+		self.assertTrue(fl.setObjectAt(2, newObj2)) # replacing itself
+		self.assertFalse(fl.hasObject(objs[2]))
+		self.assertTrue(fl.hasObject(newObj2))
+		self.assertEqual(fl.getObjectCoordinates(objs[2]), None)
+		self.assertEqual(fl.getObjectCoordinates(newObj2), 2)
+		self.assertEqual(fl.getNObjects(), 3)
+		self.assertTrue(fl.setObjectAt(1, None)) # removing object
+		self.assertFalse(fl.setObjectAt(1, None)) # no object was removed (should return False)
+		self.assertEqual(fl.getNObjects(), 2)
+		self.assertFalse(fl.hasObject(objs[1]))
+		self.assertTrue(fl.hasObject(newObj2))
+		self.assertTrue(fl.addObject(GameObject(uiInterface, "newObj1")))
+		self.assertTrue(fl.addObject(GameObject(uiInterface, "newObj3")))
+		self.assertTrue(fl.addObject(GameObject(uiInterface, "newObj4")))
+		self.assertEqual(fl.getNObjects(), 5)
+		self.assertFalse(fl.addObject(GameObject(uiInterface, "newObj4"))) # should return False because layout is full
+		self.assertEqual(fl.getNObjects(), 5)
 
 	def runTest(self):
 		uiInterface = UIInterface()
 		self._testIndexes(uiInterface)
 		self._testVisitor(uiInterface)
+		self._testSetObjectAt(uiInterface)
 
 
 		

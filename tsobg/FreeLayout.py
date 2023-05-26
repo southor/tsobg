@@ -18,10 +18,6 @@ class FreeLayout(Layout):
 		return None,None
 
 	def getNObjects(self):
-		#return len(self.items)
-		#nObjects = 0
-		#for item in items:
-		#return sum(x is not None for x in lst)
 		assert(self.nItems >= 0 and self.nItems <= len(self.items))
 		return self.nItems
 
@@ -74,36 +70,32 @@ class FreeLayout(Layout):
 		except:
 			self.items.append(object)
 		self.nItems += 1
-		#object.setLayoutPos(("auto", "auto"))
 		return True
-		#self.items.append(object)
-		#self.nItems += 1
-		#return True
-
 
 	def setObjectAt(self, pos, object):
-		n = len(self.items)
+		nCells = len(self.items)
 		isFull = self.isFull()
-
-		if pos >= n:
-			if isFull or not object:
+		# extend array if needed
+		if pos >= nCells:
+			# pos is beyond the allocated array
+			if (not object) or isFull:
 				return False
-			# object is a GameObject that is allowed to be added but we need to extend the array
-			nNew = pos + 1 - n
+			# object is a GameObject that is allowed to be added
+			# extend the array
+			nNew = pos + 1 - nCells
 			self.items.extend([None * nNew])
-
+		# update nItems member
 		if object:
-			if isFull:
-				return False
 			if not self.items[pos]:
+				if isFull:
+					return False
 				self.nItems += 1
-			else:
-				return False
-			#object.setLayoutPos(("auto", "auto"))
 		else:
 			if not self.items[pos]:
 				return False
 			self.nItems -= 1
+			assert(self.nItems >= 0)
+		# write to the cell
 		self.items[pos] = object	
 		return True
 
@@ -116,11 +108,6 @@ class FreeLayout(Layout):
 			return True
 		except:
 			return False
-		#if object in self.items:
-		#	self.items.remove(object)
-		#	self.nItems -= 1
-		#	return True
-		#return False
 
 	def removeAllObjects(self, visitFunc=None):
 		nRemoved = 0
