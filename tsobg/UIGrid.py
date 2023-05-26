@@ -1,6 +1,9 @@
 
 """ Stores items (of any type except None) in a custom grid """
 class UIGrid():
+
+	maxNColumns = 100
+	maxNRows = 100
 	
 	def _initCells(self):
 		self.rows = []
@@ -10,18 +13,66 @@ class UIGrid():
 			self.rows.append(row)
 
 	def _grow(self):
-		if self.autoGrow == "columns":
-			newRows = []
-			for i,row in enumerate(self.rows):
-				newRows.append(row + [None])
-			self.rows = newRows
-			self.nColumns += 1
-		elif self.autoGrow == "rows":
+		if self.autoGrow == None:
+			return False
+		if self.autoGrow == "columns" or self.autoGrow == "columns_first":
+			if self.nColumns >= UIGrid.maxNColumns:
+				raise RuntimeError(f"Cannot grow UIGrid further, already at {UIGrid.maxNColumns} columns.")
+			#newRows = []
+			#for i,row in enumerate(self.rows):
+			#	newRows.append(row + [None])
+			#self.rows = newRows
+			#self.nColumns += 1
+			if self.nRows == 0:
+				self.nColumns += 1
+			else:
+				return self._growTo((self.nColumns, 0))
+		elif self.autoGrow == "rows" or self.autoGrow == "rows_first":
+			if self.nRows >= UIGrid.maxNRows:
+				raise RuntimeError(f"Cannot grow UIGrid further, already at {UIGrid.maxNRows} rows.")
 			self.rows.append([None]*self.nColumns)
 			self.nRows += 1
 		else:
-			raise RuntimeError("Invalid autoGrow values: " + str(self.autoGrow))
+			raise ValueError("Invalid autoGrow type: " + str(self.autoGrow))
 		self.growFlag = True
+		return True
+
+	def _growTo(self, gridPos):
+		if self.autoGrow == None:
+			return False
+		
+		colN,rowN = gridPos
+		assert(colN >= 0 and rowN >= 0)
+		
+		if colN >= self.nColumns:
+			if self.autoGrow in ("columns", "columns_first", "rows_first"):
+				if self.nColumns >= UIGrid.maxNColumns:
+					raise RuntimeError(f"Cannot grow UIGrid further, already at {UIGrid.maxNColumns} columns.")
+			else:
+				return False
+
+		if rowN >= self.nRows:
+			if self.autoGrow in ("rows", "columns_first", "rows_first"):
+				if self.nRows >= UIGrid.maxNRows:
+					raise RuntimeError(f"Cannot grow UIGrid further, already at {UIGrid.maxNRows} rows.")
+			else:
+				return False
+
+		if colN >= self.nColumns:
+			nToAdd = colN + 1 - self.nColumns
+			newRows = []
+			for i,row in enumerate(self.rows):
+				newRows.append(row + [None] * nToAdd)
+			self.rows = newRows
+			self.nColumns += nToAdd
+		if rowN >= self.nRows:
+			nToAdd = rowN + 1 - self.nRows
+			for i in range(nToAdd):
+				self.rows.append([None] * self.nColumns)
+			self.nRows += nToAdd
+		
+		self.growFlag = True
+		return True
 	
 	def __init__(self,
 					nColsRows: tuple,
@@ -35,7 +86,8 @@ class UIGrid():
 		self.minNColumns = nColsRows[0]
 		self.minNRows = nColsRows[1]
 		self.maxNItems = kwargs.get("maxNItems", nColsRows[0] * nColsRows[1])
-		self.autoGrow = kwargs.get("autoGrow", "rows")
+		#self.autoGrow = kwargs.get("autoGrow", "rows")
+		self.autoGrow = kwargs.get("autoGrow", None)
 		self.growFlag = kwargs.get("growFlag", False)
 		self._initCells()
 
@@ -149,7 +201,8 @@ class UIGrid():
 			return None
 		gridPos = self.getFirstFreeGridPos()
 		if not gridPos:
-			self._grow()
+			if not self._grow():
+				return None
 			gridPos = self.getFirstFreeGridPos()
 		assert(gridPos)
 		colN,rowN = gridPos
@@ -178,6 +231,12 @@ class UIGrid():
 				Returns the ui position of the cell.
 		"""
 		colN,rowN = gridPos
+
+		if colN < 0 or rowN < 0:
+			raise ValueError("Invalid gridPos (negative value): " + gridPos)
+		if colN >= self.nColumns or rowN >= self.nRows:
+			if not self._growTo(gridPos):
+				raise ValueError("gridPos ({}) outside current limits ({})".format(gridPos, (self.nColumns, self.nRows)))
 		row = self.rows[rowN]
 		if item == None:
 			if row[colN] == None:

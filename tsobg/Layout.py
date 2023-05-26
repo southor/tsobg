@@ -19,8 +19,8 @@ class Layout():
 	def hasObject(self, object):
 		raise NotImplementedError("hasObject(self, object)")
 
-	def getObjectCoordinates(self, object):
-		raise NotImplementedError("getObjectCoordinates(self, object)")
+	def getObjectPos(self, object):
+		raise NotImplementedError("getObjectPos(self, object)")
 
 	def getFirstObject(self, remove=False):
 		raise NotImplementedError("getFirstObject(self, remove=False)")

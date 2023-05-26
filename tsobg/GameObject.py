@@ -222,8 +222,8 @@ class GameObject():
 	def hasChild(self, object):
 		return self._layout.hasObject(object)
 
-	def getChildCoordinates(self, object):
-		return self._layout.getObjectCoordinates(object)
+	def getChildCellPos(self, object):
+		return self._layout.getObjectPos(object)
 
 	def getFirstChild(self, remove=False):
 		return self._layout.getFirstObject(remove)
@@ -248,6 +248,12 @@ class GameObject():
 		if "visible" in object._flags:
 			object._uiUpdateFull()
 		return True
+
+	#def addChildAt(self, pos, object):
+	#	if not object:
+	#		raise ValueError("Child must be non-None, child: ", object)
+	#	res,prevChild = self.setChildAt(pos, object, allowReplace=False)
+	#	return res
 
 	def setChildAt(self, pos, object): 
 		removedObject = self._layout.getObjectAt(pos)

@@ -88,7 +88,7 @@ class UIGrid_test(unittest.TestCase):
 
 	def testWithManualPos(self):
 		cellSize = (5, 5)
-		grid = UIGrid((2,2), cellSize)
+		grid = UIGrid((2,2), cellSize, autoGrow="columns_first")
 		self.assertEqual(grid.getNItems(), 0)
 		self.assertEqual(grid.getMaxNItems(), 4)
 		grid.setItemAt((1, 0), "foo")
@@ -102,7 +102,11 @@ class UIGrid_test(unittest.TestCase):
 		self.assertEqual(grid.getNItems(), 2)
 		self.assertEqual(grid.getMaxNItems(), 4)
 		self.assertEqual(grid.getItemAt((1, 0)), "bar2")
-		
+		# test autogrow
+		grid.setItemAt((4, 4), "bob")
+		self.assertEqual(grid.getNItems(), 3)
+		self.assertEqual(grid.getItemAt((3, 4)), None)
+		self.assertEqual(grid.getItemAt((4, 4)), "bob")
 		
 	def runTest(self):
 		self.testWithAutoPos()

@@ -27,7 +27,7 @@ class GridLayout(Layout):
 	def hasObject(self, object):
 		return self.grid.hasItem(object)
 
-	def getObjectCoordinates(self, object):
+	def getObjectPos(self, object):
 		return self.grid.getItemGridPos(object)
 
 	def getFirstObject(self, remove=False):

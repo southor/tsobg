@@ -27,7 +27,7 @@ class FreeLayout(Layout):
 	def hasObject(self, object):
 		return object in self.items
 	
-	def getObjectCoordinates(self, object):
+	def getObjectPos(self, object):
 		try:
 			return self.items.index(object)
 		except:
