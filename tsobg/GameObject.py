@@ -249,25 +249,26 @@ class GameObject():
 			object._uiUpdateFull()
 		return True
 
-	#def addChildAt(self, pos, object):
-	#	if not object:
-	#		raise ValueError("Child must be non-None, child: ", object)
-	#	res,prevChild = self.setChildAt(pos, object, allowReplace=False)
-	#	return res
+	def addChildAt(self, pos, object):
+		if not object:
+			raise ValueError("Child to add must be a GameObject, child=" + str(object))
+		res,prevChild = self.setChildAt(pos, object, allowReplace=False)
+		assert(prevChild == None)
+		return res
 
-	def setChildAt(self, pos, object): 
+	def setChildAt(self, pos, object, allowReplace=True): 
 		#removedObject = self._layout.getObjectAt(pos)
 		#res = bool(self._layout.setObjectAt(pos, object))
-		res,prevObject = self._layout.setObjectAt(pos, object)
+		res,prevObject = self._layout.setObjectAt(pos, object, allowReplace)
 		if prevObject:
 			prevObject._parent = None
 			if "visible" in prevObject._flags:
 				prevObject._uiUpdateFull()
-		if object:
+		if res and object:
 			object._parent = self
 			if "visible" in object._flags:
 				object._uiUpdateFull()
-		return res
+		return res,prevObject
 
 	def removeChild(self, object):
 		if not self._layout.removeObject(object):

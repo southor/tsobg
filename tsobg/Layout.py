@@ -41,7 +41,7 @@ class Layout():
 	def addObject(self, object):
 		raise NotImplementedError("addObject(self, object)")
 
-	def setObjectAt(self, pos, object):
+	def setObjectAt(self, pos, object, allowReplace=True):
 		"""
 		Can be used to add or remove an object at a cell.
 		If object is None:
@@ -54,18 +54,22 @@ class Layout():
 			If we have reached max number of objects (as set by maxNItems kwarg):
 				Returns (False,None)
 			Else If cell contains an object
-				The object in the cell is replaced.
-				Returns (True,removedObject)
+				if allowReplace == True
+					The object in the cell is replaced.
+					Returns (True,removedObject)
+				Else:
+					Returns (False,blockingObject)
 			If cell is empty:
 				The object is added to the cell.
 				Returns (True,None)
 		"""
-		raise NotImplementedError("setObjectAt(self, object, pos)")
+		raise NotImplementedError("setObjectAt(self, pos, object)")
 
 	def removeObject(self, object):
 		raise NotImplementedError("removeObject(self, object)")
 
 	def removeObjectAt(self, pos):
+		""" returns the removed object, or None if there was no object to remove """
 		res,removedObj = self.setObjectAt(pos, None)
 		return removedObj
 

@@ -211,7 +211,14 @@ class UIGrid():
 		self.nItems += 1
 		return self.getCellUIPos(gridPos)
 
-	def setItemAt(self, gridPos, item):
+	def addItemAt(self, pos, item):
+		if item == None:
+			raise ValueError("Item to add must not be None, item=" + str(item))
+		uiPos,prevItem = self.setItemAt(pos, item, allowReplace=False)
+		assert(prevItem == None)
+		return uiPos
+
+	def setItemAt(self, gridPos, item, allowReplace=True):
 		"""
 		Can be used to add or remove an item at a cell.
 		If item is None:
@@ -224,8 +231,11 @@ class UIGrid():
 			If we have reached max number of items (as set by maxNItems kwarg):
 				Returns (None,None)
 			Else If cell contains an item:
-				The item is replaced.
-				Returns (uiPos,removedItem)
+				If allowReplace =0 True
+					The item is replaced.
+					Returns (uiPos,removedItem)
+				Else
+					Returns (None,blockingItem)
 			If cell is empty:
 				The item is added to the cell.
 				Returns (uiPos,None)
@@ -250,6 +260,8 @@ class UIGrid():
 				if self.isFull():
 					return None,None
 				self.nItems += 1
+			elif not allowReplace:
+				return None,prevItem
 		self.rows[rowN][colN] = item
 		return self.getCellUIPos(gridPos),prevItem
 

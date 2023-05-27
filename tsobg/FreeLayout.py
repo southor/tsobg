@@ -72,7 +72,7 @@ class FreeLayout(Layout):
 		self.nItems += 1
 		return True
 
-	def setObjectAt(self, pos, object):
+	def setObjectAt(self, pos, object, allowReplace=True):
 		nCells = len(self.items)
 		isFull = self.isFull()
 		# extend array if needed
@@ -88,13 +88,17 @@ class FreeLayout(Layout):
 		prevItem = self.items[pos]
 		# update nItems member
 		if object:
-			if not prevItem:
+			if prevItem:
+				if not allowReplace:
+					return False,prevItem
+			else:
 				if isFull:
 					return False,None
 				self.nItems += 1
+
 		else:
 			if not prevItem:
-				return False,None
+				return False,prevItem
 			self.nItems -= 1
 			assert(self.nItems >= 0)
 		# write to the cell

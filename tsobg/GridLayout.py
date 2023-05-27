@@ -43,9 +43,9 @@ class GridLayout(Layout):
 		object.setLayoutPos(uiPos)
 		return True
 	
-	def setObjectAt(self, gridPos, object):
+	def setObjectAt(self, gridPos, object, allowReplace=True):
 		#prevObject = self.grid.getItemAt(gridPos)
-		uiPos,prevObject = self.grid.setItemAt(gridPos, object)
+		uiPos,prevObject = self.grid.setItemAt(gridPos, object, allowReplace)
 		if not uiPos:
 			return False,prevObject
 		if prevObject:
