@@ -63,10 +63,12 @@ class GameObject_test(unittest.TestCase):
 		c10= GameObject(uiInterface, "child10", size=(40,40))
 		c01 = GameObject(uiInterface, "child01", size=(40,40))
 		c11 = GameObject(uiInterface, "child11", size=(40,40))
+		self.assertEqual(c01.getEffectivePos(), ("auto", "auto"))
 		p.addChild(c00)
 		p.addChild(c10)
 		p.addChild(c01)
 		p.addChild(c11)
+		self.assertEqual(c01.getEffectivePos(), (0, 50))
 		self.assertEqual(p.getChildCellPos(c00), (0, 0))
 		self.assertEqual(p.getChildCellPos(c11), (1, 1))
 		self.assertTrue(p.getStackObject("child00") is c00)
@@ -77,12 +79,19 @@ class GameObject_test(unittest.TestCase):
 		self.assertEqual(p.getNChildren(), 4)
 		self.assertTrue(p.hasChild(c00))
 		self.assertTrue(p.getFirstChild() is c00)
-		p.removeChildAt((0, 0))
+		self.assertTrue(p.removeChildAt((0, 0)) is c00)
 		self.assertFalse(p.hasChild(c00))
 		self.assertFalse(p.getChild("child00"))
 		self.assertTrue(p.getFirstChild() is c10)
 		self.assertEqual([c.getDivID() for c in p.getAllChildren()], ["child10", "child01", "child11"])
 		self.assertEqual([p for p,c in p.getAllChildrenWithPos()], [(1,0), (0,1), (1,1)])
+		# test replacing children
+		c01new = GameObject(uiInterface, "child01", size=(30,30)) # new child with the same divID as the previous one
+		self.assertEqual(p.setChildAt((0,1), c01new, allowReplace=False), (False,c01))
+		self.assertEqual(p.setChildAt((0,1), c01new, allowReplace=True), (True,c01))
+		self.assertEqual(p.setChildAt((0,1), c01new, allowReplace=False), (False,c01new))
+		self.assertEqual(p.setChildAt((0,1), c01new, allowReplace=True), (True,c01new))
+		self.assertEqual(c01.getEffectivePos(), ("auto", "auto"))
 
 		self.assertEqual(p.getNChildren(), 3)
 		nVisitedDuringRemove = 0
@@ -126,6 +135,8 @@ class GameObject_test(unittest.TestCase):
 		layout = GridLayout((5, 5), (20, 20))
 		p = GameObject(uiInterface, "parent", layout=layout, size=(100, 100))
 		self.assertEqual(p.setChildAt((0, 2), c), (True,None)) # add child to cell
+		self.assertEqual(p.setChildAt((0, 2), c, allowReplace=False), (False,c)) # adding itself again not allowed (allowReplace=False)
+		self.assertEqual(p.setChildAt((0, 2), c), (True,c)) # adding itself again not allowed (allowReplace=True)
 		self.assertEqual(p.getLayoutType(), GridLayout)
 		self.assertEqual(c.getLayoutType(), FreeLayout)
 		self.assertEqual(gc.getLayoutType(), FreeLayout)

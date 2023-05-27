@@ -110,6 +110,12 @@ class FreeLayout_test(unittest.TestCase):
 		self.assertEqual(fl.getNObjects(), 5)
 		self.assertFalse(fl.addObject(GameObject(uiInterface, "newObj4"))) # should return False because layout is full
 		self.assertEqual(fl.getNObjects(), 5)
+		self.assertEqual(fl.setObjectAt(2, None, allowReplace=False), (True,newObj2)) # removing object still allowed
+		newObj3 = fl.getObjectAt(3)
+		self.assertEqual(newObj3.getDivID(), "newObj3")
+		self.assertEqual(fl.setObjectAt(3, GameObject(uiInterface, "newObj3b"), allowReplace=False), (False,newObj3)) # replacing object not allowed
+		self.assertEqual(fl.removeObjectAt(3), newObj3) # removing object always allowed
+		
 
 	def runTest(self):
 		uiInterface = UIInterface()
