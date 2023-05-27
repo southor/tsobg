@@ -126,7 +126,7 @@ class GameObject():
 	def getEffectivePos(self):
 		return (self.getEffectiveLeft(), self.getEffectiveTop())
 
-	def setParent(self, parent):
+	def setParent(self, parent, pos=None, allowReplace=True):
 		"""parent must be either a GameObject, string divID or None"""
 		if self._parent is parent:
 			return
@@ -134,9 +134,14 @@ class GameObject():
 			raise Error("parent of {} must be either a GameObjcet, string, or None. parent={}".format(self.divID, str(parent)[:50]))
 		if isinstance(self._parent, GameObject):
 			self._parent.removeChild(self)
+		assert(self._parent == None)
 		if isinstance(parent, GameObject):
-			parent.addChild(self)
+			if pos:
+				parent.setChildAt(pos, self, allowReplace)
+			else:
+				parent.addChild(self)
 		else:
+			assert(isinstance(parent, str))
 			self._parent = parent
 			if "visible" in self._flags:
 				self._uiUpdateFull()

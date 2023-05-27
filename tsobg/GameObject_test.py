@@ -66,8 +66,8 @@ class GameObject_test(unittest.TestCase):
 		self.assertEqual(c01.getEffectivePos(), ("auto", "auto"))
 		p.addChild(c00)
 		p.addChild(c10)
-		p.addChild(c01)
-		p.addChild(c11)
+		c11.setParent(p, (1,1)) # add child by using setParent with pos (leaving a gap at (0,1))
+		p.addChild(c01) # should get pos=(0,1) since that gap was left 
 		self.assertEqual(c01.getEffectivePos(), (0, 50))
 		self.assertEqual(p.getChildCellPos(c00), (0, 0))
 		self.assertEqual(p.getChildCellPos(c11), (1, 1))
