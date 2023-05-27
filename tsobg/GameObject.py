@@ -220,13 +220,24 @@ class GameObject():
 		return self._layout.getNObjects()
 
 	def hasChild(self, object):
-		return self._layout.hasObject(object)
+		#return self._layout.hasObject(object)
+		res = object._parent is self
+		if res:
+			assert(self._layout.hasObject(object))
+		else:
+			assert(not self._layout.hasObject(object))
+		return res
 
 	def getChildCellPos(self, object):
 		return self._layout.getObjectPos(object)
 
 	def getFirstChild(self, remove=False):
-		return self._layout.getFirstObject(remove)
+		object = self._layout.getFirstObject(remove)
+		if object and remove:
+			object._parent = None
+			if "visible" in object._flags:
+				object._uiUpdateFull()
+		return object
 
 	def getChild(self, divID):
 		""" get child by divID, returns child GameObject or None """
@@ -242,6 +253,10 @@ class GameObject():
 		return self._layout.getAllObjectsWithPos()
 
 	def addChild(self, object):
+		if not object:
+			raise ValueError("Child to add must be a GameObject, child=" + str(object))
+		if object._parent:
+			raise ValueError("Object must not already have a parent when being added to a parent.")
 		if not self._layout.addObject(object):
 			return False
 		object._parent = self
@@ -257,8 +272,10 @@ class GameObject():
 		return res
 
 	def setChildAt(self, pos, object, allowReplace=True): 
-		#removedObject = self._layout.getObjectAt(pos)
-		#res = bool(self._layout.setObjectAt(pos, object))
+		if object != None and not object:
+			raise ValueError("Object passed to setChildAt must be either a None or a GameObject, child=" + str(object))
+		if object and object._parent:
+			raise ValueError("Object passed to setChildAt must not already have a parent.")
 		res,prevObject = self._layout.setObjectAt(pos, object, allowReplace)
 		if prevObject:
 			prevObject._parent = None
@@ -271,6 +288,8 @@ class GameObject():
 		return res,prevObject
 
 	def removeChild(self, object):
+		if not object:
+			raise ValueError("Child to be removed must be a GameObject, child=" + str(object))
 		if not self._layout.removeObject(object):
 			return False
 		object._parent = None
@@ -279,13 +298,13 @@ class GameObject():
 		return True
 
 	def removeChildAt(self, pos):
-		""" returns the item that was removed, otherwise None """
-		res = self._layout.removeObjectAt(pos)
-		if res:
-			res._parent = None
-			if "visible" in res._flags:
-				res._uiUpdateFull()
-		return res
+		""" returns the object that was removed, otherwise None """
+		object = self._layout.removeObjectAt(pos)
+		if object:
+			object._parent = None
+			if "visible" in object._flags:
+				object._uiUpdateFull()
+		return object
 
 	def removeAllChildren(self, visitFunc=None):
 		"""

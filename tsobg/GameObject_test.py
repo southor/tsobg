@@ -89,10 +89,11 @@ class GameObject_test(unittest.TestCase):
 		c01new = GameObject(uiInterface, "child01", size=(30,30)) # new child with the same divID as the previous one
 		self.assertEqual(p.setChildAt((0,1), c01new, allowReplace=False), (False,c01))
 		self.assertEqual(p.setChildAt((0,1), c01new, allowReplace=True), (True,c01))
-		self.assertEqual(p.setChildAt((0,1), c01new, allowReplace=False), (False,c01new))
-		self.assertEqual(p.setChildAt((0,1), c01new, allowReplace=True), (True,c01new))
+		with self.assertRaises(ValueError):
+			p.setChildAt((0,1), c01new, allowReplace=False) # cannot add a child that already has a parent
+		with self.assertRaises(ValueError):
+			p.setChildAt((0,1), c01new, allowReplace=True) # cannot add a child that already has a parent
 		self.assertEqual(c01.getEffectivePos(), ("auto", "auto"))
-
 		self.assertEqual(p.getNChildren(), 3)
 		nVisitedDuringRemove = 0
 		def removedVisitor(pos, child):
@@ -135,8 +136,8 @@ class GameObject_test(unittest.TestCase):
 		layout = GridLayout((5, 5), (20, 20))
 		p = GameObject(uiInterface, "parent", layout=layout, size=(100, 100))
 		self.assertEqual(p.setChildAt((0, 2), c), (True,None)) # add child to cell
-		self.assertEqual(p.setChildAt((0, 2), c, allowReplace=False), (False,c)) # adding itself again not allowed (allowReplace=False)
-		self.assertEqual(p.setChildAt((0, 2), c), (True,c)) # adding itself again not allowed (allowReplace=True)
+		with self.assertRaises(ValueError):
+			p.setChildAt((0, 2), c, allowReplace=False) # adding a child that already has parent not allowed
 		self.assertEqual(p.getLayoutType(), GridLayout)
 		self.assertEqual(c.getLayoutType(), FreeLayout)
 		self.assertEqual(gc.getLayoutType(), FreeLayout)
@@ -183,7 +184,14 @@ class GameObject_test(unittest.TestCase):
 		obj.setPos((2, 2))
 		self.assertEqual(obj.getLayoutPos(), (10, 5))
 		self.assertEqual(obj.getEffectivePos(), (12, 7))
-		# move child to new parent
+		self.assertTrue(p1.hasChild(obj))
+		# try to move to new parent just by using add (will not work)
+		with self.assertRaises(ValueError) as context:
+			p2.addChild(obj)
+			self.assertTrue("parent" in context.exception)
+		self.assertTrue(p1.hasChild(obj))
+		self.assertFalse(p2.hasChild(obj))
+		# move child to new parent using setParent (works)
 		obj.setParent(p2)
 		self.assertFalse(p1.hasChild(obj))
 		self.assertTrue(p2.hasChild(obj))
