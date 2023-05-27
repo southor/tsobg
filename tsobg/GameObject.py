@@ -224,8 +224,14 @@ class GameObject():
 	def getNChildren(self):
 		return self._layout.getNObjects()
 
-	def hasChild(self, object):
-		#return self._layout.hasObject(object)
+	def hasChild(self, div):
+		if isinstance(div, GameObject):
+			object = div
+		elif isinstance(div, str):
+			object = self.getChild(div)
+			return bool(object)
+		else:
+			raise ValueError("div argument passed to hasChild must be a GameObject or a string divID, child=" + str(div))
 		res = object._parent is self
 		if res:
 			assert(self._layout.hasObject(object))
@@ -233,7 +239,15 @@ class GameObject():
 			assert(not self._layout.hasObject(object))
 		return res
 
-	def getChildCellPos(self, object):
+	def getChildCellPos(self, div):
+		if isinstance(div, GameObject):
+			object = div
+		elif isinstance(div, str):
+			object = self.getChild(div)
+			if not object:
+				return None
+		else:
+			raise ValueError("div argument passed to getChildCellPos must be a GameObject or a string divID, child=" + str(div))
 		return self._layout.getObjectPos(object)
 
 	def getFirstChild(self, remove=False):
@@ -292,9 +306,15 @@ class GameObject():
 				object._uiUpdateFull()
 		return res,prevObject
 
-	def removeChild(self, object):
-		if not object:
-			raise ValueError("Child to be removed must be a GameObject, child=" + str(object))
+	def removeChild(self, div):
+		if isinstance(div, GameObject):
+			object = div
+		elif isinstance(div, str):
+			object = self.getChild(div)
+			if not object:
+				return False
+		else:
+			raise ValueError("div argument passed to removeChild must be a GameObject or a string divID, child=" + str(div))
 		if not self._layout.removeObject(object):
 			return False
 		object._parent = None

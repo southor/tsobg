@@ -195,9 +195,16 @@ class GameObject_test(unittest.TestCase):
 		obj.setParent(p2)
 		self.assertFalse(p1.hasChild(obj))
 		self.assertTrue(p2.hasChild(obj))
+		self.assertTrue(p2.hasChild(obj.getDivID()))
+		self.assertFalse(p2.hasChild(obj.getDivID()+"foo"))
 		self.assertEqual(p1.getChildCellPos(obj), None)
+		self.assertEqual(p1.getChildCellPos(obj.getDivID()), None)
 		self.assertEqual(p2.getChildCellPos(obj), 0)
+		self.assertEqual(p2.getChildCellPos(obj.getDivID()), 0)
 		self.assertEqual(obj.getLayoutPos(), ("auto", "auto"))
+		# remove child by divID
+		p2.removeChild(obj.getDivID())
+		self.assertFalse(p2.hasChild(obj))
 
 	def runTest(self):
 		self._testFlags()
