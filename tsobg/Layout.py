@@ -47,18 +47,18 @@ class Layout():
 		If object is None:
 			If cell contains an object:
 				The object in the cell is removed.
-				Returns True.
+				Returns (True,removedObject)
 			If cell is empty:
-				Returns False.
+				Returns (False,None)
 		If object is non-None (then it must be of instance GameObject):
 			If we have reached max number of objects (as set by maxNItems kwarg):
-				Returns False
+				Returns (False,None)
 			Else If cell contains an object
 				The object in the cell is replaced.
-				Returns True.
+				Returns (True,removedObject)
 			If cell is empty:
 				The object is added to the cell.
-				Returns True.
+				Returns (True,None)
 		"""
 		raise NotImplementedError("setObjectAt(self, object, pos)")
 
@@ -66,7 +66,8 @@ class Layout():
 		raise NotImplementedError("removeObject(self, object)")
 
 	def removeObjectAt(self, pos):
-		return self.setObjectAt(pos, None)
+		res,removedObj = self.setObjectAt(pos, None)
+		return removedObj
 
 	def removeAllObjects(self, visitFunc=None):
 		"""

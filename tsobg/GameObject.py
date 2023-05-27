@@ -256,12 +256,13 @@ class GameObject():
 	#	return res
 
 	def setChildAt(self, pos, object): 
-		removedObject = self._layout.getObjectAt(pos)
-		res = bool(self._layout.setObjectAt(pos, object))
-		if removedObject:
-			removedObject._parent = None
-			if "visible" in removedObject._flags:
-				removedObject._uiUpdateFull()
+		#removedObject = self._layout.getObjectAt(pos)
+		#res = bool(self._layout.setObjectAt(pos, object))
+		res,prevObject = self._layout.setObjectAt(pos, object)
+		if prevObject:
+			prevObject._parent = None
+			if "visible" in prevObject._flags:
+				prevObject._uiUpdateFull()
 		if object:
 			object._parent = self
 			if "visible" in object._flags:

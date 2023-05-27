@@ -217,18 +217,18 @@ class UIGrid():
 		If item is None:
 			If cell contains an item:
 				The item in the cell is removed.
-				Returns the ui position of the cell.
+				Returns (uiPos,removedItem)
 			If cell is empty:
-				Returns None.
+				Returns (uiPos,None)
 		If item is non-None (Can be of any type expect None):
 			If we have reached max number of items (as set by maxNItems kwarg):
-				Returns None
+				Returns (None,None)
 			Else If cell contains an item:
 				The item is replaced.
-				Returns the ui position of the cell.
+				Returns (uiPos,removedItem)
 			If cell is empty:
 				The item is added to the cell.
-				Returns the ui position of the cell.
+				Returns (uiPos,None)
 		"""
 		colN,rowN = gridPos
 
@@ -237,19 +237,21 @@ class UIGrid():
 		if colN >= self.nColumns or rowN >= self.nRows:
 			if not self._growTo(gridPos):
 				raise ValueError("gridPos ({}) outside current limits ({})".format(gridPos, (self.nColumns, self.nRows)))
-		row = self.rows[rowN]
+		uiPos = self.getCellUIPos(gridPos)
+		#row = self.rows[rowN]
+		prevItem = self.rows[rowN][colN]
 		if item == None:
-			if row[colN] == None:
-				return None
+			if prevItem == None:
+				return None,None
 			else:
 				self.nItems -= 1
 		else:
-			if row[colN] == None:
+			if prevItem == None:
 				if self.isFull():
-					return None
+					return None,None
 				self.nItems += 1
 		self.rows[rowN][colN] = item
-		return self.getCellUIPos(gridPos)
+		return self.getCellUIPos(gridPos),prevItem
 
 	def removeItem(self, item):
 		"""

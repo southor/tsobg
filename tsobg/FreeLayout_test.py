@@ -92,15 +92,15 @@ class FreeLayout_test(unittest.TestCase):
 		fl = FreeLayout(5)
 		objs = self._fillLayout(uiInterface, fl, 3) # fill up with 3 (so is room for 2 more)
 		newObj2 = GameObject(uiInterface, "newObj2")
-		self.assertTrue(fl.setObjectAt(2, newObj2)) # replacing existing
-		self.assertTrue(fl.setObjectAt(2, newObj2)) # replacing itself
+		self.assertEqual(fl.setObjectAt(2, newObj2), (True, objs[2])) # replacing existing
+		self.assertEqual(fl.setObjectAt(2, newObj2), (True, newObj2)) # replacing itself
 		self.assertFalse(fl.hasObject(objs[2]))
 		self.assertTrue(fl.hasObject(newObj2))
 		self.assertEqual(fl.getObjectPos(objs[2]), None)
 		self.assertEqual(fl.getObjectPos(newObj2), 2)
 		self.assertEqual(fl.getNObjects(), 3)
-		self.assertTrue(fl.setObjectAt(1, None)) # removing object
-		self.assertFalse(fl.setObjectAt(1, None)) # no object was removed (should return False)
+		self.assertEqual(fl.setObjectAt(1, None), (True, objs[1])) # removing object
+		self.assertEqual(fl.setObjectAt(1, None), (False, None)) # no object was removed (should return False)
 		self.assertEqual(fl.getNObjects(), 2)
 		self.assertFalse(fl.hasObject(objs[1]))
 		self.assertTrue(fl.hasObject(newObj2))

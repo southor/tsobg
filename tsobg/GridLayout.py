@@ -44,15 +44,15 @@ class GridLayout(Layout):
 		return True
 	
 	def setObjectAt(self, gridPos, object):
-		prevObject = self.grid.getItemAt(gridPos)
-		uiPos = self.grid.setItemAt(gridPos, object)
+		#prevObject = self.grid.getItemAt(gridPos)
+		uiPos,prevObject = self.grid.setItemAt(gridPos, object)
 		if not uiPos:
-			return False
+			return False,prevObject
 		if prevObject:
 			prevObject.setLayoutPos(("auto", "auto"))
 		if object:
 			object.setLayoutPos(uiPos)
-		return True
+		return True,prevObject
 
 	def removeObject(self, object):
 		if self.grid.removeItem(object):

@@ -79,25 +79,27 @@ class FreeLayout(Layout):
 		if pos >= nCells:
 			# pos is beyond the allocated array
 			if (not object) or isFull:
-				return False
+				return False,None
 			# object is a GameObject that is allowed to be added
 			# extend the array
 			nNew = pos + 1 - nCells
 			self.items.extend([None * nNew])
+		# get prevItem
+		prevItem = self.items[pos]
 		# update nItems member
 		if object:
-			if not self.items[pos]:
+			if not prevItem:
 				if isFull:
-					return False
+					return False,None
 				self.nItems += 1
 		else:
-			if not self.items[pos]:
-				return False
+			if not prevItem:
+				return False,None
 			self.nItems -= 1
 			assert(self.nItems >= 0)
 		# write to the cell
 		self.items[pos] = object	
-		return True
+		return True,prevItem
 
 	def removeObject(self, object):
 		try:
