@@ -50,7 +50,7 @@ def encodeActionObj(arMap, actionObj):
 	kwargs = checkGetActionObjMemberType(actionObj, "kwargs", dict, dict, "dict")
 	
 	# check for unknown lookups in actionObj args
-	allowedLookups = ["$playerId", "$divId", "$isSelected", "$allSelected"]
+	allowedLookups = ["$playerId", "$divId", "$isSelected", "$allSelected", "$mousePos"]
 	for val in args:
 		checkArg(val, "args", allowedLookups)
 	# check for lookups in actionObj kwargs (not allowed)

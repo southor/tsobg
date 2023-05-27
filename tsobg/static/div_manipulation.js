@@ -67,10 +67,37 @@ function isString(x) {
     return Object.prototype.toString.call(x) === '[object String]';
 }
 
+// helper function to get an element's exact position
+function getElementPos(element) {
+	var xPos = 0;
+	var yPos = 0;
+	while (element) {
+		if (element.tagName == "BODY") {
+			// deal with browser quirks with body/window/document and page scroll
+			var xScrollPos = element.scrollLeft || document.documentElement.scrollLeft;
+			var yScrollPos = element.scrollTop  || document.documentElement.scrollTop;
+			xPos += (element.offsetLeft - xScrollPos + element.clientLeft);
+			yPos += (element.offsetTop - yScrollPos + element.clientTop);
+		} else {
+			xPos += (element.offsetLeft - element.scrollLeft + element.clientLeft);
+			yPos += (element.offsetTop - element.scrollTop + element.clientTop);
+		}
+		element = element.offsetParent;
+	}
+	return [xPos, yPos];
+}
+
+function getClickPos(element, event) {
+	let divPos = getElementPos(element);
+	let mouseX = Math.max(0, event.clientX - divPos[0]);
+	let mouseY = Math.max(0, event.clientY - divPos[1]);
+	return [mouseX, mouseY]
+}
+
 /**
  * Create a new actionObj where div related info has been added and all $ lookups has been resolved
  */
-function resolvedActionObj(actionObj, divId, isSelected) {
+function resolvedActionObj(actionObj, divId, isSelected, mousePos) {
 	function resolvedArg(arg, lookupObj) {
 		if ( ! isString(arg)) return arg;
 		if (arg.length === 0) return arg;
@@ -91,6 +118,7 @@ function resolvedActionObj(actionObj, divId, isSelected) {
 	//for (key in Object.keys(kwargs)) {
 	//	kwargs[key] = resolvedArg(args[key]);
 	//}
+	kwargs.mousePos = mousePos;
 	return {"receiver":actionReceiver, "args":args, "kwargs":kwargs}; // return a new actionObj
 }
 
@@ -105,7 +133,7 @@ function resolvedActionObj(actionObj, divId, isSelected) {
 function setDivOnClick(div, trapClicks, selectable, onClickFunc, actionObj) {
 	log("info", "setDivOnClick with actionObj: ", actionObj);
 	if (selectable || onClickFunc) {
-		div.onclick = function(e) {
+		div.onclick = function(event) {
 			log("info", "divOnClick");
 			let divId = div.getAttribute("id");
 			var isSelected = false;
@@ -113,15 +141,15 @@ function setDivOnClick(div, trapClicks, selectable, onClickFunc, actionObj) {
 				isSelected = toggleDivSelected(divId);
 			}
 			if (onClickFunc) {
-				rActionObj = resolvedActionObj(actionObj, divId, isSelected);
+				rActionObj = resolvedActionObj(actionObj, divId, isSelected, getClickPos(div, event));
 				onClickFunc(rActionObj);
 			}
-			stopEventPropagation(e);
+			stopEventPropagation(event);
 			return true;
 		};
 	} else if (trapClicks) {
-		div.onclick = function(e) {
-			stopEventPropagation(e);
+		div.onclick = function(event) {
+			stopEventPropagation(event);
 			return false;
 		};
 	}
@@ -131,15 +159,15 @@ function setButtonOnClick(buttonElement, onClickFunc, actionObj) {
 	log("info", "setButtonOnClick with actionObj: ", actionObj);
 	if (onClickFunc) {
 		let divId = buttonElement.parentElement.getAttribute("id");
-		buttonElement.onclick = function(e) {
-			rActionObj = resolvedActionObj(actionObj, divId, false);
+		buttonElement.onclick = function(event) {
+			rActionObj = resolvedActionObj(actionObj, divId, false, null);
 			onClickFunc(rActionObj);
-			stopEventPropagation(e); // TODO: is this needed for buttons?
+			stopEventPropagation(event); // TODO: is this needed for buttons?
 			return true;
 		};
 	} else {
-		buttonElement.onclick = function(e) {
-			stopEventPropagation(e); // TODO: is this needed for buttons?
+		buttonElement.onclick = function(event) {
+			stopEventPropagation(event); // TODO: is this needed for buttons?
 			return false;
 		};
 	}
