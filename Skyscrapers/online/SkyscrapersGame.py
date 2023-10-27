@@ -119,7 +119,6 @@ class SkyscrapersGame(GameInterface, ActionReceiver):
 		self.currentPlayer = 0
 		self.gameManager.stageUIChange(("set_div", "game_area", {"width":1015}))
 		self.gameManager.stageUIChange(("set_div", "center", {"parent": "game_area", "class": "game-surface", "width":1000}))
-		#self.cardMarket = CardMarket(self.gameManager, self)
 		self.cardMarket = CardMarket(self.gameManager)
 		self.mainBoard = MainBoard(self.gameManager)
 		self._initPlayerSurfaces(playerNames)
@@ -162,7 +161,7 @@ class SkyscrapersGame(GameInterface, ActionReceiver):
 	# --------------- Setup / Action Methods ---------------
 
 	def _getPlayerSurfaceDivID(seatN):
-		return "player_space_" + str(seatN)
+		return "player_surface_" + str(seatN)
 
 	def _initPlayerSurfaces(self, playerNames: list):
 		nPlayers = len(self.playerIDs)

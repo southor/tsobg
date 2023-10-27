@@ -4,6 +4,7 @@ from .server import newGame
 from .server import runServer
 from .UIInterface import UIInterface
 from .GameInterface import GameInterface
+from .GameBase import GameBase
 from .actions import ActionReceiver
 from .Deck import Deck
 from .UIInterface import UIInterface

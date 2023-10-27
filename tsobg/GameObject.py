@@ -225,6 +225,7 @@ class GameObject():
 		return self._layout.getNObjects()
 
 	def hasChild(self, div):
+		""" Div can be either GameObject or divID (str) """
 		if isinstance(div, GameObject):
 			object = div
 		elif isinstance(div, str):
@@ -240,6 +241,7 @@ class GameObject():
 		return res
 
 	def getChildCellPos(self, div):
+		""" param div can be either GameObject or divID (str) """
 		if isinstance(div, GameObject):
 			object = div
 		elif isinstance(div, str):
@@ -307,6 +309,7 @@ class GameObject():
 		return res,prevObject
 
 	def removeChild(self, div):
+		""" param div can be either GameObject or divID (str) """
 		if isinstance(div, GameObject):
 			object = div
 		elif isinstance(div, str):
