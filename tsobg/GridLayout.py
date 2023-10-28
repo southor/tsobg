@@ -27,7 +27,7 @@ class GridLayout(Layout):
 	def hasObject(self, object):
 		return self.grid.hasItem(object)
 
-	def getObjectPos(self, object):
+	def getObjectPlace(self, object):
 		return self.grid.getItemGridPos(object)
 
 	def getFirstObject(self, remove=False):
@@ -68,10 +68,10 @@ class GridLayout(Layout):
 		return obj
 
 	def removeAllObjects(self, visitFunc=None):
-		def layoutPosResetter(pos, obj):
+		def layoutPosResetter(place, obj):
 			obj.setLayoutPos(("auto", "auto"))
 			if visitFunc:
-				visitFunc(pos, obj)
+				visitFunc(place, obj)
 		return self.grid.removeAllItems(visitFunc=layoutPosResetter)
 
 	def visitCellsReduce(self, visitFunc, initRes=None, visitOnlyOccupied=False):

@@ -58,7 +58,7 @@ class GameObject_test(unittest.TestCase):
 
 	def _testChildren(self):
 		uiInterface = UIInterface()
-		p = GameObject(uiInterface, "parent", layout=GridLayout((2,2), (50,50)), size=(100, 100))
+		p = GameObject(uiInterface, "parent", childrenLayout=GridLayout((2,2), (50,50)), size=(100, 100))
 		c00 = GameObject(uiInterface, "child00", size=(40,40))
 		c10= GameObject(uiInterface, "child10", size=(40,40))
 		c01 = GameObject(uiInterface, "child01", size=(40,40))
@@ -66,11 +66,11 @@ class GameObject_test(unittest.TestCase):
 		self.assertEqual(c01.getEffectivePos(), ("auto", "auto"))
 		p.addChild(c00)
 		p.addChild(c10)
-		c11.setParent(p, (1,1)) # add child by using setParent with pos (leaving a gap at (0,1))
-		p.addChild(c01) # should get pos=(0,1) since that gap was left 
+		c11.setParent(p, (1,1)) # add child by using setParent with place (leaving a gap at (0,1))
+		p.addChild(c01) # should get place=(0,1) since that gap was left 
 		self.assertEqual(c01.getEffectivePos(), (0, 50))
-		self.assertEqual(p.getChildCellPos(c00), (0, 0))
-		self.assertEqual(p.getChildCellPos(c11), (1, 1))
+		self.assertEqual(p.getChildPlace(c00), (0, 0))
+		self.assertEqual(p.getChildPlace(c11), (1, 1))
 		self.assertTrue(p.getStackObject("child00") is c00)
 		self.assertTrue(p.getStackObject("child01") is c01)
 		self.assertTrue(p.getChild("child10") is c10)
@@ -84,7 +84,7 @@ class GameObject_test(unittest.TestCase):
 		self.assertFalse(p.getChild("child00"))
 		self.assertTrue(p.getFirstChild() is c10)
 		self.assertEqual([c.getDivID() for c in p.getAllChildren()], ["child10", "child01", "child11"])
-		self.assertEqual([p for p,c in p.getAllChildrenWithPos()], [(1,0), (0,1), (1,1)])
+		self.assertEqual([p for p,c in p.getAllChildrenWithPlace()], [(1,0), (0,1), (1,1)])
 		# test replacing children
 		c01new = GameObject(uiInterface, "child01", size=(30,30)) # new child with the same divID as the previous one
 		self.assertEqual(p.setChildAt((0,1), c01new, allowReplace=False), (False,c01))
@@ -96,8 +96,8 @@ class GameObject_test(unittest.TestCase):
 		self.assertEqual(c01.getEffectivePos(), ("auto", "auto"))
 		self.assertEqual(p.getNChildren(), 3)
 		nVisitedDuringRemove = 0
-		def removedVisitor(pos, child):
-			self.assertEqual("child" + GameObject_test._gridPosToStr(pos), child.getDivID())
+		def removedVisitor(gridPos, child):
+			self.assertEqual("child" + GameObject_test._gridPosToStr(gridPos), child.getDivID())
 			nonlocal nVisitedDuringRemove
 			nVisitedDuringRemove += 1
 		p.removeAllChildren(visitFunc=removedVisitor)
@@ -112,9 +112,9 @@ class GameObject_test(unittest.TestCase):
 		c = GameObject(uiInterface, "child", parent=p, pos=(5, 0), size=(10, 10))
 		gc = GameObject(uiInterface, "grandchild", pos=(3, 0), size=(5, 5))
 		c.addChild(gc)
-		self.assertEqual(p.getLayoutType(), FreeLayout)
-		self.assertEqual(c.getLayoutType(), FreeLayout)
-		self.assertEqual(gc.getLayoutType(), FreeLayout)
+		self.assertEqual(p.getChildrenLayoutType(), FreeLayout)
+		self.assertEqual(c.getChildrenLayoutType(), FreeLayout)
+		self.assertEqual(gc.getChildrenLayoutType(), FreeLayout)
 		self.assertEqual(c.getParent(), p)
 		self.assertEqual(gc.getParent(), c)
 		self.assertTrue(p.getFirstChild() is c)
@@ -122,11 +122,11 @@ class GameObject_test(unittest.TestCase):
 		self.assertTrue(p.hasChild(c))
 		self.assertTrue(gc.inStackOf(p))
 		self.assertFalse(p.hasChild(gc))
-		self.assertEqual(c.getChildCellPos(gc), 0)
-		self.assertEqual(p.getChildCellPos(c), 0)
+		self.assertEqual(c.getChildPlace(gc), 0)
+		self.assertEqual(p.getChildPlace(c), 0)
 		p.addChild(GameObject(uiInterface, "child1"))
-		self.assertEqual(p.getChildCellPos(p.getChild("child1")), 1)
-		self.assertEqual(p.getChildCellPos(gc), None)
+		self.assertEqual(p.getChildPlace(p.getChild("child1")), 1)
+		self.assertEqual(p.getChildPlace(gc), None)
 		self.assertEqual(p.getStackCoordinatesFor(c), [0])
 		self.assertEqual(p.getStackCoordinatesFor(gc), [0, 0])
 		self.assertTrue(p.getStackObject("grandchild") is gc)
@@ -134,13 +134,13 @@ class GameObject_test(unittest.TestCase):
 		p.removeChild(c)
 		self.assertEqual(c.getParent(), None)
 		layout = GridLayout((5, 5), (20, 20))
-		p = GameObject(uiInterface, "parent", layout=layout, size=(100, 100))
+		p = GameObject(uiInterface, "parent", childrenLayout=layout, size=(100, 100))
 		self.assertEqual(p.setChildAt((0, 2), c), (True,None)) # add child to cell
 		with self.assertRaises(ValueError):
 			p.setChildAt((0, 2), c, allowReplace=False) # adding a child that already has parent not allowed
-		self.assertEqual(p.getLayoutType(), GridLayout)
-		self.assertEqual(c.getLayoutType(), FreeLayout)
-		self.assertEqual(gc.getLayoutType(), FreeLayout)
+		self.assertEqual(p.getChildrenLayoutType(), GridLayout)
+		self.assertEqual(c.getChildrenLayoutType(), FreeLayout)
+		self.assertEqual(gc.getChildrenLayoutType(), FreeLayout)
 		self.assertFalse(p.hasChild(gc))
 		self.assertFalse(gc.hasChild(p))
 		self.assertTrue(gc.inStackOf(p))
@@ -149,10 +149,10 @@ class GameObject_test(unittest.TestCase):
 		self.assertTrue(p.inStackOf(p.getDivID()))
 		self.assertFalse(p.inStackOf(c))
 		self.assertFalse(p.inStackOf(c.getDivID()))
-		self.assertEqual(c.getChildCellPos(gc), 0)
+		self.assertEqual(c.getChildPlace(gc), 0)
 		self.assertEqual(c.getStackCoordinatesFor(gc), [0])
-		self.assertEqual(p.getChildCellPos(c), (0, 2))
-		self.assertEqual(p.getChildCellPos(gc), None)
+		self.assertEqual(p.getChildPlace(c), (0, 2))
+		self.assertEqual(p.getChildPlace(gc), None)
 		self.assertEqual(p.getStackCoordinatesFor(gc), [(0, 2), 0])
 		self.assertEqual(p.getStackCoordinatesFor(gc.getDivID()), [(0, 2), 0])
 		self.assertTrue(p.getStackObjectAt([(0, 2), 0]) is gc)
@@ -170,14 +170,14 @@ class GameObject_test(unittest.TestCase):
 
 	def _testMoveToNewParent(self):
 		uiInterface = UIInterface()
-		p1 = GameObject(uiInterface, "parent1", size=(20, 20), layout=GridLayout((5, 5), (5, 5)))
-		p2 = GameObject(uiInterface, "parent2", size=(50, 50), layout=FreeLayout())
+		p1 = GameObject(uiInterface, "parent1", size=(20, 20), childrenLayout=GridLayout((5, 5), (5, 5)))
+		p2 = GameObject(uiInterface, "parent2", size=(50, 50), childrenLayout=FreeLayout())
 		obj = GameObject(uiInterface, "obj1", size=(5, 5))
 		self.assertEqual(obj.getLayoutPos(), ("auto", "auto"))
 		# add child into grid
 		self.assertEqual(p1.setChildAt((2, 1), obj), (True,None))
 		self.assertTrue(p1.hasChild(obj))
-		self.assertEqual(p1.getChildCellPos(obj), (2, 1))
+		self.assertEqual(p1.getChildPlace(obj), (2, 1))
 		self.assertEqual(obj.getLayoutPos(), (10, 5))
 		self.assertEqual(obj.getEffectivePos(), (10, 5))
 		# apply position offsetting 
@@ -197,10 +197,10 @@ class GameObject_test(unittest.TestCase):
 		self.assertTrue(p2.hasChild(obj))
 		self.assertTrue(p2.hasChild(obj.getDivID()))
 		self.assertFalse(p2.hasChild(obj.getDivID()+"foo"))
-		self.assertEqual(p1.getChildCellPos(obj), None)
-		self.assertEqual(p1.getChildCellPos(obj.getDivID()), None)
-		self.assertEqual(p2.getChildCellPos(obj), 0)
-		self.assertEqual(p2.getChildCellPos(obj.getDivID()), 0)
+		self.assertEqual(p1.getChildPlace(obj), None)
+		self.assertEqual(p1.getChildPlace(obj.getDivID()), None)
+		self.assertEqual(p2.getChildPlace(obj), 0)
+		self.assertEqual(p2.getChildPlace(obj.getDivID()), 0)
 		self.assertEqual(obj.getLayoutPos(), ("auto", "auto"))
 		# remove child by divID
 		p2.removeChild(obj.getDivID())

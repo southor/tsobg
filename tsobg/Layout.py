@@ -19,29 +19,29 @@ class Layout():
 	def hasObject(self, object):
 		raise NotImplementedError("hasObject(self, object)")
 
-	def getObjectPos(self, object):
-		raise NotImplementedError("getObjectPos(self, object)")
+	def getObjectPlace(self, object):
+		raise NotImplementedError("getObjectPlace(self, object)")
 
 	def getFirstObject(self, remove=False):
 		raise NotImplementedError("getFirstObject(self, remove=False)")
 
-	def getObjectAt(self, pos):
-		raise NotImplementedError("getObjectAt(self, pos)")
+	def getObjectAt(self, place):
+		raise NotImplementedError("getObjectAt(self, place)")
 
 	def getAllObjects(self):
 		res = []
-		self.visitObjectsReduce(lambda pos,object,_: res.append(object))
+		self.visitObjectsReduce(lambda place,object,_: res.append(object))
 		return res
 
-	def getAllObjectsWithPos(self):
+	def getAllObjectsPlaceTuple(self):
 		res = []
-		self.visitObjectsReduce(lambda pos,object,_: res.append((pos, object)))
+		self.visitObjectsReduce(lambda place,object,_: res.append((place, object)))
 		return res
 
 	def addObject(self, object):
 		raise NotImplementedError("addObject(self, object)")
 
-	def setObjectAt(self, pos, object, allowReplace=True):
+	def setObjectAt(self, place, object, allowReplace=True):
 		"""
 		Can be used to add or remove an object at a cell.
 		If object is None:
@@ -63,19 +63,19 @@ class Layout():
 				The object is added to the cell.
 				Returns (True,None)
 		"""
-		raise NotImplementedError("setObjectAt(self, pos, object)")
+		raise NotImplementedError("setObjectAt(self, place, object)")
 
 	def removeObject(self, object):
 		raise NotImplementedError("removeObject(self, object)")
 
-	def removeObjectAt(self, pos):
+	def removeObjectAt(self, place):
 		""" returns the removed object, or None if there was no object to remove """
-		res,removedObj = self.setObjectAt(pos, None)
+		res,removedObj = self.setObjectAt(place, None)
 		return removedObj
 
 	def removeAllObjects(self, visitFunc=None):
 		"""
-		Calls visitFunc(pos, object) for each removed object (if visitFunc is non-None)
+		Calls visitFunc(place, object) for each removed object (if visitFunc is non-None)
 		returns number of objects removed
 		"""
 		raise NotImplementedError("removeAllObjects(self)")

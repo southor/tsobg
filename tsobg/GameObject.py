@@ -127,7 +127,7 @@ class GameObject():
 	def getEffectivePos(self):
 		return (self.getEffectiveLeft(), self.getEffectiveTop())
 
-	def setParent(self, parent, pos=None, allowReplace=True):
+	def setParent(self, parent, place=None, allowReplace=True):
 		"""parent must be either a GameObject, string divID or None"""
 		if self._parent is parent:
 			return
@@ -137,8 +137,8 @@ class GameObject():
 			self._parent.removeChild(self)
 		assert(self._parent == None)
 		if isinstance(parent, GameObject):
-			if pos:
-				parent.setChildAt(pos, self, allowReplace)
+			if place:
+				parent.setChildAt(place, self, allowReplace)
 			else:
 				parent.addChild(self)
 		else:
@@ -226,15 +226,15 @@ class GameObject():
 	def getNChildren(self):
 		return self._childrenLayout.getNObjects()
 
-	def hasChild(self, div):
-		""" Div can be either GameObject or divID (str) """
-		if isinstance(div, GameObject):
-			object = div
-		elif isinstance(div, str):
-			object = self.getChild(div)
+	def hasChild(self, arg):
+		""" arg can be either GameObject or divID (str) """
+		if isinstance(arg, GameObject):
+			object = arg
+		elif isinstance(arg, str):
+			object = self.getChild(arg)
 			return bool(object)
 		else:
-			raise ValueError("div argument passed to hasChild must be a GameObject or a string divID, child=" + str(div))
+			raise TypeError('"arg" argument passed to hasChild must be a GameObject or a string divID, child=' + str(arg))
 		res = object._parent is self
 		if res:
 			assert(self._childrenLayout.hasObject(object))
@@ -242,17 +242,17 @@ class GameObject():
 			assert(not self._childrenLayout.hasObject(object))
 		return res
 
-	def getChildCellPos(self, div):
-		""" param div can be either GameObject or divID (str) """
-		if isinstance(div, GameObject):
-			object = div
-		elif isinstance(div, str):
-			object = self.getChild(div)
+	def getChildPlace(self, arg):
+		""" param arg can be either GameObject or divID (str) """
+		if isinstance(arg, GameObject):
+			object = arg
+		elif isinstance(arg, str):
+			object = self.getChild(arg)
 			if not object:
 				return None
 		else:
-			raise ValueError("div argument passed to getChildCellPos must be a GameObject or a string divID, child=" + str(div))
-		return self._childrenLayout.getObjectPos(object)
+			raise TypeError('"arg" argument passed to getChildPlace must be a GameObject or a string divID, child=' + str(arg))
+		return self._childrenLayout.getObjectPlace(object)
 
 	def getFirstChild(self, remove=False):
 		object = self._childrenLayout.getFirstObject(remove)
@@ -264,20 +264,20 @@ class GameObject():
 
 	def getChild(self, divID):
 		""" get child by divID, returns child GameObject or None """
-		return self.visitChildrenShortcut(lambda pos, child: child if child.getDivID() == divID else None)
+		return self.visitChildrenShortcut(lambda place, child: child if child.getDivID() == divID else None)
 
-	def getChildAt(self, pos):
-		return self._childrenLayout.getObjectAt(pos)
+	def getChildAt(self, place):
+		return self._childrenLayout.getObjectAt(place)
 
 	def getAllChildren(self):
 		return self._childrenLayout.getAllObjects()
 
-	def getAllChildrenWithPos(self):
-		return self._childrenLayout.getAllObjectsWithPos()
+	def getAllChildrenWithPlace(self):
+		return self._childrenLayout.getAllObjectsPlaceTuple()
 
 	def addChild(self, object):
-		if not object:
-			raise ValueError("Child to add must be a GameObject, child=" + str(object))
+		if not isinstance(object, GameObject):
+			raise TypeError("Child to add must be a GameObject, child=" + str(object))
 		if object._parent:
 			raise ValueError("Object must not already have a parent when being added to a parent.")
 		if not self._childrenLayout.addObject(object):
@@ -287,19 +287,19 @@ class GameObject():
 			object._uiUpdateFull()
 		return True
 
-	def addChildAt(self, pos, object):
-		if not object:
-			raise ValueError("Child to add must be a GameObject, child=" + str(object))
-		res,prevChild = self.setChildAt(pos, object, allowReplace=False)
+	def addChildAt(self, place, object):
+		if not isinstance(object, GameObject):
+			raise TypeError("Child to add must be a GameObject, child=" + str(object))
+		res,prevChild = self.setChildAt(place, object, allowReplace=False)
 		assert(prevChild == None)
 		return res
 
-	def setChildAt(self, pos, object, allowReplace=True): 
-		if object != None and not object:
-			raise ValueError("Object passed to setChildAt must be either a None or a GameObject, child=" + str(object))
+	def setChildAt(self, place, object, allowReplace=True): 
+		if not (object == None or isinstance(object, GameObject)):
+			raise TypeError("Object passed to setChildAt must be either a None or a GameObject, child=" + str(object))
 		if object and object._parent:
 			raise ValueError("Object passed to setChildAt must not already have a parent.")
-		res,prevObject = self._childrenLayout.setObjectAt(pos, object, allowReplace)
+		res,prevObject = self._childrenLayout.setObjectAt(place, object, allowReplace)
 		if prevObject:
 			prevObject._parent = None
 			if "visible" in prevObject._flags:
@@ -310,16 +310,16 @@ class GameObject():
 				object._uiUpdateFull()
 		return res,prevObject
 
-	def removeChild(self, div):
-		""" param div can be either GameObject or divID (str) """
-		if isinstance(div, GameObject):
-			object = div
-		elif isinstance(div, str):
-			object = self.getChild(div)
+	def removeChild(self, arg):
+		""" param arg can be either GameObject or divID (str) """
+		if isinstance(arg, GameObject):
+			object = arg
+		elif isinstance(arg, str):
+			object = self.getChild(arg)
 			if not object:
 				return False
 		else:
-			raise ValueError("div argument passed to removeChild must be a GameObject or a string divID, child=" + str(div))
+			raise TypeError('"arg" argument passed to removeChild must be a GameObject or a string divID, child=' + str(arg))
 		if not self._childrenLayout.removeObject(object):
 			return False
 		object._parent = None
@@ -327,9 +327,9 @@ class GameObject():
 			object._uiUpdateFull()
 		return True
 
-	def removeChildAt(self, pos):
+	def removeChildAt(self, place):
 		""" returns the object that was removed, otherwise None """
-		object = self._childrenLayout.removeObjectAt(pos)
+		object = self._childrenLayout.removeObjectAt(place)
 		if object:
 			object._parent = None
 			if "visible" in object._flags:
@@ -338,7 +338,7 @@ class GameObject():
 
 	def removeAllChildren(self, visitFunc=None):
 		"""
-		Calls visitFunc(pos, object) for each removed child (if visitFunc is non-None)
+		Calls visitFunc(place, object) for each removed child (if visitFunc is non-None)
 		returns number of children removed
 		"""
 		return self._childrenLayout.removeAllObjects(visitFunc=visitFunc)
@@ -346,7 +346,7 @@ class GameObject():
 	# ------------ visiting ------------
 
 	def visitChildren(self, visitFunc):
-		return self._childrenLayout.visitObjectsReduce(lambda pos, object, prevRes: visitFunc(pos, object))
+		return self._childrenLayout.visitObjectsReduce(lambda place, object, prevRes: visitFunc(place, object))
 
 	def visitChildrenReduce(self, visitFunc, initRes=None):
 		return self._childrenLayout.visitObjectsReduce(visitFunc, initRes)
@@ -356,42 +356,41 @@ class GameObject():
 
 	# ------------ stack ------------
 
-	def inStackOf(self, object):
+	def inStackOf(self, arg):
 		"""
-		Argument object must be a gameObject or a divID
-		returns True if self is object or if self is in stack of object
+		Parameter arg must be a GameObject or the divID of the GameObject
+		returns True if self is the object or if self is in stack of the object
 		"""
-		if (self is object) or (self.getDivID() == object):
+		if (self is arg) or (self.getDivID() == arg):
 			return True
 		if not self._parent:
 			return False
-		return self._parent.inStackOf(object)
-		#return object.getStackCoordinatesFor(self) != None
+		return self._parent.inStackOf(arg)
 
-	def getStackCoordinatesFor(self, object):
+	def getStackCoordinatesFor(self, arg):
 		"""
-		Argument object can either be a GameObject or the divID for a GameObject
-		returns the stack coordinates for object realtive to self (if object is self [] is returned)
+		Parameter arg can either be a GameObject or the divID of the GameObject
+		returns the stack coordinates for the object realtive to self (if the object is self then [] is returned)
 		"""
-		if self is object or self.getDivID() == object:
+		if self is arg or self.getDivID() == arg:
 			return []
-		def visitFunc(pos, child, prevRes):
+		def visitFunc(place, child, prevRes):
 			if prevRes:
 				return prevRes
-			res = child.getStackCoordinatesFor(object)
-			return [pos] + res if res != None else None
+			res = child.getStackCoordinatesFor(arg)
+			return [place] + res if res != None else None
 		return self.visitChildrenReduce(visitFunc, None)
 
 	def getStackObject(self, divID):
 		if self.getDivID() == divID:
 			return self
-		return self.visitChildrenShortcut(lambda pos, child: child.getStackObject(divID))
+		return self.visitChildrenShortcut(lambda place, child: child.getStackObject(divID))
 
 	def getStackObjectAt(self, stackCoordinates: list):
 		if len(stackCoordinates) == 0:
 			return self
-		pos = stackCoordinates[0]
-		child = self.getChildAt(pos) if pos else self.getFirstChild()
+		place = stackCoordinates[0]
+		child = self.getChildAt(place) if place else self.getFirstChild()
 		if child:
 			return child.getStackObjectAt(stackCoordinates[1:])
 		return None

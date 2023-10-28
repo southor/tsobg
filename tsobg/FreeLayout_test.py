@@ -21,7 +21,7 @@ class FreeLayout_test(unittest.TestCase):
 		for i,obj in enumerate(objs):
 			self.assertTrue(fl.hasObject(obj))
 			self.assertTrue(fl.getObjectAt(i) is obj)
-			self.assertEqual(fl.getObjectPos(obj), i)
+			self.assertEqual(fl.getObjectPlace(obj), i)
 		self.assertTrue(fl.getFirstObject() is objs[0])
 		self.assertEqual(fl.getNObjects(), nObjects)
 		return objs
@@ -49,9 +49,9 @@ class FreeLayout_test(unittest.TestCase):
 		objs[1] = GameObject(uiInterface, "newObj1")
 		fl.addObject(objs[1])
 		self.assertEqual(fl.getNObjects(), 4)
-		self.assertEqual(fl.getObjectPos(objs[1]), 1)
+		self.assertEqual(fl.getObjectPlace(objs[1]), 1)
 		self.assertTrue(fl.hasObject(objs[1]))
-		self.assertEqual(fl.getObjectPos(objs[3]), None)
+		self.assertEqual(fl.getObjectPlace(objs[3]), None)
 		# test getFirstObject method
 		self.assertTrue(fl.getFirstObject() is objs[0])
 		self.assertTrue(fl.getFirstObject() is objs[0])
@@ -96,8 +96,8 @@ class FreeLayout_test(unittest.TestCase):
 		self.assertEqual(fl.setObjectAt(2, newObj2), (True, newObj2)) # replacing itself
 		self.assertFalse(fl.hasObject(objs[2]))
 		self.assertTrue(fl.hasObject(newObj2))
-		self.assertEqual(fl.getObjectPos(objs[2]), None)
-		self.assertEqual(fl.getObjectPos(newObj2), 2)
+		self.assertEqual(fl.getObjectPlace(objs[2]), None)
+		self.assertEqual(fl.getObjectPlace(newObj2), 2)
 		self.assertEqual(fl.getNObjects(), 3)
 		self.assertEqual(fl.setObjectAt(1, None), (True, objs[1])) # removing object
 		self.assertEqual(fl.setObjectAt(1, None), (False, None)) # no object was removed (should return False)

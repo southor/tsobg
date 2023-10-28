@@ -27,7 +27,7 @@ class FreeLayout(Layout):
 	def hasObject(self, object):
 		return object in self.items
 	
-	def getObjectPos(self, object):
+	def getObjectPlace(self, object):
 		try:
 			return self.items.index(object)
 		except:
@@ -53,9 +53,8 @@ class FreeLayout(Layout):
 		#return item
 
 	def getObjectAt(self, index):
-		#if not (colN == None and rowN == None):
-		#	raise ValueError("Passed incorrect arguments to FreeLayout.getObjectAt. arguments = {}, {}" + str(colN) + str(rowN))
-		#return self.getFirstObject()
+		if not isinstance(index, int):
+			raise TypeError("getObjectAt index must be an integer, was {}".format(type(index)))
 		try:
 			return self.items[index]
 		except:
@@ -72,20 +71,22 @@ class FreeLayout(Layout):
 		self.nItems += 1
 		return True
 
-	def setObjectAt(self, pos, object, allowReplace=True):
+	def setObjectAt(self, index, object, allowReplace=True):
+		if not isinstance(index, int):
+			raise TypeError("setObjectAt index must be an integer, was {}".format(type(index)))
 		nCells = len(self.items)
 		isFull = self.isFull()
 		# extend array if needed
-		if pos >= nCells:
-			# pos is beyond the allocated array
+		if index >= nCells:
+			# index is beyond the allocated array
 			if (not object) or isFull:
 				return False,None
 			# object is a GameObject that is allowed to be added
 			# extend the array
-			nNew = pos + 1 - nCells
+			nNew = index + 1 - nCells
 			self.items.extend([None * nNew])
 		# get prevItem
-		prevItem = self.items[pos]
+		prevItem = self.items[index]
 		# update nItems member
 		if object:
 			if prevItem:
@@ -102,7 +103,7 @@ class FreeLayout(Layout):
 			self.nItems -= 1
 			assert(self.nItems >= 0)
 		# write to the cell
-		self.items[pos] = object	
+		self.items[index] = object	
 		return True,prevItem
 
 	def removeObject(self, object):
