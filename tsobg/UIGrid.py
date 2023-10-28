@@ -167,7 +167,6 @@ class UIGrid():
 			return gridPos if cell is item else None
 		return self.visitCellsShortcut(visitCell)
 
-
 	def getFirstFreeGridPos(self):
 		""" For the first ockupied cell found, return the grid position otherwise None """
 		for rowN,row in enumerate(self.rows):

@@ -74,7 +74,7 @@ class GameObject():
 		self._layoutPos = ("auto", "auto")
 		# _divPositioning member will automatically be used with set_div if parent is a div id, but will be ignored if parent is another GameObject (in which case absolute is used instead)
 		self._divPositioning = kwargs.get("divPositioning", "static")
-		self._layout = kwargs.get("layout", FreeLayout())
+		self._childrenLayout = kwargs.get("childrenLayout", FreeLayout())
 		parent = kwargs.get("parent", None)
 		if parent:
 			parent.addChild(self)
@@ -87,10 +87,11 @@ class GameObject():
 	def getParent(self):
 		return self._parent
 
-	def getLayoutType(self):
-		return type(self._layout)
+	def getChildrenLayoutType(self):
+		return type(self._childrenLayout)
 
 	def getLayoutPos(self):
+		""" Returns the position as set by the parents childrenLayout object. """
 		return self._layoutPos
 
 	def getFlags(self):
@@ -147,6 +148,7 @@ class GameObject():
 				self._uiUpdateFull()
 
 	def setLayoutPos(self, layoutPos):
+		""" Used by the parents childrenLayout object to set the position based on the layout. """
 		self._layoutPos = layoutPos
 		self._uiUpdatePos()
 
@@ -213,16 +215,16 @@ class GameObject():
 	# ------------ children ------------
 
 	def getNRows(self):
-		return self._layout.getNRows()
+		return self._childrenLayout.getNRows()
 
 	def getNColumns(self):
-		return self._layout.getNColumns()
+		return self._childrenLayout.getNColumns()
 
 	def getGridSize(self):
-		return self._layout.getGridSize()
+		return self._childrenLayout.getGridSize()
 
 	def getNChildren(self):
-		return self._layout.getNObjects()
+		return self._childrenLayout.getNObjects()
 
 	def hasChild(self, div):
 		""" Div can be either GameObject or divID (str) """
@@ -235,9 +237,9 @@ class GameObject():
 			raise ValueError("div argument passed to hasChild must be a GameObject or a string divID, child=" + str(div))
 		res = object._parent is self
 		if res:
-			assert(self._layout.hasObject(object))
+			assert(self._childrenLayout.hasObject(object))
 		else:
-			assert(not self._layout.hasObject(object))
+			assert(not self._childrenLayout.hasObject(object))
 		return res
 
 	def getChildCellPos(self, div):
@@ -250,10 +252,10 @@ class GameObject():
 				return None
 		else:
 			raise ValueError("div argument passed to getChildCellPos must be a GameObject or a string divID, child=" + str(div))
-		return self._layout.getObjectPos(object)
+		return self._childrenLayout.getObjectPos(object)
 
 	def getFirstChild(self, remove=False):
-		object = self._layout.getFirstObject(remove)
+		object = self._childrenLayout.getFirstObject(remove)
 		if object and remove:
 			object._parent = None
 			if "visible" in object._flags:
@@ -265,20 +267,20 @@ class GameObject():
 		return self.visitChildrenShortcut(lambda pos, child: child if child.getDivID() == divID else None)
 
 	def getChildAt(self, pos):
-		return self._layout.getObjectAt(pos)
+		return self._childrenLayout.getObjectAt(pos)
 
 	def getAllChildren(self):
-		return self._layout.getAllObjects()
+		return self._childrenLayout.getAllObjects()
 
 	def getAllChildrenWithPos(self):
-		return self._layout.getAllObjectsWithPos()
+		return self._childrenLayout.getAllObjectsWithPos()
 
 	def addChild(self, object):
 		if not object:
 			raise ValueError("Child to add must be a GameObject, child=" + str(object))
 		if object._parent:
 			raise ValueError("Object must not already have a parent when being added to a parent.")
-		if not self._layout.addObject(object):
+		if not self._childrenLayout.addObject(object):
 			return False
 		object._parent = self
 		if "visible" in object._flags:
@@ -297,7 +299,7 @@ class GameObject():
 			raise ValueError("Object passed to setChildAt must be either a None or a GameObject, child=" + str(object))
 		if object and object._parent:
 			raise ValueError("Object passed to setChildAt must not already have a parent.")
-		res,prevObject = self._layout.setObjectAt(pos, object, allowReplace)
+		res,prevObject = self._childrenLayout.setObjectAt(pos, object, allowReplace)
 		if prevObject:
 			prevObject._parent = None
 			if "visible" in prevObject._flags:
@@ -318,7 +320,7 @@ class GameObject():
 				return False
 		else:
 			raise ValueError("div argument passed to removeChild must be a GameObject or a string divID, child=" + str(div))
-		if not self._layout.removeObject(object):
+		if not self._childrenLayout.removeObject(object):
 			return False
 		object._parent = None
 		if "visible" in object._flags:
@@ -327,7 +329,7 @@ class GameObject():
 
 	def removeChildAt(self, pos):
 		""" returns the object that was removed, otherwise None """
-		object = self._layout.removeObjectAt(pos)
+		object = self._childrenLayout.removeObjectAt(pos)
 		if object:
 			object._parent = None
 			if "visible" in object._flags:
@@ -339,18 +341,18 @@ class GameObject():
 		Calls visitFunc(pos, object) for each removed child (if visitFunc is non-None)
 		returns number of children removed
 		"""
-		return self._layout.removeAllObjects(visitFunc=visitFunc)
+		return self._childrenLayout.removeAllObjects(visitFunc=visitFunc)
 
 	# ------------ visiting ------------
 
 	def visitChildren(self, visitFunc):
-		return self._layout.visitObjectsReduce(lambda pos, object, prevRes: visitFunc(pos, object))
+		return self._childrenLayout.visitObjectsReduce(lambda pos, object, prevRes: visitFunc(pos, object))
 
 	def visitChildrenReduce(self, visitFunc, initRes=None):
-		return self._layout.visitObjectsReduce(visitFunc, initRes)
+		return self._childrenLayout.visitObjectsReduce(visitFunc, initRes)
 
 	def visitChildrenShortcut(self, visitFunc, failRes=None):
-		return self._layout.visitObjectsShortcut(visitFunc, failRes)
+		return self._childrenLayout.visitObjectsShortcut(visitFunc, failRes)
 
 	# ------------ stack ------------
 
