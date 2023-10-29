@@ -72,12 +72,12 @@ class GameObject():
 		if "size" in kwargs:
 			self.setSize(kwargs["size"])
 		self._layoutPos = ("auto", "auto")
-		# _divPositioning member will automatically be used with set_div if parent is a div id, but will be ignored if parent is another GameObject (in which case absolute is used instead)
+		# _divPositioning member will automatically be used with set_div if parent is a divID, but will be ignored if parent is another GameObject (in which case absolute is used instead)
 		self._divPositioning = kwargs.get("divPositioning", "static")
 		self._childrenLayout = kwargs.get("childrenLayout", FreeLayout())
 		parent = kwargs.get("parent", None)
 		if parent:
-			parent.addChild(self)
+			self.setParent(parent)
 		else:
 			self._uiUpdateFull()
 
@@ -132,7 +132,7 @@ class GameObject():
 		if self._parent is parent:
 			return
 		if not (isinstance(parent, GameObject) or isinstance(parent, str) or parent == None):
-			raise Error("parent of {} must be either a GameObjcet, string, or None. parent={}".format(self.divID, str(parent)[:50]))
+			raise TypeError("parent of {} must be either a GameObjcet, string, or None. parent={}".format(self.divID, str(parent)[:50]))
 		if isinstance(self._parent, GameObject):
 			self._parent.removeChild(self)
 		assert(self._parent == None)
@@ -356,16 +356,19 @@ class GameObject():
 
 	# ------------ stack ------------
 
-	def inStackOf(self, arg):
+	def inStackOf(self, arg) -> bool:
 		"""
 		Parameter arg must be a GameObject or the divID of the GameObject
 		returns True if self is the object or if self is in stack of the object
 		"""
 		if (self is arg) or (self.getDivID() == arg):
 			return True
-		if not self._parent:
-			return False
-		return self._parent.inStackOf(arg)
+		if isinstance(self._parent, GameObject):
+			return self._parent.inStackOf(arg)
+		if isinstance(arg, GameObject) or isinstance(arg, str):
+			return arg == self._parent
+		else:
+			raise TypeError('"arg" argument passed to removeChild must be a GameObject or a string divID, child=' + str(arg))
 
 	def getStackCoordinatesFor(self, arg):
 		"""

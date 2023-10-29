@@ -168,6 +168,17 @@ class GameObject_test(unittest.TestCase):
 		self.assertEqual(p.getNChildren(), 0)
 		self.assertEqual(c.getNChildren(), 1)
 
+	def _testInitWithParent(self):
+		uiInterface = UIInterface()
+		c = GameObject(uiInterface, "child", parent="game_area")
+		gc = GameObject(uiInterface, "grand_child", parent=c)
+		self.assertEqual(c.getParent(), "game_area")
+		self.assertEqual(gc.getParent(), c)
+		self.assertTrue(c.inStackOf("game_area"))
+		self.assertTrue(gc.inStackOf(c))
+		self.assertTrue(gc.inStackOf("game_area"))
+		self.assertFalse(c.inStackOf(gc))
+
 	def _testMoveToNewParent(self):
 		uiInterface = UIInterface()
 		p1 = GameObject(uiInterface, "parent1", size=(20, 20), childrenLayout=GridLayout((5, 5), (5, 5)))
@@ -210,4 +221,5 @@ class GameObject_test(unittest.TestCase):
 		self._testFlags()
 		self._testChildren()
 		self._testGrandchild()
+		self._testInitWithParent()
 		self._testMoveToNewParent()
