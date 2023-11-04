@@ -45,6 +45,9 @@ class PlayerArea(CardGrid):
 		self.uiInterface.stageUIChange(("set_div", textDivID, {"text":str(amount)}))
 
 	def addCard(self, card:Card):
-		return super().addCard(card, {"selectable":True})
+		#return super().addCard(card, {"selectable":True})
+		return super().addCard(card)
 
+	def removeCard(self, card:Card):
+		return super().removeCard(card)
 

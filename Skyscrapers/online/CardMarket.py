@@ -20,9 +20,6 @@ class CardMarket(CardGrid):
 		for card in allCards:
 			self.cardDict[card.id] = card
 	
-	def _lookupCardId(self, cardId):
-		return self.cardDict[cardId]
-	
 	def __init__(self, uiInterface:UIInterface):
 		super().__init__(uiInterface, "card_market", (5, 3))
 		uiInterface.stageUIChange(("set_div", "card_market", {"parent": "center"}))
@@ -34,13 +31,17 @@ class CardMarket(CardGrid):
 		nMissingCards = self.getNSpaces() - self.nCards()
 		newCards = self.deck.draw(nMissingCards)
 		for card in newCards:
-			actionObj = {"receiver":"Skyscrapers", "args":("take_card", card.id, "ia")}
+			actionObj = {"receiver":"Skyscrapers", "args":("take_card", card.id)}
 			self.addCard(card, {"onClick":actionObj})
 
-	def removeCard(self, cardId) -> Card:
+	def lookupCardId(self, cardId):
+		return self.cardDict[cardId]
+
+	def takeCard(self, cardId) -> Card:
 		""" If card exists it is removed and returned. otherwise None is returned. """
-		card = self._lookupCardId(cardId)
-		if super().removeCard(card, {"onClick":None}):
+		card = self.lookupCardId(cardId)
+		actionObj = {"receiver":"Skyscrapers", "args":("use_card", card.id)}
+		if super().removeCard(card, {"onClick":actionObj}):
 			return card
 		else:
 			return None

@@ -142,7 +142,7 @@ class SkyscrapersGame(GameInterface, ActionReceiver):
 	def tryAction(self, *args, playerId=None, **kwargs):
 		gameHasStarted = hasattr(self, "playerIDs")
 		action = args[0]
-		if action not in ["take_card"]:
+		if action not in ["take_card", "use_card"]:
 			self.gameManager.sendMessageToPlayer(("error", "Unknown action: " + str(args)), playerId)
 			return False
 		if not gameHasStarted:
@@ -154,8 +154,11 @@ class SkyscrapersGame(GameInterface, ActionReceiver):
 				return False
 		if self.gamePhase == "cards_phase" and action == "take_card":
 			return self._actionTakeCard(args[1])
+		elif self.gamePhase == "cards_phase" and action == "use_card":
+			return self._actionUseCard(args[1])
 		else:
 			self.gameManager.sendMessageToPlayer(("info", "Action {} not allowed in the {} phase.".format(action, self.gamePhase)), playerId)
+			return False
 			
 
 	# --------------- Setup / Action Methods ---------------
@@ -191,7 +194,7 @@ class SkyscrapersGame(GameInterface, ActionReceiver):
 		if playerArea.nFreeSpaces() == 0:
 			self.gameManager.sendMessageToPlayer(("info", "Cannot take card, player area is full!"), self.getCurrentPlayerID())
 			return False
-		card = self.cardMarket.removeCard(cardId)
+		card = self.cardMarket.takeCard(cardId)
 		if card:
 			playerArea.addCard(card)
 			self.gameManager.stageLogEntry(self.getCurrentPlayerName() + " took " + cardId)
@@ -199,6 +202,18 @@ class SkyscrapersGame(GameInterface, ActionReceiver):
 			return True
 		else:
 			self.gameManager.sendMessageToPlayer(("error", "card " + cardId + " could not be taken, does not exist in the market!"), self.getCurrentPlayerID())
+			return False
+
+	def _actionUseCard(self, cardId):
+		playerArea = self.getCurrentPlayerArea()
+		card = self.cardMarket.lookupCardId(cardId)
+		if playerArea.removeCard(card):
+			# TODO: use card / apply card effect
+			self.gameManager.stageLogEntry(self.getCurrentPlayerName() + " used " + cardId)
+			self.nextPlayer()
+			return True
+		else:
+			self.gameManager.sendMessageToPlayer(("error", "card " + cardId + " could not be taken, does not exist in the player area!"), self.getCurrentPlayerID())
 			return False
 		
 		
