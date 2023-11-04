@@ -20,9 +20,11 @@ class UIGrid_test(unittest.TestCase):
 		self.assertEqual(grid.addItem("pig"), (20, 0))
 		self.assertEqual(grid.getNItems(), 3)
 		self.assertEqual(grid.getMaxNItems(), 6)
+		self.assertEqual(grid.getFirstFreeGridPos(), (0, 1))
 		self.assertEqual(grid.addItem("horse"), (0, 10))
 		self.assertEqual(grid.addItem("chicken"), (10, 10))
 		self.assertEqual(grid.isFull(), False)
+		self.assertEqual(grid.getFirstFreeGridPos(), (2, 1))
 		self.assertEqual(grid.addItem("dog"), (20, 10))
 		self.assertEqual(grid.getNItems(), 6)
 		self.assertEqual(grid.getMaxNItems(), 6)
@@ -36,6 +38,7 @@ class UIGrid_test(unittest.TestCase):
 		self.assertTrue(grid.removeItem("cow"))
 		self.assertEqual(grid.getNItems(), 5)
 		self.assertEqual(grid.isFull(), False)
+		self.assertEqual(grid.getFirstFreeGridPos(), (1, 0))
 		self.assertFalse(grid.removeItem("cow"))
 		self.assertEqual(grid.getNItems(), 5)
 		self.assertTrue(grid.removeItem("pig"))
@@ -107,10 +110,63 @@ class UIGrid_test(unittest.TestCase):
 		self.assertEqual(grid.getNItems(), 3)
 		self.assertEqual(grid.getItemAt((3, 4)), None)
 		self.assertEqual(grid.getItemAt((4, 4)), "bob")
+
+	def testGridPos(self):
+		grid = UIGrid((2,3), (5, 5)) # grid size (2,3)
+		with self.assertRaises(ValueError):
+			grid.validateGridPos((-1, 0))
+		with self.assertRaises(ValueError):
+			grid.validateGridPos((0, -1))
+		grid.validateGridPos((0, 0))
+		grid.validateGridPos((1, 0))
+		grid.validateGridPos((0, 2))
+		grid.validateGridPos((1, 2))
+		with self.assertRaises(ValueError):
+			grid.validateGridPos((2, 0))
+		with self.assertRaises(ValueError):
+			grid.validateGridPos((0, 3))
+		with self.assertRaises(ValueError):
+			grid.validateGridPos((2, 3))
+		
+		self.assertEqual(grid.nextGridPos((0, 0)), (1, 0))
+		self.assertEqual(grid.nextGridPos((1, 0)), (0, 1))
+		self.assertEqual(grid.nextGridPos((0, 1)), (1, 1))
+		self.assertEqual(grid.nextGridPos((1, 1)), (0, 2))
+		self.assertEqual(grid.nextGridPos((0, 2)), (1, 2))
+		self.assertEqual(grid.nextGridPos((1, 2)), None)
+
+		gridPos = (0, 0)
+		self.assertEqual(grid.getNColumns() * grid.getNRows(), 6)
+		for i in range(5): # iterate all cells except last one
+			prevGridPos = gridPos
+			gridPos = grid.nextGridPos(gridPos)
+			self.assertEqual(prevGridPos, grid.prevGridPos(gridPos))
+		self.assertEqual(grid.nextGridPos(gridPos), None) # check that it was indeed last
+
+	def testCollapse(self):
+		grid = UIGrid((2,3), (5, 5)) # grid size (2,3)
+		grid.setItemAt((0,0), "A")
+		grid.setItemAt((0,1), "B")
+		grid.setItemAt((1,1), "C")
+		grid.setItemAt((1,2), "D")
+		self.assertEqual(grid.getNItems(), 4)
+		self.assertEqual(grid.getFirstFreeGridPos(), (1,0))
+		self.assertEqual(grid.getFirstTakenGridPos(), (0,0))
+		movedItemsTuples = grid.collapse()
+		self.assertEqual(grid.getNItems(), 4)
+		self.assertEqual(movedItemsTuples, [("B",(5, 0)), ("C",(0, 5)), ("D",(5, 5))])
+		self.assertEqual(grid.getItemAt((0,0)), "A")
+		self.assertEqual(grid.getItemAt((1,0)), "B")
+		self.assertEqual(grid.getItemAt((0,1)), "C")
+		self.assertEqual(grid.getItemAt((1,1)), "D")
+		self.assertEqual(grid.getFirstFreeGridPos(), (0,2))
+		self.assertEqual(grid.getFirstTakenGridPos(), (0,0))
 		
 	def runTest(self):
+		self.testGridPos()
 		self.testWithAutoPos()
 		self.testWithManualPos()
+		self.testCollapse()
 
 if __name__ == '__main__':
 	unittest.main()

@@ -272,7 +272,7 @@ class GameObject():
 	def getAllChildren(self):
 		return self._childrenLayout.getAllObjects()
 
-	def getAllChildrenWithPlace(self):
+	def getAllChildrenPlaceTuple(self):
 		return self._childrenLayout.getAllObjectsPlaceTuple()
 
 	def addChild(self, object):

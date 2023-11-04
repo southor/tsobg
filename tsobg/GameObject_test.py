@@ -84,7 +84,7 @@ class GameObject_test(unittest.TestCase):
 		self.assertFalse(p.getChild("child00"))
 		self.assertTrue(p.getFirstChild() is c10)
 		self.assertEqual([c.getDivID() for c in p.getAllChildren()], ["child10", "child01", "child11"])
-		self.assertEqual([p for p,c in p.getAllChildrenWithPlace()], [(1,0), (0,1), (1,1)])
+		self.assertEqual([p for p,c in p.getAllChildrenPlaceTuple()], [(1,0), (0,1), (1,1)])
 		# test replacing children
 		c01new = GameObject(uiInterface, "child01", size=(30,30)) # new child with the same divID as the previous one
 		self.assertEqual(p.setChildAt((0,1), c01new, allowReplace=False), (False,c01))

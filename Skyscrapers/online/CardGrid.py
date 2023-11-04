@@ -33,6 +33,7 @@ class CardGrid():
 					cardSize[1] + CardGrid.cellPadding)
 		maxNCards = kwargs.get("maxNCards", gridSpaces[0] * gridSpaces[1])
 		self.grid = UIGrid(gridSpaces, cellSize, uiOffsetPos=uiOffsetPos, maxNItems=maxNCards, autoGrow="rows")
+		self.autoCollapse = kwargs.get("autoCollapse", False)
 		#surfaceSize = (uiOffsetPos[0] + gridSpaces[0] * cellSize[0], # width
 		#				uiOffsetPos[1] + gridSpaces[1] * cellSize[1]) # height
 		#surfaceSize = self.grid.getCurrentUISize()
@@ -47,6 +48,11 @@ class CardGrid():
 
 	def nFreeSpaces(self):
 		return self.grid.getMaxNItems() - self.grid.getNItems()
+
+	def collapse(self):
+		movedCardsTuples = self.grid.collapse()
+		for card,uiPos in movedCardsTuples:
+			card.setDiv(self.uiInterface, pos=uiPos)
 
 	def addCard(self, card:Card, extraDivOpts:dict = {}):
 		""" 
@@ -64,6 +70,8 @@ class CardGrid():
 
 	def removeCard(self, card:Card, extraDivOpts:dict = {}):
 		if self.grid.removeItem(card):
+			if self.autoCollapse:
+				self.collapse()
 			divOpts = {**{"parent":None}, **extraDivOpts}
 			card.setDiv(self.uiInterface, **divOpts)
 			return True

@@ -121,6 +121,32 @@ class UIGrid():
 			self.growFlag = False
 		return res
 
+	def validateGridPos(self, gridPos):
+		colN,rowN = gridPos
+		if colN < 0 or rowN < 0:
+			raise ValueError("Invalid gridPos (negative value): " + str(gridPos))
+		if colN >= self.nColumns or rowN >= self.nRows:
+			if not self._growTo(gridPos):
+				raise ValueError("gridPos ({}) outside current limits ({})".format(gridPos, (self.nColumns, self.nRows)))
+
+	def nextGridPos(self, gridPos):
+		self.validateGridPos(gridPos)
+		colN,rowN = gridPos
+		if colN == self.nColumns-1:
+			if rowN == self.nRows-1:
+				return None
+			return (0, rowN + 1)
+		return (colN+1, rowN)
+
+	def prevGridPos(self, gridPos):
+		self.validateGridPos(gridPos)
+		colN,rowN = gridPos
+		if colN == 0:
+			if rowN == 0:
+				return None
+			return (self.nColumns-1, rowN - 1)
+		return (colN-1, rowN)
+
 	# returns ui position (pixelX, pixelY)
 	def getCellUIPos(self, gridPos):
 		x = self.uiOffsetPos[0] + gridPos[0] * self.uiCellSize[0]
@@ -167,12 +193,28 @@ class UIGrid():
 			return gridPos if cell is item else None
 		return self.visitCellsShortcut(visitCell)
 
-	def getFirstFreeGridPos(self):
-		""" For the first ockupied cell found, return the grid position otherwise None """
-		for rowN,row in enumerate(self.rows):
-			for colN,cell in enumerate(row):
-				if cell == None:
+	def getFirstFreeGridPos(self, startGridPos=(0,0)):
+		""" For the first unockupied cell found return the grid position, otherwise None """
+		colN,rowN = startGridPos
+		while rowN < self.nRows:
+			while colN < self.nColumns:
+				if self.rows[rowN][colN] == None:
 					return (colN,rowN)
+				colN += 1
+			colN = 0
+			rowN += 1
+		return None
+
+	def getFirstTakenGridPos(self, startGridPos=(0,0)):
+		""" For the first ockupied cell found return the grid position, otherwise None """
+		colN,rowN = startGridPos
+		while rowN < self.nRows:
+			while colN < self.nColumns:
+				if self.rows[rowN][colN] != None:
+					return (colN,rowN)
+				colN += 1
+			colN = 0
+			rowN += 1
 		return None
 	
 	def getFirstItem(self, remove=False):
@@ -241,13 +283,8 @@ class UIGrid():
 				The item is added to the cell.
 				Returns (uiPos,None)
 		"""
+		self.validateGridPos(gridPos)
 		colN,rowN = gridPos
-
-		if colN < 0 or rowN < 0:
-			raise ValueError("Invalid gridPos (negative value): " + gridPos)
-		if colN >= self.nColumns or rowN >= self.nRows:
-			if not self._growTo(gridPos):
-				raise ValueError("gridPos ({}) outside current limits ({})".format(gridPos, (self.nColumns, self.nRows)))
 		uiPos = self.getCellUIPos(gridPos)
 		#row = self.rows[rowN]
 		prevItem = self.rows[rowN][colN]
@@ -307,3 +344,28 @@ class UIGrid():
 			for pos,item in removedRes:
 				visitFunc(pos, item)
 		return len(removedRes)
+
+	def swap(self, gridPosA, gridPosB):
+		self.validateGridPos(gridPosA)
+		self.validateGridPos(gridPosB)
+		itemA = self.rows[gridPosA[1]][gridPosA[0]]
+		itemB = self.rows[gridPosB[1]][gridPosB[0]]
+		self.rows[gridPosA[1]][gridPosA[0]] = itemB
+		self.rows[gridPosB[1]][gridPosB[0]] = itemA
+
+	def collapse(self, startGridPos=(0, 0)):
+		"""
+		returns the list of tuples (item,uiPos) of all the new locations
+		"""
+		res = [] # to collect moved item,uiPos tuples
+		curFree = startGridPos
+		while True:
+			curFree = self.getFirstFreeGridPos(curFree)
+			curTaken = self.getFirstTakenGridPos(curFree)
+			if curFree and curTaken:
+				# move item in curTaken to curFree and append that item with its uiPos
+				self.swap(curFree, curTaken)
+				res.append((self.getItemAt(curFree), self.getCellUIPos(curFree)))
+			else:
+				break
+		return res
