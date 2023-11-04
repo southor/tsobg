@@ -196,6 +196,8 @@ class UIGrid():
 		returns ui position of the cell that was taken.
 		return None if no free space exists
 		"""
+		if item == None:
+			raise ValueError("Item to add must not be None, item=" + str(item))
 		if self.isFull():
 			return None
 		gridPos = self.getFirstFreeGridPos()
@@ -230,7 +232,7 @@ class UIGrid():
 			If we have reached max number of items (as set by maxNItems kwarg):
 				Returns (None,None)
 			Else If cell contains an item:
-				If allowReplace =0 True
+				If allowReplace == True
 					The item is replaced.
 					Returns (uiPos,removedItem)
 				Else
