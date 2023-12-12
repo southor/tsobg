@@ -224,6 +224,9 @@
     <Compile Include="tsobg\GridLayout.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="tsobg\GridLayout_test.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="tsobg\Layout.py">
       <SubType>Code</SubType>
     </Compile>

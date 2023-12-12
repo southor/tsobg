@@ -91,6 +91,14 @@ class UIGrid():
 		self.growFlag = kwargs.get("growFlag", False)
 		self._initCells()
 
+	def toStr(self, itemStrFunc):
+		res = "UIGrid[\n"
+		for row in self.rows:
+			rowRes = ["None" if cell==None else itemStrFunc(cell) for cell in row]
+			res += "    [{}]\n".format(", ".join(rowRes))
+		res += "]"
+		return res
+
 	def getMaxNItems(self):
 		return self.maxNItems
 
@@ -153,32 +161,45 @@ class UIGrid():
 		y = self.uiOffsetPos[1] + gridPos[1] * self.uiCellSize[1]
 		return x,y
 
-	def visitCellsReduce(self, visitFunc, initRes=None, visitOnlyOccupied=False):
+	def visitCellsReduce(self, visitFunc, initRes=None, **kwargs):
 		"""
 		Visits all the cells in the grid and calls visitFunc((colN,rowN), cell, previousRes)
 		previousRes contains the return value from the previous visitorFunc call.
 		For the first cell the "previousRes" argument will be set to the value of the "initRes" argument.
 		Returns the return value of the last visitFunc call.
+		kwargs: startGridPos=(0,0), visitOnlyOccupied=False
 		"""
+		startCellN,startRowN = kwargs.get("startGridPos", (0,0))
+		visitOnlyOccupied = kwargs.get("visitOnlyOccupied", False)
 		res = initRes
-		for rowN,row in enumerate(self.rows):
-				for colN,cell in enumerate(row):
-					if cell != None or not visitOnlyOccupied:
-						res = visitFunc((colN,rowN), cell, res)
+		for rowN in range(startRowN, self.nRows):
+			row = self.rows[rowN]
+			for colN in range(startCellN, self.nColumns):
+				cell = row[colN]
+				if cell != None or not visitOnlyOccupied:
+					res = visitFunc((colN,rowN), cell, res)
+			startCellN = 0
 		return res
 
-	def visitCellsShortcut(self, visitFunc, failRes=None, visitOnlyOccupied=False):
+	def visitCellsShortcut(self, visitFunc, failRes=None, **kwargs):
 		"""
 		Visits all the cells in the grid and calls visitFunc((colN,rowN), cell)
-		If the return value of a visitFunc call evaluates to True the iteration will stop and the value is returned.
-		If all return values evaluates to False then failRes is returned.
+		If the return value of one of the visitFunc calls is not None the iteration will stop and the value is returned.
+		Note that any value other than None will stop iteration, including other falsy values.
+		If all return values are None then all cells will be visited and failRes is returned.
+		kwargs: startGridPos=(0,0), visitOnlyOccupied=False
 		"""
-		for rowN,row in enumerate(self.rows):
-				for colN,cell in enumerate(row):
-					if cell != None or not visitOnlyOccupied:
-						res = visitFunc((colN,rowN), cell)
-						if res:
-							return res
+		startCellN,startRowN = kwargs.get("startGridPos", (0,0))
+		visitOnlyOccupied = kwargs.get("visitOnlyOccupied", False)
+		for rowN in range(startRowN, self.nRows):
+			row = self.rows[rowN]
+			for colN in range(startCellN, self.nColumns):
+				cell = row[colN]
+				if cell != None or not visitOnlyOccupied:
+					res = visitFunc((colN,rowN), cell)
+					if res != None:
+						return res
+			startCellN = 0
 		return failRes
 
 
@@ -194,31 +215,25 @@ class UIGrid():
 		return self.visitCellsShortcut(visitCell)
 
 	def getFirstFreeGridPos(self, startGridPos=(0,0)):
-		""" For the first unockupied cell found return the grid position, otherwise None """
-		colN,rowN = startGridPos
-		while rowN < self.nRows:
-			while colN < self.nColumns:
-				if self.rows[rowN][colN] == None:
-					return (colN,rowN)
-				colN += 1
-			colN = 0
-			rowN += 1
-		return None
+		""" For the first unoccupied cell found return the grid position, otherwise None """
+		def visitCell(gridPos, cell):
+			return gridPos if cell == None else None
+		return self.visitCellsShortcut(visitCell, startGridPos=startGridPos)
 
 	def getFirstTakenGridPos(self, startGridPos=(0,0)):
-		""" For the first ockupied cell found return the grid position, otherwise None """
-		colN,rowN = startGridPos
-		while rowN < self.nRows:
-			while colN < self.nColumns:
-				if self.rows[rowN][colN] != None:
-					return (colN,rowN)
-				colN += 1
-			colN = 0
-			rowN += 1
-		return None
+		""" For the first occupied cell found return the grid position, otherwise None """
+		#for row in self.rows:
+		#	try:
+		#		printRow = [cell.getDivID() for cell in row]
+		#	except AttributeError:
+		#		printRow = [cell for cell in row]
+		#	print(printRow)
+		def visitCell(gridPos, cell):
+			return gridPos if cell != None else None
+		return self.visitCellsShortcut(visitCell, startGridPos=startGridPos)
 	
 	def getFirstItem(self, remove=False):
-		""" For the first ockupied cell found, return the item there, otherwise None """
+		""" For the first occupied cell found, return the tuple of (gridPos, item), otherwise None """
 		res = self.visitCellsShortcut(lambda gridPos, cell: (gridPos, cell) if cell else None)
 		if not res:
 			return None
@@ -346,12 +361,24 @@ class UIGrid():
 		return len(removedRes)
 
 	def swap(self, gridPosA, gridPosB):
+		"""
+		Returns a list of tuples of all objects that were moved, for example: [(item,uiPos), (item,uiPos)]
+		Number of items in this list depends on how many of the two cells are occupied, zero, one or two cells.
+		If both cells are occupied then the first tuple corresponds to gridPosA and second tuple corresponds to gridPosB
+		as of the state of the cells AFTER the swap.
+		"""
 		self.validateGridPos(gridPosA)
 		self.validateGridPos(gridPosB)
 		itemA = self.rows[gridPosA[1]][gridPosA[0]]
 		itemB = self.rows[gridPosB[1]][gridPosB[0]]
 		self.rows[gridPosA[1]][gridPosA[0]] = itemB
 		self.rows[gridPosB[1]][gridPosB[0]] = itemA
+		res = []
+		if itemB:
+			res.append((itemB, self.getCellUIPos(gridPosA)))
+		if itemA:
+			res.append((itemA, self.getCellUIPos(gridPosB)))
+		return res
 
 	def collapse(self, startGridPos=(0, 0)):
 		"""

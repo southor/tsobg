@@ -22,6 +22,14 @@ class Layout():
 	def getObjectPlace(self, object):
 		raise NotImplementedError("getObjectPlace(self, object)")
 
+	def getFirstFreePlace(self, startPlace=None):
+		""" For the first unoccupied cell found return the place, otherwise None """
+		raise NotImplementedError("getFirstFreePlace(self, startPlace)")
+
+	def getFirstTakenPlace(self, startPlace=None):
+		""" For the first unoccupied cell found return the place, otherwise None """
+		raise NotImplementedError("getFirstTakenPlace(self, startPlace)")
+
 	def getFirstObject(self, remove=False):
 		raise NotImplementedError("getFirstObject(self, remove=False)")
 
@@ -79,11 +87,31 @@ class Layout():
 		returns number of objects removed
 		"""
 		raise NotImplementedError("removeAllObjects(self)")
+
+	def swap(self, placeA, placeB):
+		raise NotImplementedError("swap(self, placeA, placeB)")
+
+	def collapse(self, startPlace=None):
+		raise NotImplementedError("collapse(self, startPlace)")
 	
-	def visitCellsReduce(self, visitFunc, initRes=None, visitOnlyOccupied=False):
+	def visitCellsReduce(self, visitFunc, initRes=None, **kwargs):
+		""" 
+		Visits all the cells and calls visitFunc(place, cell, previousRes)
+		previousRes contains the return value from the previous visitorFunc call.
+		For the first cell the "previousRes" argument will be set to the value of the "initRes" argument.
+		Returns the return value of the last visitFunc call.
+		kwargs: "startPlace" default value is first Cell, visitOnlyOccupied=False
+		"""
 		raise NotImplementedError("visitCellsReduce(self, visitFunc, initRes=None)")
 
-	def visitCellsShortcut(self, visitFunc, failValue=None, visitOnlyOccupied=False):
+	def visitCellsShortcut(self, visitFunc, failRes=None, **kwargs):
+		"""
+		Visits all the cells and calls visitFunc(place, cell)
+		If the return value of one of the visitFunc calls is not None the iteration will stop and the value is returned.
+		Note that any value other than None will stop iteration, including other falsy values.
+		If all return values are None then all cells will be visited and failRes is returned.
+		kwargs: "startPlace" default value is first Cell, visitOnlyOccupied=False
+		"""
 		raise NotImplementedError("visitCellsShortcut(self, visitFunc, failValue=None)")
 
 	def visitObjectsReduce(self, visitFunc, initRes=None):

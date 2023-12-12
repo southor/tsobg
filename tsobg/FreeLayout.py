@@ -8,6 +8,10 @@ class FreeLayout(Layout):
 		self.nItems = 0
 		self.maxNItems = maxNItems
 
+	def __str__(self):
+		res = [item.getDivID() if item else "None" for item in self.items]
+		return "FreeLayout[{}]".format(", ".join(res))
+
 	def getNRows(self):
 		return None
 
@@ -24,6 +28,10 @@ class FreeLayout(Layout):
 	def isFull(self):
 		return self.nItems >= self.maxNItems
 
+	def verifyIndexType(value, methodName, paramName="index"):
+		if not isinstance(value, int):
+			raise TypeError("{} {} must be an integer, was {}".format(methodName, paramName, type(value)))
+
 	def hasObject(self, object):
 		return object in self.items
 	
@@ -32,6 +40,20 @@ class FreeLayout(Layout):
 			return self.items.index(object)
 		except:
 			return None
+
+	def getFirstFreePlace(self, startIndex=0):
+		FreeLayout.verifyIndexType(value, "getFirstFreePlace(self, startIndex)", "startIndex")
+		try:
+			return self.items(element).index(None)
+		except:
+			return None
+
+	def getFirstTakenPlace(self, startIndex=0):
+		FreeLayout.verifyIndexType(value, "getFirstTakenPlace(self, startIndex)", "startIndex")
+		for i in range(startIndex, self.nItems):
+			if self.items[i] != None:
+				return i
+		return None
 
 	def getFirstObject(self, remove=False):
 		idx = None
@@ -53,8 +75,7 @@ class FreeLayout(Layout):
 		#return item
 
 	def getObjectAt(self, index):
-		if not isinstance(index, int):
-			raise TypeError("getObjectAt index must be an integer, was {}".format(type(index)))
+		FreeLayout.verifyIndexType(index, "getObjectAt(self, index)")
 		try:
 			return self.items[index]
 		except:
@@ -72,8 +93,7 @@ class FreeLayout(Layout):
 		return True
 
 	def setObjectAt(self, index, object, allowReplace=True):
-		if not isinstance(index, int):
-			raise TypeError("setObjectAt index must be an integer, was {}".format(type(index)))
+		FreeLayout.verifyIndexType(index, "setObjectAt")
 		nCells = len(self.items)
 		isFull = self.isFull()
 		# extend array if needed
@@ -133,17 +153,47 @@ class FreeLayout(Layout):
 				visitFunc(i, object)
 		return nRemoved
 
-	def visitCellsReduce(self, visitFunc, initRes=None, visitOnlyOccupied=False):
+	def swap(self, placeA, placeB):
+		FreeLayout.verifyIndexType(placeA, "swap(self, placeA, placeB)", "placeA")
+		FreeLayout.verifyIndexType(placeB, "swap(self, placeA, placeB)", "placeB")
+		objectA = self.items[placeA]
+		objectB = self.items[placeB]
+		self.items[placeA] = objectB
+		self.items[placeB] = objectA
+
+	def collapse(self, startIndex=0):
+		""" returns a list of objects that was moved """
+		FreeLayout.verifyIndexType(startIndex, "collapse(self, startIndex)", "startIndex")
+		res = []
+		curFree = startIndex
+		while True:
+			curFree = self.getFirstFreePlace(curFree)
+			curTaken = self.getFirstTakenPlace(curFree)
+			if curFree and curTaken:
+				self.swap(curFree, curTaken)
+				res.append(self.getObjectAt(curFree))
+			else:
+				break
+		return res
+
+	def visitCellsReduce(self, visitFunc, initRes=None, **kwargs):
+		startPlace = kwargs.get("startPlace", 0)
+		visitOnlyOccupied = kwargs.get("visitOnlyOccupied", False)
+		FreeLayout.verifyIndexType(startPlace, "FreeLayout visitCellsReduce", "startPlace")
 		res = initRes
-		for i,cell in enumerate(self.items):
+		for i,cell in enumerate(self.items, startPlace):
 			if cell or not visitOnlyOccupied:
 				res = visitFunc(i, cell, res)
 		return res
 
-	def visitCellsShortcut(self, visitFunc, failValue=None, visitOnlyOccupied=False):
-		for i,cell in enumerate(self.items):
+	def visitCellsShortcut(self, visitFunc, failValue=None, **kwargs):
+		startPlace = kwargs.get("startPlace", 0)
+		visitOnlyOccupied = kwargs.get("visitOnlyOccupied", False)
+		FreeLayout.verifyIndexType(startPlace, "FreeLayout visitCellsShortcut", "startPlace")
+		for i in range(startPlace, self.nItems):
+			cell = self.items[i]
 			if cell or not visitOnlyOccupied:
 				res = visitFunc(i, cell)
-				if res:
+				if res != None:
 					return res
 		return failValue

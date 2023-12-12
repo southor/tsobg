@@ -9,8 +9,8 @@ from .GameObject import GameObject
 
 class FreeLayout_test(unittest.TestCase):
 
-	def _fillLayout(self, uiInterface, freelayout, nObjects):
-		fl = freelayout
+	def _fillLayout(self, uiInterface, freeLayout, nObjects):
+		fl = freeLayout
 		self.assertEqual(fl.getNObjects(), 0)
 		self.assertEqual(fl.getFirstObject(), None)
 		objs = [GameObject(uiInterface, "obj" + str(i)) for i in range(nObjects)]

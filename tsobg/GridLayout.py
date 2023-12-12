@@ -9,6 +9,9 @@ class GridLayout(Layout):
 					**kwargs):
 		self.grid = UIGrid(nColsRows, uiCellSize, **kwargs)
 
+	def __str__(self):
+		return self.grid.toStr(lambda obj: obj.getDivID())
+
 	def getNRows(self):
 		return self.grid.getNRows()
 
@@ -29,6 +32,12 @@ class GridLayout(Layout):
 
 	def getObjectPlace(self, object):
 		return self.grid.getItemGridPos(object)
+
+	def getFirstFreePlace(self, startGridPos=(0,0)):
+		return self.grid.getFirstFreeGridPos(startGridPos)
+
+	def getFirstTakenPlace(self, startGridPos=(0,0)):
+		return self.grid.getFirstTakenGridPos(startGridPos)
 
 	def getFirstObject(self, remove=False):
 		return self.grid.getFirstItem(remove)
@@ -74,9 +83,23 @@ class GridLayout(Layout):
 				visitFunc(place, obj)
 		return self.grid.removeAllItems(visitFunc=layoutPosResetter)
 
-	def visitCellsReduce(self, visitFunc, initRes=None, visitOnlyOccupied=False):
-		return self.grid.visitCellsReduce(visitFunc, initRes, visitOnlyOccupied=visitOnlyOccupied)
+	def swap(self, placeA, placeB):
+		res = self.grid.swap(placeA, placeB)
+		for object,uiPos in res:
+			object.setLayoutPos(uiPos)
 
-	def visitCellsShortcut(self, visitFunc, failRes=None, visitOnlyOccupied=False):
-		return self.grid.visitCellsShortcut(visitFunc, failRes, visitOnlyOccupied=visitOnlyOccupied)
+	def collapse(self, startGridPos=(0, 0)):
+		""" returns a list of objects that was moved """
+		movedObjectsTuples = self.grid.collapse(startGridPos)
+		res = []
+		for object,uiPos in movedObjectsTuples:
+			object.setLayoutPos(uiPos)
+			res.append(object)
+		return res
+
+	def visitCellsReduce(self, visitFunc, initRes=None, **kwargs):
+		return self.grid.visitCellsReduce(visitFunc, initRes, **kwargs)
+
+	def visitCellsShortcut(self, visitFunc, failRes=None, **kwargs):
+		return self.grid.visitCellsShortcut(visitFunc, failRes, **kwargs)
 
