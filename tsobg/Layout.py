@@ -1,5 +1,30 @@
 
 class Layout():
+	
+	def _sumUICoords(*args):
+		res = "auto"
+		for arg in args:
+			if arg != "auto":
+				if res == "auto":
+					res = arg
+				else:
+					res += arg
+		return res
+
+	def _getEffectiveUIPos(self, uiPos = ("auto", "auto")):
+		return (Layout._sumUICoords(uiPos[0], self.padding[0]),
+				Layout._sumUICoords(uiPos[1], self.padding[1]))
+	
+	def checkPadding(padding):
+		if (type(padding) not in (list, tuple)) or (len(padding) != 2):
+			raise ValueError("padding should be a list or tuple with 2 number members")
+	
+	def __init__(self, **kwargs):
+		self.padding = kwargs.get("padding", ("auto", "auto"))
+		Layout.checkPadding(self.padding)
+	
+	def getPadding():
+		return self.padding
 
 	def getNRows(self):
 		raise NotImplementedError("getNRows(self)")

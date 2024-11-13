@@ -216,6 +216,34 @@ class GameObject_test(unittest.TestCase):
 		# remove child by divID
 		p2.removeChild(obj.getDivID())
 		self.assertFalse(p2.hasChild(obj))
+		
+	def _testChangeParentBetweenTypes(self):
+		uiInterface = UIInterface()
+		p1 = GameObject(uiInterface, "parent1", size=(20, 20), childrenLayout=FreeLayout())
+		pStr1 = "str_parent1"
+		pStr2 = "str_parent2"
+		obj = GameObject(uiInterface, "obj1", size=(5, 5))
+		self.assertEqual(obj.getParent(), None)
+		obj.setParent(pStr1)
+		self.assertEqual(obj.getParent(), pStr1)
+		obj.setParent(p1)
+		self.assertEqual(obj.getParent(), p1)
+		self.assertTrue(p1.hasChild(obj))
+		obj.setParent(pStr1)
+		self.assertEqual(obj.getParent(), pStr1)
+		self.assertFalse(p1.hasChild(obj))
+		obj.setParent(pStr2)
+		self.assertEqual(obj.getParent(), pStr2)
+		obj.setParent(None)
+		self.assertEqual(obj.getParent(), None)
+		obj.setParent(pStr1)
+		self.assertEqual(obj.getParent(), pStr1)
+		obj.setParent(None)
+		self.assertEqual(obj.getParent(), None)
+		obj.setParent(p1)
+		self.assertEqual(obj.getParent(), p1)
+		obj.setParent(None)
+		self.assertEqual(obj.getParent(), None)
 
 	def runTest(self):
 		self._testFlags()
@@ -223,3 +251,4 @@ class GameObject_test(unittest.TestCase):
 		self._testGrandchild()
 		self._testInitWithParent()
 		self._testMoveToNewParent()
+		self._testChangeParentBetweenTypes()

@@ -131,21 +131,26 @@ class GameObject():
 		"""parent must be either a GameObject, string divID or None"""
 		if self._parent is parent:
 			return
-		if not (isinstance(parent, GameObject) or isinstance(parent, str) or parent == None):
-			raise TypeError("parent of {} must be either a GameObjcet, string, or None. parent={}".format(self.divID, str(parent)[:50]))
 		if isinstance(self._parent, GameObject):
 			self._parent.removeChild(self)
+		elif isinstance(self._parent, str):
+			self._parent = None
+		elif self._parent == None:
+			pass
+		else:
+			raise TypeError("parent of {} must be either a GameObjcet, string, or None. parent={}".format(self.divID, str(parent)[:50]))
 		assert(self._parent == None)
+		# set new parent
 		if isinstance(parent, GameObject):
 			if place:
 				parent.setChildAt(place, self, allowReplace)
 			else:
 				parent.addChild(self)
-		else:
-			assert(isinstance(parent, str))
+			return
+		if isinstance(parent, str):
 			self._parent = parent
-			if "visible" in self._flags:
-				self._uiUpdateFull()
+		if "visible" in self._flags:
+			self._uiUpdateFull()
 
 	def setLayoutPos(self, layoutPos):
 		""" Used by the parents childrenLayout object to set the position based on the layout. """
@@ -211,6 +216,7 @@ class GameObject():
 		self.setWidth(size[0])
 		self.setHeight(size[1])
 		self._uiUpdatePos()
+	
 
 	# ------------ children ------------
 

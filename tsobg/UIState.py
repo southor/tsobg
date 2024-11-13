@@ -96,7 +96,7 @@ def combineUIChanges(uiChangeA, uiChangeB):
 	elif commandA == "nop":
 		return uiChangeB
 	else:
-		raise RuntimeException("Unknown command: {}".format(commandA))
+		raise RuntimeError("Unknown command: {}".format(commandA))
 
 class UIState():
     

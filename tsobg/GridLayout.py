@@ -3,10 +3,15 @@ from .UIGrid import UIGrid
 
 class GridLayout(Layout):
 	
+	
+	def _setMemberLayoutPos(self, object, uiPos):
+		object.setLayoutPos(self._getEffectiveUIPos(uiPos))
+	
 	def __init__(self,
 					nColsRows: tuple,
 					uiCellSize: tuple,
 					**kwargs):
+		super().__init__(**kwargs)
 		self.grid = UIGrid(nColsRows, uiCellSize, **kwargs)
 
 	def __str__(self):
@@ -49,7 +54,7 @@ class GridLayout(Layout):
 		uiPos = self.grid.addItem(object)
 		if not uiPos:
 			return False
-		object.setLayoutPos(uiPos)
+		self._setMemberLayoutPos(object, uiPos)
 		return True
 	
 	def setObjectAt(self, gridPos, object, allowReplace=True):
@@ -60,7 +65,7 @@ class GridLayout(Layout):
 		if prevObject:
 			prevObject.setLayoutPos(("auto", "auto"))
 		if object:
-			object.setLayoutPos(uiPos)
+			self._setMemberLayoutPos(object, uiPos)
 		return True,prevObject
 
 	def removeObject(self, object):
@@ -86,14 +91,14 @@ class GridLayout(Layout):
 	def swap(self, placeA, placeB):
 		res = self.grid.swap(placeA, placeB)
 		for object,uiPos in res:
-			object.setLayoutPos(uiPos)
+			self._setMemberLayoutPos(object, uiPos)
 
 	def collapse(self, startGridPos=(0, 0)):
 		""" returns a list of objects that was moved """
 		movedObjectsTuples = self.grid.collapse(startGridPos)
 		res = []
 		for object,uiPos in movedObjectsTuples:
-			object.setLayoutPos(uiPos)
+			self._setMemberLayoutPos(object, uiPos)
 			res.append(object)
 		return res
 

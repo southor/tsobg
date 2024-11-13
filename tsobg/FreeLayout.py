@@ -3,10 +3,11 @@ from .Layout import Layout
 
 class FreeLayout(Layout):
 	
-	def __init__(self, maxNItems=float('inf')):
+	def __init__(self, **kwargs):
+		super().__init__(**kwargs)
 		self.items = []
 		self.nItems = 0
-		self.maxNItems = maxNItems
+		self.maxNItems = kwargs.get("maxNItems", float('inf'))
 
 	def __str__(self):
 		res = [item.getDivID() if item else "None" for item in self.items]
@@ -123,7 +124,12 @@ class FreeLayout(Layout):
 			self.nItems -= 1
 			assert(self.nItems >= 0)
 		# write to the cell
-		self.items[index] = object	
+		self.items[index] = object
+		# update layoutPos and return
+		if object:
+			object.setLayoutPos(self._getEffectiveUIPos())
+		if prevItem:
+			prevItem.setLayoutPos(("auto", "auto"))
 		return True,prevItem
 
 	def removeObject(self, object):
@@ -132,6 +138,7 @@ class FreeLayout(Layout):
 			assert(self.nItems >= 1)
 			self.items[idx] = None
 			self.nItems -= 1
+			object.setLayoutPos(("auto", "auto"))
 			return True
 		except:
 			return False
@@ -142,6 +149,7 @@ class FreeLayout(Layout):
 		for i,cell in enumerate(self.items):
 			if not cell:
 				continue
+			cell.setLayoutPos(("auto", "auto"))
 			self.items[i] = None
 			nRemoved += 1
 			if visitFunc:

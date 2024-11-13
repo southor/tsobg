@@ -34,7 +34,7 @@ class GameManager(UIInterface, ActionReceiver):
 		msgEntries = self.clientMsgs.get(playerId, [])
 		if msgEntries:
 			self.clientMsgs[playerId] = []
-		return [("msg",) + m for m in msgEntries]
+		return [m for m in msgEntries]
 
 	def _getLogEntries(self, fromStateN, toStateN):
 		logEntries = self.gameLog.getLogEntries(fromStateN, toStateN)
@@ -171,21 +171,27 @@ class GameManager(UIInterface, ActionReceiver):
 		return False
 
 	# ----------------- Client Message methods -----------------
+
+	def sendSpecialToPlayer(self, specialMsg, playerID):
+		self.clientMsgs[playerID].append(specialMsg)
 	
 	def sendMessageToPlayer(self, msgEntry, playerID):
 		""" msgEntry: tuple (level, text) or just text """
 		if isinstance(msgEntry, str):
 			msgEntry = ("info", msgEntry)
+		msgEntry = ("msg",) + msgEntry
 		self.clientMsgs[playerID].append(msgEntry)
 
 	def sendMessageToPlayers(self, msgEntry, playerIDs = None):
 		""" msgEntry: tuple (level, text) or just text """
 		if isinstance(msgEntry, str):
 			msgEntry = ("info", msgEntry)
+		msgEntry = ("msg",) + msgEntry
 		if not playerIDs:
 			playerIDs = self.clientMsgs.keys() # get all players
 		for p in playerIDs:
 			self.clientMsgs[p].append(msgEntry)
+		
 
 	# ----------------- Game Log Methods (All players) -----------------
 

@@ -33,20 +33,17 @@ function stopEventPropagation(e) {
 /**
  * @return true if object is then selected, false otehrwise
  */
-function toggleDivSelected(divId) {
+function changeDivSelected(divId, selected) {
+	selectedIds = getSelectedIds();	
+	isSelected = selectedIds.has(divId);
+	if (selected == "toggle") {
+		selected = ! isSelected;
+	} else if ((selected && isSelected) || (!isSelected && !selected)) {
+		// already in desired selected state
+		return isSelected
+	}
 	highlightDivId = divId + "_highlight";
-	selectedIds = getSelectedIds();
-	if (selectedIds.has(divId)) {
-		// deselect it
-		selectedIds.delete(divId);
-		if (getDiv(highlightDivId)) {
-			setDiv(highlightDivId, {parent: null});
-			console.log("highlight off");
-		} else {
-			console.log("highlight was never created in the first place");
-		}
-		return false;
-	} else {
+	if (selected) {
 		// select it
 		if ( ! getDiv(highlightDivId)) {
 			// highlight div needs setup
@@ -60,6 +57,31 @@ function toggleDivSelected(divId) {
 		selectedIds.add(divId);
 		console.log("highlight on");
 		return true;
+	} else {
+		// deselect it
+		selectedIds.delete(divId);
+		if (getDiv(highlightDivId)) {
+			setDiv(highlightDivId, {parent: null});
+			console.log("highlight off");
+		} else {
+			console.log("highlight was never created in the first place");
+		}
+		return false;
+	} 
+}
+
+
+/**
+ * @return true if object is then selected, false otherwise
+ */
+function toggleDivSelected(divId) {
+	return changeDivSelected(divId, "toggle")
+}
+
+function deselectAll() {
+	for (const divId of getSelectedIds()) {
+		res = changeDivSelected(divId, false);
+		console.assert(res === false);
 	}
 }
 
@@ -111,13 +133,10 @@ function resolvedActionObj(actionObj, divId, isSelected, mousePos) {
 	kwargs.playerId = playerId
 	kwargs.divId = divId;
 	kwargs.isSelected = isSelected;
-	kwargs.allSelected = getSelectedIds();
+	kwargs.allSelected = [...getSelectedIds()]; // convert set to list (otherwise not jsonable)
 	for (let i=0; i<args.length; ++i) {
 		args[i] = resolvedArg(args[i], kwargs);
 	}
-	//for (key in Object.keys(kwargs)) {
-	//	kwargs[key] = resolvedArg(args[key]);
-	//}
 	kwargs.mousePos = mousePos;
 	return {"receiver":actionReceiver, "args":args, "kwargs":kwargs}; // return a new actionObj
 }

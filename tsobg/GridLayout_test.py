@@ -112,10 +112,21 @@ class GridLayout_test(unittest.TestCase):
 		objs += [None] * 4 # we will traverse 4 empty cells at the end
 		self._verifyVisitReduce(gl, (1, 1), placeVerifies[4:], objs[4:])
 
+	def _testPadding(self, uiInterface):
+		gl = GridLayout((3,5), (10,5), padding=(4,4))
+		self._fillLayout(uiInterface, gl, 14)
+		self.assertEqual(gl.getNObjects(), 14)
+		obj = gl.getObjectAt((1,2))
+		obj.setPos((1, 2))
+		self.assertEqual(obj.getEffectivePos(), (15, 16))
+		obj = gl.getObjectAt((1,3))
+		self.assertEqual(obj.getEffectivePos(), (14, 19))
+
 	def runTest(self):
 		uiInterface = UIInterface()
 		self._testOccupied(uiInterface)
 		self._testVisit(uiInterface)
+		self._testPadding(uiInterface)
 
 
 		

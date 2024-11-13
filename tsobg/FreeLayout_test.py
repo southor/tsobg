@@ -89,7 +89,7 @@ class FreeLayout_test(unittest.TestCase):
 		
 	def _testSetObjectAt(self, uiInterface):
 		""" Test setObjectAt with limited maxNItems """
-		fl = FreeLayout(5)
+		fl = FreeLayout(maxNItems=5)
 		objs = self._fillLayout(uiInterface, fl, 3) # fill up with 3 (so is room for 2 more)
 		newObj2 = GameObject(uiInterface, "newObj2")
 		self.assertEqual(fl.setObjectAt(2, newObj2), (True, objs[2])) # replacing existing
