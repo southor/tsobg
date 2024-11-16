@@ -1,17 +1,107 @@
 
 var selectedIds = null;
+var maxNDivSelected = 1000;
 
 function getSelectedIds() {
 	if (selectedIds === null) {
-		selectedIds = new Set();
+		//selectedIds = new Set();
+		selectedIds = [];
 	}
 	return selectedIds;
 }
 
 function isSelected(divId) {
 	selectedIds = getSelectedIds();
-	return selectedIds.has(divId);
+	//return selectedIds.has(divId);
+	return selectedIds.includes(divId);
 }
+
+function setDivHighlightOn(divId) {
+	highlightDivId = divId + "_highlight";
+	if ( ! getDiv(highlightDivId)) {
+		// highlight div needs setup
+		div = getDiv(divId, false);
+		highlightOpts = {parent: divId, divPositioning: "absolute", left: "0px", top: "0px", width: div.clientWidth, height: div.clientHeight, border: "solid", borderColor: "red"};
+	} else {
+		// highlight div already setup
+		highlightOpts = {parent: divId};
+	}
+	setDiv(highlightDivId, highlightOpts);
+}
+
+function setDivHighlightOff(divId) {
+	highlightDivId = divId + "_highlight";
+	if (getDiv(highlightDivId)) {
+		setDiv(highlightDivId, {parent: null});
+		console.log("highlight off");
+	} else {
+		console.log("highlight was never created in the first place");
+	}
+}
+
+function clearExtraSelected() {
+	selectedIds = getSelectedIds();
+	while (selectedIds.length > maxNDivSelected) {
+		// deselect the oldest
+		const oldestDivId = selectedIds.shift();
+		setDivHighlightOff(oldestDivId);
+	}
+}
+
+function setMaxNDivSelected(n) {
+	maxNDivSelected = n;
+	clearExtraSelected();
+}
+
+/**
+ * @return true if object is then selected, false otherwise
+ */
+function changeDivSelected(divId, select) {
+	selectedIds = getSelectedIds();
+	console.assert(maxNDivSelected >= 0)
+	console.assert(selectedIds.length <= maxNDivSelected)
+	//isSelected = selectedIds.includes(divId);
+	const selectedIdx = selectedIds.indexOf(divId);
+	const isSelected = selectedIdx >= 0;
+	if (select == "toggle") {
+		select = ! isSelected;
+	} else if ((select && isSelected) || (!isSelected && !select)) {
+		// already in desired selected state
+		return isSelected
+	}
+	if (select) {
+		if (maxNDivSelected == 0) {
+			return false;
+		}
+		// select it
+		setDivHighlightOn(divId);
+		//selectedIds.add(divId);
+		selectedIds.push(divId);
+		clearExtraSelected();
+		return true;
+	} else {
+		// deselect it
+		//selectedIds.delete(divId);
+		selectedIds.splice(selectedIdx, 1);
+		setDivHighlightOff(divId);
+		return false;
+	} 
+}
+
+/**
+ * @return true if object is then selected, false otherwise
+ */
+function toggleDivSelected(divId) {
+	return changeDivSelected(divId, "toggle")
+}
+
+function deselectAllDivs() {
+	for (const divId of getSelectedIds()) {
+		res = changeDivSelected(divId, false);
+		console.assert(res === false);
+	}
+}
+
 
 function getDivChildElement(div, tag) {
 	const arr = div.getElementsByTagName(tag);
@@ -27,61 +117,6 @@ function stopEventPropagation(e) {
 		errorStr = "Browser does not support stopPropagation function nor cancelBubble attribute."
 		log("error", errorStr);
 		alert("Error! " + errorStr);
-	}
-}
-
-/**
- * @return true if object is then selected, false otehrwise
- */
-function changeDivSelected(divId, selected) {
-	selectedIds = getSelectedIds();	
-	isSelected = selectedIds.has(divId);
-	if (selected == "toggle") {
-		selected = ! isSelected;
-	} else if ((selected && isSelected) || (!isSelected && !selected)) {
-		// already in desired selected state
-		return isSelected
-	}
-	highlightDivId = divId + "_highlight";
-	if (selected) {
-		// select it
-		if ( ! getDiv(highlightDivId)) {
-			// highlight div needs setup
-			div = getDiv(divId, false);
-			highlightOpts = {parent: divId, divPositioning: "absolute", left: "0px", top: "0px", width: div.clientWidth, height: div.clientHeight, border: "solid", borderColor: "red"};
-		} else {
-			// highlight div already setup
-			highlightOpts = {parent: divId};
-		}
-		setDiv(highlightDivId, highlightOpts);
-		selectedIds.add(divId);
-		console.log("highlight on");
-		return true;
-	} else {
-		// deselect it
-		selectedIds.delete(divId);
-		if (getDiv(highlightDivId)) {
-			setDiv(highlightDivId, {parent: null});
-			console.log("highlight off");
-		} else {
-			console.log("highlight was never created in the first place");
-		}
-		return false;
-	} 
-}
-
-
-/**
- * @return true if object is then selected, false otherwise
- */
-function toggleDivSelected(divId) {
-	return changeDivSelected(divId, "toggle")
-}
-
-function deselectAll() {
-	for (const divId of getSelectedIds()) {
-		res = changeDivSelected(divId, false);
-		console.assert(res === false);
 	}
 }
 

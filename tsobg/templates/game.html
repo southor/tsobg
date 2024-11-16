@@ -78,7 +78,7 @@
 	// ------------------ response callback functions ------------------
 
 	function unknownDataError(data, context) {
-		log("error", "Received unknown data in " + context + ": ", data);
+		console.log("error", "Received unknown data in " + context + ": ", data);
 		alert("Error! Received unknown data in " + context + ", see log.");
 	}
 
@@ -99,8 +99,10 @@
 						}
 					} else if (uData[0] === "set_div") {
 						setDiv(uData[1], uData[2], sendAction);
-					} else if (uData[0] === "deselect_all") {
-						deselectAll();
+					} else if (uData[0] === "set_max_num_div_selected") {
+						setMaxNDivSelected(uData[1]);
+					} else if (uData[0] === "deselect_all_divs") {
+						deselectAllDivs();
 					} else if (uData[0] === "msg") {
 						level = uData[1];
 						text = uData[2];

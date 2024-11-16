@@ -172,9 +172,21 @@ class GameManager(UIInterface, ActionReceiver):
 
 	# ----------------- Client Message methods -----------------
 
-	def sendSpecialToPlayer(self, specialMsg, playerID):
+	def _sendSpecialToPlayer(self, specialMsg, playerID):
 		self.clientMsgs[playerID].append(specialMsg)
-	
+		
+	def _sendSpecialToPlayers(self, specialMsg, playerIDs = None):
+		if not playerIDs:
+			playerIDs = self.clientMsgs.keys() # get all players
+		for p in playerIDs:
+			self.clientMsgs[p].append(specialMsg)
+		
+	def playerDeselectAllDivs(self, playerID):
+		self._sendSpecialToPlayer(("deselect_all_divs",), playerID)
+
+	def playersDeselectAllDivs(self, playerIDs = None):
+		self._sendSpecialToPlayers(("deselect_all_divs",), playerIDs)
+			
 	def sendMessageToPlayer(self, msgEntry, playerID):
 		""" msgEntry: tuple (level, text) or just text """
 		if isinstance(msgEntry, str):

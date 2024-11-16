@@ -2,22 +2,22 @@
 from .actions import encodeActionObj, encodeActionObjs
 
 
-def _sizeToCSSpxComponents(size):
+def _sizeToWidthHeight(size):
 	""" Converts size object containing width/height numbers representing number of pixels or "auto".
 	returns tuple with the two strings containing either "auto" or a number with a "px" postfix """
 	x = "auto"
 	y = "auto"
 	if (type(size) in [tuple, list]):
 		if (len(size) < 2):
-			raise RuntimeError("pos/size property has too few elements: " + str(size))
+			raise ValueError("pos/size property has too few elements: " + str(size))
 		x = size[0]
 		y = size[1]
 	elif (size != "auto"):
-		raise RuntimeError("Unknown pos/size property: " + str(size))
+		raise ValueError("Unknown pos/size property: " + str(size))
 	return (x, y)
 
 """ Function for converting "pos" attributes doing exactly the same as the other function """
-_posToCSSpxComponents = _sizeToCSSpxComponents
+_posToCSSLeftTop = _sizeToWidthHeight
 
 def _deAliasUIChange(uiChange, isMutable=False):
 	""" Replaces uiChange alias properties like "pos" and "size" with "left","right" and "width","height".
@@ -34,13 +34,13 @@ def _deAliasUIChange(uiChange, isMutable=False):
 		return uiChange, True
 	newOpts = opts if isMutable else opts.copy()
 	if hasPos:
-		left,top = _posToCSSpxComponents(newOpts.pop("pos"))
+		left,top = _posToCSSLeftTop(newOpts.pop("pos"))
 		assert(type(left) in [int, float, str])
 		assert(type(top) in [int, float, str])
 		newOpts["left"] = left
 		newOpts["top"] = top
 	if hasSize:
-		width,height = _sizeToCSSpxComponents(newOpts.pop("size"))
+		width,height = _sizeToWidthHeight(newOpts.pop("size"))
 		assert(type(width) in [int, float, str])
 		assert(type(height) in [int, float, str])
 		newOpts["width"] = width
@@ -81,22 +81,28 @@ def combineUIChanges(uiChangeA, uiChangeB):
 	"""
 	commandA = uiChangeA[0]
 	commandB = uiChangeB[0]
-	if commandA == "set_div":
-		if commandB == "set_div":
-			id = uiChangeA[1]
-			if uiChangeB[1] != id:
-				return None
-			opts = uiChangeA[2].copy()
-			opts.update(uiChangeB[2])
-			return ("set_div", id, opts)
-		elif commandB == "nop":
-			return uiChangeA
-		else:
-			raise RuntimeError("Unknown command: {}".format(commandB))
-	elif commandA == "nop":
+	# trivial cases with nop
+	if commandA == "nop":
 		return uiChangeB
+	elif commandB == "nop":
+		return uiChangeA
+	# other cases that cannot be combined unless of the same type
+	if commandA not in ["set_div", "set_max_num_div_selected"]:
+		raise ValueError("Unknown command: {}".format(commandA))
+	if commandA != commandB:
+		return None
+	if commandA == "set_div":
+		id = uiChangeA[1]
+		if uiChangeB[1] != id:
+			return None
+		opts = uiChangeA[2].copy()
+		opts.update(uiChangeB[2])
+		return ("set_div", id, opts)
+	elif commandA == "set_max_num_div_selected":
+		return commandB
 	else:
-		raise RuntimeError("Unknown command: {}".format(commandA))
+		assert(False) # we already made sure commandA is one of the above
+		raise ValueError("Unknown command: {}".format(commandA))
 
 class UIState():
     
@@ -135,6 +141,7 @@ class UIState():
 	#}
 		
 	def __init__(self, divs = {}):
+		self.maxNDivSelected = 1000
 		self.divs = divs
 
 	def __eq__(self, other):
@@ -161,10 +168,15 @@ class UIState():
 				return ("nop")
 			else:
 				return ("set_div", id, prunedOpts)
+		elif command == "set_max_num_div_selected":
+			if uiChange[1] == self.maxNDivSelected:
+				return ("nop")
+			else:
+				return uiChange
 		elif command == "nop":
 			return uiChange
 		else:
-			raise RuntimeException("Unknown command: " + command)
+			raise ValueError("Unknown command: " + command)
 
 	def uiChangeReverse(self, uiChange):
 		""" returns reversed version of uiChange
@@ -185,13 +197,15 @@ class UIState():
 				return ("nop")
 			else:
 				return ("set_div", id, revOpts)
+		elif command == "set_max_num_div_selected":
+			return ("set_max_num_div_selected", self.maxNDivSelected)
 		elif command == "nop":
 			return uiChange
 		else:
-			raise RuntimeException("Unknown command: " + command)
+			raise ValueError("Unknown command: " + command)
 
 	def applyUIChange(self, uiChange):
-		""" Creates a new UIState with applied uiChange and returns the result 
+		""" Returns a UIState with applied uiChange
 		uiChange must be free of property aliases
 		"""
 		command = uiChange[0]
@@ -204,10 +218,13 @@ class UIState():
 			else:
 				divs[id] = opts.copy()
 			return UIState(divs)
+		elif command == "set_max_num_div_selected":
+			self.maxNDivSelected = uiChange[1]
+			return self
 		elif command == "nop":
 			return self
 		else:
-			raise RuntimeException("Unknown command: " + command)
+			raise ValueError("Unknown command: " + command)
 
 
 

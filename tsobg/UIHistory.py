@@ -40,6 +40,7 @@ class UIHistory():
 		regUIChanges = []
 		for uiChange in self.stagedUIChanges:
 			uiState = UIHistory._applyUIChange(uiState, progUIChanges, regUIChanges, uiChange)
+		assert(uiState != None)
 		self.uiStateHistory.append(uiState)
 		self.uiProgressionHistory.append(progUIChanges)
 		self.uiRegressionHistory.append(regUIChanges)
