@@ -10,6 +10,11 @@
 		document.location.href = "/admin/revert_to/" + toStateN + "?token={{adminToken}}";
 	}
 
+	function setSpecialMode() {
+		specialMode = document.getElementById("special_mode").value;
+		document.location.href = "/admin/special_mode/" + specialMode + "?token={{adminToken}}";
+	}
+
 	function shutdown() {
 		document.location.href = "/admin/shutdown" + "?token={{adminToken}}";
 	}
@@ -19,13 +24,19 @@
 	<h1>{{gameName}} Admin</h1>
 	<p>{{nPlayers}} player game</p>
 	<p>current stateN: {{currentStateN}}</p>
-	<form onsubmit="ready()">
-		<label for="input_state_n">Revert to stateN:</label><br>
-		<input type="number" id="input_state_n"><br>
+	<form onsubmit="revert()">
+		<label for="input_state_n">Revert to stateN:</label><br />
+		<input type="number" id="input_state_n" /><br />
 	</form>
 	<button id="revert_button" onclick="revert()">Revert</button><br />
 	Revert to 1 will reset to the beginning just after setup<br />
 	Revert to 0 will reshuffle everything and re-setup the game<br />
+	<br />
+	<form onsubmit="setSpecialMode()">
+		<label for="special_mode">Special mode:</label><br />
+		<input type="text" id="special_mode" value="{{specialMode}}" /><br />
+	</form>
+	<button id="special_mode_button" onclick="setSpecialMode()">Set mode</button><br />
 	<br />
 	<a href="/admin/debug?token={{adminToken}}">Debug vars</a><br />
 	<br />

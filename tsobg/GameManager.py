@@ -24,6 +24,7 @@ class GameManager(UIInterface, ActionReceiver):
 		self.gameLog = GameLog() # game log entries shared by players
 		self.clientMsgs = {} # instant messages waiting to be sent to players
 		self.arMap = {} # stores actionReciever objects by id
+		self.specialMode = ""
 
 	# ----------------- Help Methods -----------------
 
@@ -93,6 +94,7 @@ class GameManager(UIInterface, ActionReceiver):
 		assert(isinstance(actionReceiver, ActionReceiver))
 		assert(isinstance(actionArgs, tuple))
 		assert(isinstance(actionKwargs, dict))
+		actionKwargs["specialMode"] = self.specialMode
 		if (actionReceiver is not self) and (not self.game.actionCheck(*actionArgs, **actionKwargs)):
 			return False
 		if actionReceiver.tryAction(*actionArgs, **actionKwargs):
@@ -150,6 +152,12 @@ class GameManager(UIInterface, ActionReceiver):
 			return msg
 		else:
 			return "No revert happened (stateN {} is not smaller than current {})".format(stateN, self.currentStateN)
+
+	def getSpecialMode(self):
+		return self.specialMode
+
+	def setSpecialMode(self, specialMode):
+		self.specialMode = specialMode
 	
 	# returns 'None' if path is forbidden
 	def getFullPath(self, gameFile: PurePath):
@@ -161,7 +169,7 @@ class GameManager(UIInterface, ActionReceiver):
 	
 	# --------------- "ActionReceiver" expected methods ---------------
 	
-	def tryAction(self, *args, playerId=None):
+	def tryAction(self, *args, playerId=None, specialMode=None):
 		if args[0] == "start_game":
 			if self.gameStarted():
 				# game has already been started

@@ -29,6 +29,9 @@ nPlayers = 0
 def _getGameName():
 	return gameManager.getGame().getName()
 
+def _getSpecialMode():
+	return gameManager.getSpecialMode()
+
 def _getPlayerNames():
 	return list(globals()['players'].keys())
 
@@ -167,7 +170,7 @@ def renderTokenError(token):
 def adminPage():
 	token = flask.request.args.get('token')
 	if token == settings.adminToken:
-		return render_template('admin.html', gameName=_getGameName(), nPlayers=nPlayers, currentStateN=gameManager.currentStateN, adminToken=token)
+		return render_template('admin.html', gameName=_getGameName(), nPlayers=nPlayers, currentStateN=gameManager.currentStateN, specialMode=_getSpecialMode(), adminToken=token)
 	else:
 		return renderTokenError(token)
 
@@ -195,6 +198,15 @@ def revertGameTo(toStateN):
 		toStateN = int(toStateN)
 		msg = gameManager.revertToStateN(toStateN)
 		return renderMsgPage(msg, "/admin?token=" + token, "return to Admin")
+	else:
+		return renderTokenError(token)
+
+@app.route("/admin/special_mode/<specialMode>", methods=['GET'])
+def setSpecialMode(specialMode):
+	token = flask.request.args.get('token')
+	if token == settings.adminToken:
+		gameManager.setSpecialMode(specialMode)
+		return renderMsgPage("Special mode set to: " + specialMode, "/admin?token=" + token, "return to Admin")
 	else:
 		return renderTokenError(token)
 
